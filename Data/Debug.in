@@ -1,0 +1,807 @@
+## Check basic lexer operations
+# White spaces
+                        # Error (empty expression)
+Sin[     2         ]
+
+# Numeric values
+2
+1234567890.1234567890
+2.3
+2.
+.2
+2.3.    # Error (decimal point overuse)
+2.3.4   # Error (decimal point overuse)
+.2.3    # Error (decimal point overuse)
+.       # Error (decimal point used solely)
+
+# Variables
+x
+abcdefghijklmnopqrstuvwxyz
+x_2
+x2
+x_2_2
+_23x    # Error (variable starts with underscore)
+2_3     # Error (variable starts with digit)
+x_y
+x_      # Error (variable terminates with underscore)
+
+# Functions, commands, constants and delimiters
+Sin[2]
+Log[2., 1024]
+Help[]
+E
+
+# Operators
+2 + 3
+2 - 3
+2 * 3
+2 / 3
+2 % 3
+2^3
+2**3
+2!
+(2 + 3)
+
+# Strings
+Help["Sin"]
+Help["Sin", "Cos"]
+Help["Sin]  # Error (double quote not closed)
+
+# Unknown tokens
+& + 2       # Error (unknown token &)
+Sin ~ Cos   # Error (unknown token ~)
+
+## Check terminal conditions
+# Terminate with functions and commands
+2 + Sin # Error (expression terminates with function)
+Quit    # Error (expression terminates with command)
+
+# Terminate with operator
+2 +     # Error (expression terminates with operator which is not ) or !)
+Sin[2 * # Error (expression terminates with operator which is not ) or !)
+
+# Terminate with delimiter
+Sin[    # Error (expression terminates with delimiter which is not [)
+Log[2,  # Error (expression terminates with delimiter which is not [)
+
+# Terminate with string
+Help["Sin"  # Error (expression terminates with string)
+2 + "Sin"   # Error (expression terminates with string)
+
+## Check syntax
+# Start with delimiter
+[2] # Error (expression starts with delimiter)
++2
+-2
+*2  # Error (expression starts with operator which is not +, -, or ()
+++--2
+
+# NUM/VAR + NUM/VAR/FUN/CMD
+2 3
+2x
+2Sin[2]
+2Help[]
+x 3
+x y
+x Sin[2]
+x Help[]
+
+# OP + NUM/VAR/FUN/CMD
+2 + x
+2 + Sin[3]
+2 + Help[]
+(2)3
+2!3
+
+# DELIM + NUM/VAR/FUN/CMD
+Sin[Cos[2]]
+Sin[Help[]]
+Sin[2]3
+Sin[2]Cos[2]
+Sin[2]Help[]
+Log[2, Sin[2]]
+Log[2, x]
+Log[2, Help[]]
+
+# FUN/CMD + NUM/VAR/FUN/CMD
+Sin 2       # Error (function must be followed by [)
+Sin x       # Error (function must be followed by [)
+Sin Cos     # Error (function must be followed by [)
+Sin Help    # Error (function must be followed by [)
+Help 2      # Error (command must be followed by [)
+Help 2      # Error (command must be followed by [)
+Help Sin    # Error (command must be followed by [)
+Help Quit   # Error (command must be followed by [)
+
+# STR + NUM/VAR/FUN/CMD
+Help["Sin"2]
+Help["Sin"x]
+Help["Sin"Cos[2]]
+Help["Sin"Help[]]
+
+# OP + OP
+2 * / 3     # Error (these two operators cannot adjacent to each other)
+2 ** 3
+2 * * 3     # Error (these two operators cannot adjacent to each other)
+2 ** ** 3   # Error (these two operators cannot adjacent to each other)
+2 * ** 3    # Error (these two operators cannot adjacent to each other)
+2 ** * 3    # Error (these two operators cannot adjacent to each other)
+2 *** 3 # Error (these two operators cannot adjacent to each other)
+(2) / 3
+2! / 3
+(2)(3)
+2 * +3
+2 * -3
+2!(3)
+2 + (3)
+2 +-+--3
+(((())))    # Error (these two operators cannot adjacent to each other)
+
+# DELIM + OP
+Sin[+2]
+Sin[-2]
+Sin[(2)]
+Sin[*2]         # Error (these two delimiter and operator cannot adjacent to each other)
+Sin[**2]        # Error (these two delimiter and operator cannot adjacent to each other)
+Log[2, -1024]
+Log[2, +1024]
+Log[2, (1024)]
+Log[2, *1024]   # Error (these two delimiter and operator cannot adjacent to each other)
+Sin[2] + 2
+Sin[2]!
+(Sin[2])
+Sin[2](3)
+
+# STR/FUN/CMD + OP
+Help["Sin" + 2] # Error (string must be followed by , or ])
+Sin + 2         # Error (function must be followed by [)
+Quit + 2        # Error (command must be followed by [)
+
+# NUM/VAR/STR + DELIM
+2[3]            # Error (only function or command can be followed by [)
+x[2]            # Error (only function or command can be followed by [)
+Help["Sin"[2]]  # Error (only function or command can be followed by [)
+
+# OP + DELIM
+Sin[2!]
+Log[2!, 1024]
+Log[2^, 1024]   # Error (these two operator and delimiter cannot adjacent to each other)
+Log[2**, 1024]  # Error (these two operator and delimiter cannot adjacent to each other)
+Log[(2), 1024]
+Sin[2+]         # Error (these two operator and delimiter cannot adjacent to each other)
+Sin[2+[2]]      # Error (these two operator and delimiter cannot adjacent to each other)
+Sin[2![2]]      # Error (these two operator and delimiter cannot adjacent to each other)
+
+# DELIM + DELIM
+Log[, 1024]         # Error (these two delimiters cannot adjacent to each other)
+Sin[[2]]            # Error (these two delimiters cannot adjacent to each other)
+Log[2, [1024]]      # Error (these two delimiters cannot adjacent to each other)
+Log[2,]             # Error (these two delimiters cannot adjacent to each other)
+Log[2,,]            # Error (these two delimiters cannot adjacent to each other)
+Log[Sin[2], 1024]
+Sin[Sin[2][2]]      # Error (these two delimiters cannot adjacent to each other)
+
+# FUN/CMD + DELIM
+Sin[Cos]            # Error (function must be followed by [)
+Log[Cos, 1024]      # Error (function must be followed by [)
+Log[2, Sin[3]]
+Help[Quit]          # Error (command must be followed by [)
+Help[Quit, "Sin"]   # Error (command must be followed by [)
+Help["Sin", Quit]   # Error (command must be followed by [)
+
+# * + STR
+Help[2"Sin"]        # Error (string must be preceded by [ or ,)
+Help[x"Sin"]        # Error (string must be preceded by [ or ,)
+Help[2 + "Sin"]     # Error (string must be preceded by [ or ,)
+Help[2!"Sin"]       # Error (string must be preceded by [ or ,)
+Help[("Sin")]       # Error (string must be preceded by [ or ,)
+Help[Sin"Sin"]      # Error (string must be preceded by [ or ,)
+Help[Quit"Sin"]     # Error (string must be preceded by [ or ,)
+Help["Sin""Sin"]    # Error (string must be preceded by [ or ,)
+Help[]"Sin"         # Error (string must be preceded by [ or ,)
+
+## Check infix to postfix conversion
+# Precedence and association
+2 * 3 / 4 % 5
+2 + 3 * 4
+(2 + 3) * 4
+2 * (3 + 4)
+(2 + 3) * (4 + 5)
+(2 + 3) + 4 * (5 - 6)^7 / 8 % +9 ** -10
+(((2) + 3) * (4 - (5 % 7)))
+(2 - (3 + 4 * 5^6) + 7)
+(2 - (3^4 * 5 + 6) + 7)
+2 - 3 - 4
+2^3^4
+
+# Parentheses matching
+((((2))))
+((((2)))            # Error (parenthesis does not match)
+(((2))))            # Error (parenthesis does not match)
+(2 + (3 + (4 + 5))  # Error (parenthesis does not match)
+2 + (3 + (4 + 5)))  # Error (parenthesis does not match)
+Sin[(2 - (3^4 * 5 + 6) + 7)]
+Log[2 * 3, 4 + 5]
+Log[2 + 3, 4 * 5]
+Sin[(2 + 3])        # Error (parenthesis does not match)
+(Sin[2 + 3)]        # Error (parenthesis does not match)
+Sin[(2 + 3)]
+(Sin[2 + 3])
+(Log[2), 1024]      # Error (parenthesis does not match)
+Log[(2, 1024)]      # Error (, is misplaced)
+(2, 3)              # Error (, is misplaced)
+
+## Check type checker
+# OP
+2 + Help[]          # Error (type error)
+Help[] + 2          # Error (type error)
+Help[] + Version[]  # Error (type error)
+
+# FUN/CMD
+Help[Version[]]     # Error (type error)
+Sin[Help[]]         # Error (type error)
+Help[Sin[2]]        # Error (type error)
+Sin[2, 3]           # Error (type error)
+Sin[]               # Error (type error)
+
+## Check simplifier of operators
+# ADD
+# Hoisting
+x + y
+x + (y + z)
+(x + y) + z
+(x + y) + (z + w)
+x + -(y + z)
+-(x + y) + z
+-(x + y) + -(z + w)
+
+# Warnings
+x + 1000! * 1 + 2               # INF_DETECT
+x + -1000! * 1 + 2              # INF_DETECT
+x + (0 / 0)                     # NAN_DETECT
+x + (1000! * 1) + y + (0 / 0)   # INF_DETECT, NAN_DETECT
+x + 1000!                       # BIG_INT
+x + -1000!                      # SMALL_INT
+
+# Constant folding
+2 + 3 + 4
+2 + x + 3 + 4
+2 + x + 3 + y + 4
+x + (0 / 0)
+
+# Dead expr stripping
+x + 0
+-x + 0 + -y
+
+# Packing
+x + -y + -z
+-x + -y
+x + 2 + -y + -z
+-x + 2 + -y
+-x + 2
+x + 0 + -y + -z
+-x + 0 + -y
+
+# SUB
+# Hoisting
+x - y
+x - -2
+x - -y
+x - (y + z)
+x - (-y + z)
+x - (y + -2)
+(x + y) - z
+(x + y) - -z
+(x + y) - -2
+(x + y) - (z + w)
+(x + y) - (-z + w)
+(x + y) - (z + -2)
+
+# Hoisting with premature distribution
+x - -(y + z)
+x - -(-y + z)
+x - -(y + -2)
+-(x + y) - z
+-(x + y) - -z
+-(x + y) - -2
+-(x + y) - -(z + w)
+-(x + y) - -(-z + w)
+-(x + y) - -(z + -2)
+
+# MUL
+# Hoisting
+x * y
+(x * y) * z
+x * (y * z)
+(x * y) * (z * w)
+
+# Hoisting with premature distribution
+-(x * y) * z
+x * -(y * z)
+-(x * y) * -(z * w)
+
+# Sign propagation
+-x * -y * z
+-x * y * z
+
+# Warnings
+x * (1000! + 1)                 # INF_DETECT
+x * (-1000! - 1)                # INF_DETECT
+x * (0 / 0)                     # NAN_DETECT
+x * (1000! + 1) * y * (0 / 0)   # INF_DETECT, NAN_DETECT
+
+# Constant folding
+2 * 3 * 4
+2 * x * 3 * 4
+2 * x * 3 * y * 4
+x * (0 / 0)
+
+# Dead expr stripping
+x * 1
+-x * 1
+x * y * 1
+x * -y * 1
+x * -1
+-x * -1
+x * y * -1
+x * -y * -1
+
+# Packing
+x^-1 * y^-1
+x * y^-1 * z^-1
+x * 2 * y^-1 * z^-1
+x^-1 * 2 * y^-1
+-x^-1 * y^-1
+-x * y^-1 * z^-1
+-x * 2 * y^-1 * z^-1
+-x^-1 * 2 * y^-1
+x^-1 * 1 * y^-1
+x * 1 * y^-1 * z^-1
+x^-1 * -1 * y^-1
+x * -1 * y^-1 * z^-1
+x^-1 * y^-1 * 0
+x^-1 * 0
+
+# DIV
+# Sign propagation
+x / -y
+2 / -y
+-x / -y
+
+# Hoisting
+x / y
+x / (y^-1)
+x / (y^2)
+x / 2
+x / 1000!
+(x * y) / z
+(x * y) / (z^-1)
+(x * y) / (z^2)
+(x * y) / 2
+(x * y) / 0
+(x * y) / 1000!
+x / (y * z)
+x / (y^-1 * z)
+x / (y^2 * z)
+x / (y * 2)
+x / (y * 0)
+x / (y * 1000!)
+x / (-y * z)
+(x * y) / (z * w)
+(x * y) / (z^-1 * w)
+(x * y) / (z^2 * w)
+(x * y) / (z * 2)
+(x * y) / (z * 0)
+(x * y) / (z * 1000!)
+
+# REM
+# Sign propagation
+-x % -y
+
+# Warnings
+x % 1000!               # BIG_INT
+x % -1000!              # SMALL_INT
+x % (1000! + 1)         # INF_DETECT
+x % (-1000! - 1)        # INF_DETECT
+x % (0 / 0)             # NAN_DETCT
+(1000! + 1) % x         # INF_DETECT
+(0 / 0) % x             # NAN_DETCT
+1000! % x               # BIG_INT
+-1000! % x              # SMALL_INT
+(1000! + 1) % (0 / 0)   # INF_DETECT, NAN_DETECT
+x % 0                   # POLE_DETECT
+
+# Constant folding
+2.1 % 2.3
+-2.1 % 2.3
+2.1 % -2.3
+-2.1 % -2.3
+
+# Dead expr stripping
+x % (0 / 0)
+(0 / 0) % x
+x % 0
+1000! % x
+-1000! % x
+
+# FACT
+# Warnings
+(-1)!           # POLE_DETECT
+(1000! + 1)!    # INF_DETECT
+(-1000! - 1)!   # INF_DETECT
+(0 / 0)!        # NAN_DETECT
+1000!!          # BIG_INT
+(-1000!)!       # POLE_DETECT
+
+# Constant folding
+6!
+6.3!
+(-1.3)!
+
+# POW
+# Sign propagation
+(-x)^3
+(-x)^(-3)
+
+# Warnings
+(1000! + 1)^2   # INF_DETECT
+(-1000! - 1)^2  # INF_DETECT
+(0 / 0)^2       # NAN_DETECT
+2^(1000! + 1)   # INF_DETECT
+2^(0 / 0)       # NAN_DETECT
+0^(-2)          # POLE_DETECT
+0^(-2.1)        # DOMAIN_OUT
+0^2.1
+(-2.1)^2
+(-2.1)^2.1      # DOMAIN_OUT
+(-2.1)^(-2)
+(-2.1)^(-2.1)   # DOMAIN_OUT
+1000!^2         # BIG_INT
+(-1000!)^2      # SMALL_INT
+2^1000!         # BIG_INT
+2^(-1000!)      # SMALL_INT
+
+# Hoisting
+(x^2)^3
+((2^x)^3)^4
+((x^2)^3)^y
+
+# Dead expr stripping
+x^1
+(-x)^1
+x^0
+(-x)^0
+(-x)^2
+(-x)^(-2)
+x^(0 / 0)
+
+# PLUS
+# Dead expr stripping
++x
++2
+
+# MINUS
+# Constant folding
+-2
+
+# Dead expr stripping
+--2
+--x
+-(x * 2)
+-(x / 2)
+-(x * -2)
+-(x / -2)
+
+# Unpacking
+2 + -(x + 3)
+2 - -(x + 3)
+-(x + 3) + 2
+-(x + 3) - 2
+-(x - 3) + -(y + 2)
+-(x - 3) - -(y + 2)
+2 * -(x * 3)
+2 / -(x * 3)
+-(x * 3) * 2
+-(x * 3) / 2
+-(x / 3) * -(y * 2)
+-(x / 3) / -(y * 2)
+-(-x * -3) * 2
+-(-x * -3) / 2
+-(-x / -3) * -(y * 2)
+-(-x / -3) / -(y * 2)
+
+## Check simplifier of trigonometric functions
+# Sin
+# Warnings
+Sin[0 / 0]      # NAN_DETECT
+Sin[1000! + 1]  # INF_DETECT
+Sin[-1000! - 1] # INF_DETECT
+Sin[1000!]      # BIG_INT
+Sin[-1000!]     # SMALL_INT
+
+# Constant folding
+Sin[2]
+
+# Sign propagation
+Sin[-x]
+
+# Function coalescing
+Sin[Asin[x]]
+Sin[-Asin[x]]
+
+# Cos
+# Warnings
+Cos[0 / 0]      # NAN_DETECT
+Cos[1000! + 1]  # INF_DETECT
+Cos[-1000! - 1] # INF_DETECT
+Cos[1000!]      # BIG_INT
+Cos[-1000!]     # SMALL_INT
+
+# Constant folding
+Cos[2]
+
+# Dead expr stripping
+Cos[-x]
+
+# Function coalescing
+Cos[Acos[x]]
+Cos[-Acos[x]]
+
+# Tan
+# Warnings
+Tan[0 / 0]          # NAN_DETECT
+Tan[1000! + 1]      # INF_DETECT
+Tan[-1000! - 1]     # INF_DETECT
+Tan[10 * Pi / 2]    # POLE_DETECT
+Tan[1000!]          # BIG_INT
+Tan[-1000!]         # SMALL_INT
+
+# Constant folding
+Tan[2]
+
+# Sign propagation
+Tan[-x]
+
+# Function coalescing
+Tan[Atan[x]]
+Tan[-Atan[x]]
+
+# Asin
+# Warnings
+Asin[0 / 0]         # NAN_DETECT
+Asin[1000! + 1]     # INF_DETECT
+Asin[-1000! - 1]    # INF_DETECT
+Asin[2]             # DOMAIN_OUT
+Asin[1000!]         # DOMAIN_OUT
+Asin[-1000!]        # DOMAIN_OUT
+
+# Constant folding
+Asin[1]
+
+# Sign propagation
+Asin[-x]
+
+# Acos
+# Warnings
+Acos[0 / 0]         # NAN_DETECT
+Acos[1000! + 1]     # INF_DETECT
+Acos[-1000! - 1]    # INF_DETECT
+Acos[2]             # DOMAIN_OUT
+Acos[1000!]         # DOMAIN_OUT
+Acos[-1000!]        # DOMAIN_OUT
+
+# Constant folding
+Acos[1]
+
+# Atan
+# Warnings
+Atan[0 / 0]         # NAN_DETECT
+Atan[1000! + 1]     # INF_DETECT
+Atan[-1000! - 1]    # INF_DETECT
+Atan[1000!]         # BIG_INT
+Atan[-1000!]        # SMALL_INT
+
+# Constant folding
+Atan[2]
+
+# Sign propagation
+Atan[-x]
+
+## Check timeout
+Sleep[2.9]  # Can be evaluated in 3sec.
+Sleep[3.1]  # Error (timeout)
+
+## Check eval of utility commands
+# Sleep
+Sleep[0 / 0]        # Error (invalid parameter)
+Sleep[1000! + 1]    # Error (invalid parameter)
+Sleep[-1000! - 1]   # Error (invalid parameter)
+Sleep[1000!]        # Error (invalid parameter)
+Sleep[-1000!]       # Error (invalid parameter)
+Sleep[-2]           # Error (invalid parameter)
+Sleep[2]
+Sleep[0]
+Sleep[2.1]
+
+# Set_sys_var
+Set_sys_var["AAA", 1]                           # Error (there is no system variable "AAA")
+Set_sys_var["Version", "1.1.1"]                 # Error ("Version" is read-only)
+Set_sys_var["Computation_Timeout", -1]          # Error (invalid parameter)
+Set_sys_var["Computation_Timeout", 0 / 0]       # Error (invalid parameter)
+Set_sys_var["Computation_Timeout", 1000! + 1]   # INF_DETECT
+Set_sys_var["Computation_Timeout", -1000! - 1]  # Error (invalid parameter)
+Set_sys_var["Computation_Timeout", 1000!]       # BIG_INT
+Set_sys_var["Computation_Timeout", -1000!]      # Error (invalid parameter)
+Set_sys_var["Computation_Timeout", 10.2]        # DOMAIN_OUT
+Set_sys_var["Computation_Timeout", 0]           # TURN_OFF
+Set_sys_var["Computation_Timeout", 1]
+Sleep[3]                                        # Error (timeout)
+Set_sys_var["Computation_Timeout", 3]           # Reset.
+
+# Get_sys_var
+Get_sys_var["AAA"]
+Get_sys_var["Author"]
+Get_sys_var["Version"]
+Get_sys_var["Input_Timeout"]
+Get_sys_var["Computation_Timeout"]
+
+## Check simplifier of hyperbolic trigonometric functions
+# Sinh
+# Warnings
+Sinh[0 / 0]         # NAN_DETECT
+Sinh[1000! + 1]     # INF_DETECT
+Sinh[-1000! - 1]    # INF_DETECT
+Sinh[1000!]         # BIG_INT
+Sinh[-1000!]        # SMALL_INT
+
+# Constant folding
+Sinh[2]
+
+# Sign propagation
+Sinh[-x]
+
+# Function coalescing
+Sinh[Asinh[x]]
+Sinh[-Asinh[x]]
+
+# Cosh
+# Warnings
+Cosh[0 / 0]         # NAN_DETECT
+Cosh[1000! + 1]     # INF_DETECT
+Cosh[-1000! - 1]    # INF_DETECT
+Cosh[1000!]         # BIG_INT
+Cosh[-1000!]        # SMALL_INT
+
+# Constant folding
+Cosh[2]
+
+# Dead expr stripping
+Cosh[-x]
+
+# Function coalescing
+Cosh[Acosh[x]]
+Cosh[-Acosh[x]]
+
+# Tanh
+# Warnings
+Tanh[0 / 0]         # NAN_DETECT
+Tanh[1000! + 1]     # INF_DETECT
+Tanh[-1000! - 1]    # INF_DETECT
+Tanh[1000!]         # BIG_INT
+Tanh[-1000!]        # SMALL_INT
+
+# Constant folding
+Tanh[2]
+
+# Sign propagation
+Tanh[-x]
+
+# Function coalescing
+Tanh[Atanh[x]]
+Tanh[-Atanh[x]]
+
+# Asinh
+# Warnings
+Asinh[0 / 0]        # NAN_DETECT
+Asinh[1000! + 1]    # INF_DETECT
+Asinh[-1000! - 1]   # INF_DETECT
+Asinh[1000!]        # BIG_INT
+Asinh[-1000!]       # SMALL_INT
+
+# Constant folding
+Asinh[2]
+
+# Sign propagation
+Asinh[-x]
+
+# Function coalescing
+Asinh[Sinh[x]]
+Asinh[-Sinh[x]]
+
+# Acosh
+# Warnings
+Acosh[0 / 0]        # NwAN_DETECT
+Acosh[1000! + 1]    # INF_DETECT
+Acosh[-1000! - 1]   # INF_DETECT
+Acosh[0]            # DOMAIN_OUT
+Acosh[1000!]        # BIG_INT
+Acosh[-1000!]       # DOMAIN_OUT
+Atanh[1]            # POLE_DETECT
+Atanh[-1]           # POLE_DETECT
+
+# Constant folding
+Acosh[2]
+
+# Atanh
+# Warnings
+Atanh[0 / 0]        # NAN_DETECT
+Atanh[1000! + 1]    # INF_DETECT
+Atanh[-1000! - 1]   # INF_DETECT
+Atanh[1000!]        # DOMAIN_OUT
+Atanh[-1000!]       # DOMAIN_OUT
+Atanh[-2]           # DOMAIN_OUT
+Atanh[2]            # DOMAIN_OUT
+
+# Constant folding
+Atanh[0]
+
+# Sign propagation
+Atanh[-x]
+
+# Function coalescing
+Atanh[Tanh[x]]
+Atanh[-Tanh[x]]
+
+## Check simplifier of hyperbolic special functions
+# Gamma function
+# Warnings
+Gamma[0 / 0]        # NAN_DETECT
+Gamma[1000! + 1]    # INF_DETECT
+Gamma[-1000! - 1]   # INF_DETECT
+Gamma[1000!]        # BIG_INT
+Gamma[-1000!]       # POLE_DETECT
+Gamma[-2]           # POLE_DETECT
+
+# Constant folding
+Gamma[2]
+Gamma[2.2]
+Gamma[-2.2]
+
+# Loggamma function
+# Warnings
+Lgamma[0 / 0]       # NAN_DETECT
+Lgamma[1000! + 1]   # INF_DETECT
+Lgamma[-1000! - 1]  # INF_DETECT
+Lgamma[1000!]       # BIG_INT
+Lgamma[-1000!]      # POLE_DETECT
+Lgamma[-2]          # POLE_DETECT
+
+# Constant folding
+Lgamma[2]
+Lgamma[2.2]
+Lgamma[-2.2]
+
+# Error function
+# Warnings
+Erf[0 / 0]      # NAN_DETECT
+Erf[1000! + 1]  # INF_DETECT
+Erf[-1000! - 1] # INF_DETECT
+Erf[1000!]      # BIG_INT
+Erf[-1000!]     # SMALL_INT
+
+# Constant folding
+Erf[2]
+
+# Sign propagation
+Erf[-x]
+
+# Complementary error function
+# Warnings
+Erfc[0 / 0]         # NAN_DETECT
+Erfc[1000! + 1]     # INF_DETECT
+Erfc[-1000! - 1]    # INF_DETECT
+Erfc[1000!]         # BIG_INT
+Erfc[-1000!]        # SMALL_INT
+
+# Constant folding
+Erfc[2]

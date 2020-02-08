@@ -1,0 +1,12 @@
+$HELLO
+-------------------------------------------
+              TINY CALCULATOR
+-------------------------------------------
+Hello from Tiny Calculator.
+
+Use Help["name"] for detailed descriptions of function "name".
+Use Version[] to check current version of Tiny Calculator.
+Use Quit[] to terminate Tiny Calculator.
+
+$BYE
+Goodbye from Tiny Calculator. Terminate.
