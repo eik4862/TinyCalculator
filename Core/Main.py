@@ -289,7 +289,6 @@ def main(debug: bool = False, verb: bool = False, to: TextIO = sys.stdout) -> No
                 Printer.Printer.inst().print(Type.BufT.INTERNAL, to=to)
                 Printer.Printer.inst().print(Type.BufT.STDOUT, to=to)
                 Printer.Printer.inst().print(Type.BufT.STDERR, to=to)
-
         else:
             while True:
                 try:
@@ -364,5 +363,5 @@ def test(target: Union[Type.FunT, Callable[[Decimal], Decimal]], verb: bool = Fa
 
 if __name__ == '__main__':
     # to = open('../Data/Debug.out', 'w')
-    test(Type.FunT.LOG)
-    # main(True, True)
+    # test(Type.FunT.COT)
+    main(False, True)

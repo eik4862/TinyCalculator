@@ -90,7 +90,8 @@ class TestManager:
         start: float = time.process_time()  # Start time stamp for elapsed time measure.
 
         if isinstance(fun, Type.FunT):
-            if fun in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN]:
+            if fun in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.CSC, Type.FunT.SEC, Type.FunT.COT,
+                       Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC, Type.FunT.ASEC, Type.FunT.ACOT]:
                 test_out: List[Decimal] = Trigonometric.Tri.test(fun, test_in)  # Test output.
             elif fun in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.ASINH, Type.FunT.ACOSH,
                          Type.FunT.ATANH]:

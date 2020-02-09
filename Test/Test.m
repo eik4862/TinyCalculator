@@ -1,4 +1,4 @@
-%% math.sin test
+%% Sin test
 % [0, 2Pi] rand
 in = fopen('Test.in', 'w');
 ref = fopen('Test.ref', 'w');
@@ -8,11 +8,11 @@ close('all')
 in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
-plt_err(in, ref, out, 1000, 'Error of math.sin on [0, 2\pi]')
-saveas(gcf, 'Math_Sin_0_2Pi', 'epsc')
+plt_err(in, ref, out, 1000, 'Error of Sin[x] on [0, 2\pi]')
+saveas(gcf, 'Sin_Small', 'epsc')
 close('all')
 
-%% math.cos test
+%% Cos test
 % [0, 2Pi] rand
 in = fopen('Test.in', 'w');
 ref = fopen('Test.ref', 'w');
@@ -22,11 +22,11 @@ close('all')
 in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
-plt_err(in, ref, out, 1000, 'Error of math.cos on [0, 2\pi]')
-saveas(gcf, 'Math_Cos_0_2Pi', 'epsc')
+plt_err(in, ref, out, 1000, 'Error of Cos[x] on [0, 2\pi]')
+saveas(gcf, 'Cos_Small', 'epsc')
 close('all')
 
-%% math.tan test
+%% Tan test
 % [-Pi/2, Pi/2] rand
 in = fopen('Test.in', 'w');
 ref = fopen('Test.ref', 'w');
@@ -36,11 +36,53 @@ close('all')
 in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
-plt_err(in, ref, out, 1000, 'Error of math.tan on [-\pi/2, \pi/2]')
-saveas(gcf, 'Math_Tan_-Pi%2_Pi%2', 'epsc')
+plt_err(in, ref, out, 1000, 'Error of Tan[x] on [-\pi/2, \pi/2]')
+saveas(gcf, 'Tan_Small', 'epsc')
 close('all')
 
-%% math.asin test
+%% Csc test
+% [0, 2Pi] rand
+in = fopen('Test.in', 'w');
+ref = fopen('Test.ref', 'w');
+test_gen(@csc, sym(0), sym(2) * sym(pi), 1000, in, ref, 'rand')
+close('all')
+
+in = fopen('Test.in', 'r');
+ref = fopen('Test.ref', 'r');
+out = fopen('Test.out', 'r');
+plt_err(in, ref, out, 1000, 'Error of Csc[x] on [0, 2\pi]')
+saveas(gcf, 'Csc_Small', 'epsc')
+close('all')
+
+%% Sec test
+% [0, 2Pi] rand
+in = fopen('Test.in', 'w');
+ref = fopen('Test.ref', 'w');
+test_gen(@sec, sym(0), sym(2) * sym(pi), 1000, in, ref, 'rand')
+close('all')
+
+in = fopen('Test.in', 'r');
+ref = fopen('Test.ref', 'r');
+out = fopen('Test.out', 'r');
+plt_err(in, ref, out, 1000, 'Error of Sec[x] on [0, 2\pi]')
+saveas(gcf, 'Sec_Small', 'epsc')
+close('all')
+
+%% Cot test
+% [0, Pi] rand
+in = fopen('Test.in', 'w');
+ref = fopen('Test.ref', 'w');
+test_gen(@cot, sym(0), sym(pi), 1000, in, ref, 'rand')
+close('all')
+
+in = fopen('Test.in', 'r');
+ref = fopen('Test.ref', 'r');
+out = fopen('Test.out', 'r');
+plt_err(in, ref, out, 1000, 'Error of Cot[x] on [0, \pi]')
+saveas(gcf, 'Cot_Small', 'epsc')
+close('all')
+
+%% Asin test
 % [-1, 1] rand
 in = fopen('Test.in', 'w');
 ref = fopen('Test.ref', 'w');
@@ -50,11 +92,11 @@ close('all')
 in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
-plt_err(in, ref, out, 1000, 'Error of math.asin on [-1, 1]')
-saveas(gcf, 'Math_Asin_-1_1', 'epsc')
+plt_err(in, ref, out, 1000, 'Error of Asin[x] on [-1, 1]')
+saveas(gcf, 'Asin_Small', 'epsc')
 close('all')
 
-%% math.acos test
+%% Acos test
 % [-1, 1] rand
 in = fopen('Test.in', 'w');
 ref = fopen('Test.ref', 'w');
@@ -64,11 +106,11 @@ close('all')
 in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
-plt_err(in, ref, out, 1000, 'Error of math.acos on [-1, 1]')
-saveas(gcf, 'Math_Acos_-1_1', 'epsc')
+plt_err(in, ref, out, 1000, 'Error of Acos[x] on [-1, 1]')
+saveas(gcf, 'Acos_Small', 'epsc')
 close('all')
 
-%% math.atan test
+%% Atan test
 % [-5, 5] rand
 in = fopen('Test.in', 'w');
 ref = fopen('Test.ref', 'w');
@@ -78,8 +120,8 @@ close('all')
 in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
-plt_err(in, ref, out, 1000, 'Error of math.atan on [-5, 5]')
-saveas(gcf, 'Math_Atan_-5_5', 'epsc')
+plt_err(in, ref, out, 1000, 'Error of Atan[x] on [-5, 5]')
+saveas(gcf, 'Atan_Small', 'epsc')
 close('all')
 
 %% math.sinh test
@@ -93,7 +135,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.sinh on [-5, 5]')
-saveas(gcf, 'Math_Sinh_-5_5', 'epsc')
+saveas(gcf, 'Sinh_-5_5', 'epsc')
 close('all')
 
 %% math.cosh test
@@ -107,7 +149,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.cosh on [-5, 5]')
-saveas(gcf, 'Math_Cosh_-5_5', 'epsc')
+saveas(gcf, 'Cosh_-5_5', 'epsc')
 close('all')
 
 %% math.tanh test
@@ -121,7 +163,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.tanh on [-5, 5]')
-saveas(gcf, 'Math_Tanh_-5_5', 'epsc')
+saveas(gcf, 'Tanh_-5_5', 'epsc')
 close('all')
 
 %% math.asinh test
@@ -135,7 +177,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.asinh on [-5, 5]')
-saveas(gcf, 'Math_Asinh_-5_5', 'epsc')
+saveas(gcf, 'Asinh_-5_5', 'epsc')
 close('all')
 
 %% math.acosh test
@@ -149,7 +191,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.acosh on [1, 5]')
-saveas(gcf, 'Math_Acosh_1_5', 'epsc')
+saveas(gcf, 'Acosh_1_5', 'epsc')
 close('all')
 
 %% math.atanh test
@@ -163,7 +205,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.atanh on [-1, 1]')
-saveas(gcf, 'Math_Atanh_-1_1', 'epsc')
+saveas(gcf, 'Atanh_-1_1', 'epsc')
 close('all')
 
 %% math.gamma test
@@ -177,7 +219,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.gamma on [-5, 5]')
-saveas(gcf, 'Math_Gamma_-5_5', 'epsc')
+saveas(gcf, 'Gamma_-5_5', 'epsc')
 close('all')
 
 %% math.lgamma test
@@ -191,7 +233,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.lgamma on [-5, 5]')
-saveas(gcf, 'Math_Lgamma_-5_5', 'epsc')
+saveas(gcf, 'Lgamma_-5_5', 'epsc')
 close('all')
 
 %% math.erf test
@@ -205,7 +247,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.erf on [-5, 5]')
-saveas(gcf, 'Math_Erf_-5_5', 'epsc')
+saveas(gcf, 'Erf_-5_5', 'epsc')
 close('all')
 
 %% math.erfc test
@@ -219,7 +261,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.erfc on [-5, 5]')
-saveas(gcf, 'Math_Erfc_-5_5', 'epsc')
+saveas(gcf, 'Erfc_-5_5', 'epsc')
 close('all')
 
 %% math.exp test
@@ -233,7 +275,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.exp on [-5, 5]')
-saveas(gcf, 'Math_Exp_-5_5', 'epsc')
+saveas(gcf, 'Exp_-5_5', 'epsc')
 close('all')
 
 %% math.sqrt test
@@ -247,7 +289,7 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.sqrt on [0, 5]')
-saveas(gcf, 'Math_Sqrt_0_5', 'epsc')
+saveas(gcf, 'Sqrt_0_5', 'epsc')
 close('all')
 
 %% math.log test
@@ -261,5 +303,5 @@ in = fopen('Test.in', 'r');
 ref = fopen('Test.ref', 'r');
 out = fopen('Test.out', 'r');
 plt_err(in, ref, out, 1000, 'Error of math.log on [0, 5]')
-saveas(gcf, 'Math_Log_0_5', 'epsc')
+saveas(gcf, 'Log_0_5', 'epsc')
 close('all')

@@ -10,25 +10,37 @@
     <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
     <link rel="stylesheet" href="//unpkg.com/prismjs/themes/prism-coy.css">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"/>
-    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
-    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"/>
+    <link rel="stylesheet" href="badge.css"/>
+    <style>
+        :root {
+            --docsifytabs-tab-highlight-color: #42b983;
+        }
+    </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
     window.$docsify = {
-        name: 'Simple Calculator',
+        name: 'Tiny Calculator',
         coverpage: true,
-        repo: 'https://github.com/eik4862/SimpleCalculator',
+        repo: 'https://github.com/eik4862/TinyCalculator',
         loadNavbar: true,
         loadSidebar: true,
-        subMaxLevel: 2,
+        relativePath: true,
+        subMaxLevel: 3,
+        tabs: {
+            theme: 'material'
+        },
+        alias: {
+            '/.*/_navbar.md': '/_navbar.md',
+            '/.*/_sidebar.md': '/_sidebar.md'
+        },
         plugins: [
             function(hook) {
                 var footer = [
                     '<hr/>',
                     '<footer>',
-                    '<span><a href="https://github.com/eik4862/SimpleCalculator">PSH, KJS, and PJH</a> &copy;2020.</span>',
+                    '<span><a href="https://github.com/eik4862/TinyCalculator">PSH, KJS, and PJH</a> &copy;2020.</span>',
                     '<span>Powered by <a href="https://github.com/docsifyjs/docsify" target="_blank">docsify</a>.</span>',
                     '</footer>'
                 ].join('');
@@ -39,14 +51,14 @@
             }
         ]
     }
-
 </script>
-<script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
-<script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
 <script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
 <script src="//unpkg.com/prismjs/components/prism-python.min.js"></script>
+<script src="//unpkg.com/prismjs/components/prism-bash.min.js"></script>
 <script src="//unpkg.com/docsify-copy-code"></script>
+<script src="//cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+<script src="//unpkg.com/docsify-plugin-flexible-alerts"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@ Nan is detected at $1 parameter of $2. This may cause unexpected behaviors.     
 Inf is detected at $1 parameter of $2. This may cause unexpected behaviors.                                             # OK
 Arcsine of real less than -1 or greater than 1 may cause unexpected behaviors. Use Help["Asin"] for more information.   # OK
 Arccosine of real less than -1 or greater than 1 may cause unexpected behaviors. Use Help["Acos"] for more information. # OK
-Tangent of real which is integer multiple of pi/2 may cause unexpected behaviors. Use Help["Tan"] for more information. # OK
+Tangent of real which is integer multiple of pi + pi/2 may cause unexpected behaviors. Use Help["Tan"] for more information.                                   # OK
 Dividing by zero may cause unexpected behaviors.                                                                        # NOT USED
 Nan is detected at $1 operand of $2. This may cause unexpected behaviors.                                               # OK
 Inf is detected at $1 operand of $2. This may cause unexpected behaviors.                                               # OK
@@ -10,16 +10,21 @@ Factorial of negative integer may cause unexpected behaviors.                   
 Remainder operation with 0 as denominator may cause unexpected behaviors.                                               # OK
 Power operation with base 0 and negative exponent may cause unexpected behaviors.                                       # OK
 Power operation with negative noninteger base and noninteger exponent may cause unexpected behaviors.                   # OK
-Limit for timeout must be nonnegative integer less than or euqal to 2147483647. Input argument will be automatically rounded to positive integer.          # OK
+Limit for timeout must be nonnegative integer less than or euqal to 2147483647. Input argument will be automatically rounded to positive integer.              # OK
 Setting timeout limit as 0 will essentially turn off timeout functionality. This may burden your machine too much.      # OK
-Big integer which is too big to be casted to float is detected at $1 parameter of $2. Inf will be used instead, but this may cause unexpected behaviors.    # OK
-Big integer which is too small to be casted to float is detected at $1 parameter of $2. -Inf will be used instead, but this may cause unexpected behaviors. # OK
+Big integer which is too big to be casted to float is detected at $1 parameter of $2. Inf will be used instead, but this may cause unexpected behaviors.        # OK
+Small integer which is too small to be casted to float is detected at $1 parameter of $2. -Inf will be used instead, but this may cause unexpected behaviors.   # OK
 Limit for timeout is exceeds its domain upper bound 2147483647. Maximum limit 2147483647 will be used instead.          # OK
-Big integer which is too big to be casted to float is detected at $1 operand of $2. Inf will be used instead, but this may cause unexpected behaviors.      # OK
-Big integer which is too small to be casted to float is detected at $1 operand of $2. -Inf will be used instead, but this may cause unexpected behaviors.   # OK
-Limit for timeout is given as Inf. Limit 0 which just turns off timeout functionality will be used instead, but this may burden your machine too much.     # OK
+Big integer which is too big to be casted to float is detected at $1 operand of $2. Inf will be used instead, but this may cause unexpected behaviors.          # OK
+Big integer which is too small to be casted to float is detected at $1 operand of $2. -Inf will be used instead, but this may cause unexpected behaviors.       # OK
+Limit for timeout is given as Inf. Limit 0 which just turns off timeout functionality will be used instead, but this may burden your machine too much.         # OK
 Arccosine hyperbolic of real less than 1 may cause unexpected behaviors. Use Help["Acosh"] for more information.        # OK
-Arctangent hyperbolic of real less than 1 or greater than 1 may cause unexpected behaviors. Use Help["Atanh"] for more information.                        # OK
+Arctangent hyperbolic of real less than 1 or greater than 1 may cause unexpected behaviors. Use Help["Atanh"] for more information.                            # OK
 Gamma function of nonpositive integer may cause unexpected behaviors. Use Help["Gamma"] for more information.           # OK
 Loggamma function of nonpositive integer may cause unexpected behaviors. Use Help["Lgamma"] for more information.       # OK
 Square root function of negative integer may cause unexpected behaviors. Use Help["Sqrt"] for more information.
+Cosecant of real which is integer multiple of pi may cause unexpected behaviors. Use Help["Csc"] for more information.
+Secant of real which is integer multiple of pi + pi/2 may cause unexpected behaviors. Use Help["Sec"] for more information.
+Cotangent of real which is integer multiple of pi may cause unexpected behaviors. Use Help["Cot"] for more information.
+Arccosecant of real greater than -1 and less than 1 may cause unexpected behaviors. Use Help["Acsc"] for more information.
+Arcsecant of real greater than -1 and less than 1 may cause unexpected behaviors. Use Help["Asec"] for more information.

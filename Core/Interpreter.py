@@ -83,7 +83,8 @@ class Interp:
 
             cand: List[Type.Sign] = None  # Should be deleted later.
 
-            if rt.v in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN]:
+            if rt.v in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.CSC, Type.FunT.SEC, Type.FunT.COT,
+                        Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC, Type.FunT.ASEC, Type.FunT.ACOT]:
                 cand = Trigonometric.Tri.chk_t(rt)
             elif rt.v in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.ASINH, Type.FunT.ACOSH,
                           Type.FunT.ATANH]:
@@ -172,7 +173,8 @@ class Interp:
             simple = rt  # should be deleted later.
             warn = []  # Also should be deleted later
 
-            if rt.v in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN]:
+            if rt.v in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.CSC, Type.FunT.SEC, Type.FunT.COT,
+                    Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC, Type.FunT.ASEC, Type.FunT.ACOT]:
                 simple, warn = Trigonometric.Tri.simplify(rt)
             elif rt.v in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.ASINH, Type.FunT.ACOSH,
                           Type.FunT.ATANH]:
