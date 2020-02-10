@@ -363,5 +363,5 @@ def test(target: Union[Type.FunT, Callable[[Decimal], Decimal]], verb: bool = Fa
 
 if __name__ == '__main__':
     # to = open('../Data/Debug.out', 'w')
-    # test(Type.FunT.COT)
-    main(False, True)
+    test(Type.FunT.ACOT)
+    # main(False, True)

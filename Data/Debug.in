@@ -525,10 +525,6 @@ Sin[2]
 # Sign propagation
 Sin[-x]
 
-# Function coalescing
-Sin[Asin[x]]
-Sin[-Asin[x]]
-
 # Cos
 # Warnings
 Cos[0 / 0]      # NAN_DETECT
@@ -542,10 +538,6 @@ Cos[2]
 
 # Dead expr stripping
 Cos[-x]
-
-# Function coalescing
-Cos[Acos[x]]
-Cos[-Acos[x]]
 
 # Tan
 # Warnings
@@ -561,10 +553,6 @@ Tan[2]
 
 # Sign propagation
 Tan[-x]
-
-# Function coalescing
-Tan[Atan[x]]
-Tan[-Atan[x]]
 
 # Asin
 # Warnings

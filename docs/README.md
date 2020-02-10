@@ -27,7 +27,17 @@ As you know, making documentation of program or code is _very_ tedious job.
 But we discovered a precious tool which essentially remove this.
 [Docsify](https://docsify.js.org/#/) ([github](https://github.com/docsifyjs/docsify/)) is a magical documentation site generator with various plug-ins.
 Using markdown-like grammar, it generates full-blown awesome web page based on [Vue.js framework](https://vuejs.org).
-One can get docsify by simply typing the following command in one's shell. __Try docsify on your own app with fly.__
+One can get docsify by simply typing the following command in one's shell.
 ```bash
-  npm i docsify-cli -g
+  npm install docsify-cli -g
+```
+Also, for better appearance, we used [Bootstrap](https://getbootstrap.com) CSS library.
+One can get bootstrap by typing the following command in the shell.
+```bash
+    npm install bootstrap
+```
+For those who want to link it dynamically, use Bootstrap CDN by adding following two lines in your html.
+```html
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 ```

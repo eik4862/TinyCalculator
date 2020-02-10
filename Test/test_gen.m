@@ -111,7 +111,7 @@ function test_gen(f, from, to, cnt, in, ref, mode, prec)
         % Since random number generation uses bitwise operation, precision
         % may be compromised here.
         % But not a big deal!
-        x = sym(unifrnd(double(from), double(to), 1, cnt));
+        x= sym(unifrnd(double(from), double(to), 1, cnt));
     elseif strcmp(mode, 'geostep')
         x = from .* step.^sym(0:cnt - 1);
     else

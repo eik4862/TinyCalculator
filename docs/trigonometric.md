@@ -30,6 +30,80 @@ Class `Tri` supports following usual trigonometric functions and inverse of them
 2. For convenience, we employ convention $1/\pm\infty=0$.
 3. One can easily show that power series definition of sine and cosine functions have radius of convergence $\infty$ so that they are indeed well-defined.
 
+We present some simple graph of functions above.
+
+<center>
+<!-- tabs:start -->
+#### ** Sin **
+![Sin_Graph](Figures/Sin_Graph.eps)
+
+__Figure 1__. Graph of $\sin(x)$ on $[-2\pi,\,2\pi]$.
+
+#### ** Cos **
+![Cos_Graph](Figures/Cos_Graph.eps)
+
+__Figure 2__. Graph of $\cos(x)$ on $[-2\pi,\,2\pi]$.
+
+#### ** Tan **
+![Tan_Graph](Figures/Tan_Graph.eps)
+
+__Figure 3__. Graph of $\tan(x)$ on $[-\pi,\,\pi]$.<br/>
+Gray dashes are asymptotic line of tangent function, $x=\pm\pi/2$.
+
+#### ** Csc **
+![Csc_Graph](Figures/Csc_Graph.eps)
+
+__Figure 4__. Graph of $\cosec(x)$ on $[-2\pi,\,2\pi]$.<br/>
+Gray dashes are asymptotic line of cosecant function, $x=\pm\pi$ and $x=0$.
+
+#### ** Sec **
+![Sec_Graph](Figures/Sec_Graph.eps)
+
+__Figure 5__. Graph of $\sec(x)$ on $[-2\pi,\,2\pi]$.<br/>
+Gray dashes are asymptotic line of secant function, $x=\pm3\pi / 2$ and $x=\pm\pi/2$.
+
+#### ** Cot **
+![Cot_Graph](Figures/Cot_Graph.eps)
+
+__Figure 6__. Graph of $\cot(x)$ on $[-\pi,\,\pi]$.<br/>
+Gray dash is asymptotic line of cotangent function, $x=0$.
+
+#### ** Asin **
+![Asin_Graph](Figures/Asin_Graph.eps)
+
+__Figure 7__. Graph of $\mathrm{asin}(x)$ on $[-1,\,1]$.
+
+#### ** Acos **
+![Acos_Graph](Figures/Acos_Graph.eps)
+
+__Figure 8__. Graph of $\mathrm{acos}(x)$ on $[-1,\,1]$.
+
+#### ** Atan **
+![Atan_Graph](Figures/Atan_Graph.eps)
+
+__Figure 9__. Graph of $\mathrm{atan}(x)$ on $[-5,\,5]$.<br/>
+Gray dashes are asymptotic line of arctangent function, $y=\pm\pi/2$.
+
+#### ** Acsc **
+![Acsc_Graph](Figures/Acsc_Graph.eps)
+
+__Figure 10__. Graph of $\mathrm{acosec}(x)$ on $[-5,\,5]\setminus(-1,\,1)$.<br/>
+Here, $x$ axis is asymptotic line of arccosecant function.
+
+#### ** Asec **
+![Asec_Graph](Figures/Asec_Graph.eps)
+
+__Figure 11__. Graph of $\mathrm{asec}(x)$ on $[-5,\,5]\setminus(-1,\,1)$.<br/>
+Gray dash is asymptotic line of arcsecant function, $y=\pi/2$.
+
+#### ** Acot **
+![Acot_Graph](Figures/Acot_Graph.eps)
+
+__Figure 12__. Graph of $\mathrm{acot}(x)$ on $[-5,\,5]$.<br/>
+Here, $x$ axis is asymptotic line of arccotangent function.
+<!-- tabs:end -->
+</center>
+
 For more information on trigonometric functions and their inverses, refer to following references.
 - [http://mathworld.wolfram.com/Sine.html](http://mathworld.wolfram.com/Sine.html)
 - [http://mathworld.wolfram.com/Cosine.html](http://mathworld.wolfram.com/Cosine.html)
@@ -47,7 +121,7 @@ For more information on trigonometric functions and their inverses, refer to fol
 ## __sign
 <span class="badge badge-pill badge-danger">private</span> <span class="badge badge-pill badge-info">const</span> <span class="badge badge-pill badge-secondary">class variable</span>
 - Type: `Final[Dict[FunT, List[Sign]]]`
-- Value:
+- Value
 ```python
     {
         FunT.SIN: [Sign([T.NUM], T.NUM, FunT.SIN)],
@@ -58,7 +132,10 @@ For more information on trigonometric functions and their inverses, refer to fol
         FunT.COT: [Sign([T.NUM], T.NUM, FunT.COT)],
         FunT.ASIN: [Sign([T.NUM], T.NUM, FunT.ASIN)],
         FunT.ACOS: [Sign([T.NUM], T.NUM, FunT.ACOS)],
-        FunT.ATAN: [Sign([T.NUM], T.NUM, FunT.ATAN)]
+        FunT.ATAN: [Sign([T.NUM], T.NUM, FunT.ATAN)],
+        FunT.ACSC: [Sign([T.NUM], T.NUM, FunT.ACSC)],
+        FunT.ASEC: [Sign([T.NUM], T.NUM, FunT.ASEC)],
+        FunT.ACOT: [Sign([T.NUM], T.NUM, FunT.ACOT)]
     }
 ```
 
@@ -172,9 +249,9 @@ Thus even if `x` is replaced with `math.inf` by rule 1, generating `BIG_INT` war
 If `x` is numeric token, it just computes `Sin[x]` so that it can be simplified into one simple numeric token.
 Computation table is as follows.
 
-| `x` | $\mathrm{Nan}$ | $-\infty$ | $\mathbb{R}$ | $\infty$ |
+| `x` | `nan` | `-inf` | $\mathbb{R}$ | `inf` |
 | --- | :---: | :---: | :---: | :---: |
-| `Sin[x]` | $\mathrm{Nan}$ | $\mathrm{Nan}$ | $\sin(x)$ | $\mathrm{Nan}$ |
+| `Sin[x]` | `nan` | `nan` | $\sin(x)$ | `nan` |
 
 The value of $\sin(x)$ is computed using `math.sin` in basic Python math package `math`.
 The exact implementation of `math.sin` is not known.
@@ -189,26 +266,21 @@ Test output is computed by `test` method described [below](#test) and the result
 One can read detailed description on these MATLAB codes at ...
 
 <!-- tabs:start -->
-#### ** English **
+#### ** Small input **
 ![Sin_Small](Figures/Sin_Small.eps)
-__Figure 1__. Error of `Sin[x]` on $[0,\,2\pi]$.
-Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
-One can see that relative error of `Sin[x]` for small input is bounded by (about) $2\times10^{-16}$.
 
-#### ** French **
-![Sin_Small](Figures/Sin_Small.eps)
-__Figure 1__. Error of `Sin[x]` on $[0,\,2\pi]$.
-Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
-One can see that relative error of `Sin[x]` for small input is bounded by (about) $2\times10^{-16}$.
+__Figure 1__. Error of `Sin[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
 
-#### ** Italian **
-x
+#### ** Medium input **
+
+#### ** Large input **
+
 <!-- tabs:end -->
 
 - Sign propagation
 
 Since sine function is odd function, sign can be propagated using identity $\sin(-x)=-\sin(x)$.
-Note that this identity holds not only for $x\in\mathbb{R}$, but also for `nan` and $\pm\infty$.
+Note that this identity holds not only for $x\in\mathbb{R}$, but also for `nan` and `+-inf`.
 Thus this propagation is indeed safe.
 
 ### Cos
@@ -231,9 +303,9 @@ Thus even if `x` is replaced with `math.inf` by rule 1, generating `BIG_INT` war
 If `x` is numeric token, it just computes `Cos[x]` so that it can be simplified into one simple numeric token.
 Computation table is as follows.
 
-| `x` | $\mathrm{Nan}$ | $-\infty$ | $\mathbb{R}$ | $\infty$ |
+| `x` | `nan` | `-inf` | $\mathbb{R}$ | `inf` |
 | --- | :---: | :---: | :---: | :---: |
-| `Cos[x]` | $\mathrm{Nan}$ | $\mathrm{Nan}$ | $\cos(x)$ | $\mathrm{Nan}$ |
+| `Cos[x]` | `nan` | `nan` | $\cos(x)$ | `nan` |
 
 The value of $\cos(x)$ is computed using `math.cos` in basic Python math package `math`.
 The exact implementation of `math.cos` is not known.
@@ -247,14 +319,22 @@ Test input and reference output (correct answer) is generated by [arbitrary prec
 Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
 One can read detailed description on these MATLAB codes at ...
 
-| ![Cos_Small](Figures/Cos_Small.eps) |
-| --- |
-| __Figure 1__. Error of `Cos[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$. One can see that relative error of `Cos[x]` for small input is bounded by (about) $2\times10^{-16}$.|
+<!-- tabs:start -->
+#### ** Small input **
+![Cos_Small](Figures/Cos_Small.eps)
 
-- Dead code stripping
+__Figure 1__. Error of `Cos[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
+
+- Dead expression stripping
 
 Since cosine function is even function, minus sign inside of cosine can be safely removed using identity $\cos(-x)=\cos(x)$.
-Note that this identity holds not only for $x\in\mathbb{R}$, but also for `nan` and $\pm\infty$.
+Note that this identity holds not only for $x\in\mathbb{R}$, but also for `nan` and `+-inf`.
 Thus this removal is indeed safe.
 
 ### Tan
@@ -282,9 +362,9 @@ For example, `Tan[100000.5 * Pi]` does not generate `POLE_DETECT` warning and gi
 If `x` is numeric token, it just computes `Tan[x]` so that it can be simplified into one simple numeric token.
 Computation table is as follows.
 
-| `x` | $\mathrm{Nan}$ | $-\infty$ | $\mathbb{R}\setminus(\pi\mathbb{Z}+\pi/2)$ | $\pi\mathbb{Z}+\pi/2$ | $\infty$ |
+| `x` | `nan` | `-inf` | $\mathbb{R}\setminus(\pi\mathbb{Z}+\pi/2)$ | $\pi\mathbb{Z}+\pi/2$ | `inf` |
 | --- | :---: | :---: | :---: | :---: | :---: |
-| `Tan[x]` | $\mathrm{Nan}$ | $\mathrm{Nan}$ | $\tan(x)$ | $\mathrm{Nan}$ | $\mathrm{Nan}$ |
+| `Tan[x]` | `nan` | `nan` | $\tan(x)$ | `nan` | `nan` |
 
 The value of $\tan(x)$ is computed using `math.tan` in basic Python math package `math`.
 The exact implementation of `math.tan` is not known.
@@ -298,14 +378,22 @@ Test input and reference output (correct answer) is generated by [arbitrary prec
 Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
 One can read detailed description on these MATLAB codes at ...
 
-| ![Tan_Small](Figures/Tan_Small.eps) |
-| --- |
-| __Figure 1__. Error of `Tan[x]` on $[-\pi/2,\,\pi/2]$. Input points are drawn randomly from $\mathbf{U}(-\pi/2,\,\pi/2)$. One can see that relative error of `Tan[x]` for small input is bounded by (about) $3\times10^{-16}$. Also, since the value of tangent function diverges at $\pm\pi/2$, absolute error grows rapidly as input point approaches to $\pm\pi/2$.|
+<!-- tabs:start -->
+#### ** Small input **
+![Tan_Small](Figures/Tan_Small.eps)
+
+__Figure 1__. Error of `Tan[x]` on $[-\pi/2,\,\pi/2]$. Input points are drawn randomly from $\mathbf{U}(-\pi/2,\,\pi/2)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
 
 - Sign propagation
 
 Since tangent function is odd function, sign can be propagated using identity $\tan(-x)=-\tan(x)$.
-Note that this identity holds not only for $x\in\mathbb{R}\setminus(\pi\mathbb{Z}+\pi/2)$, but also for `nan`, $\pm\infty$, and $x\in\pi\mathbb{Z}+\pi/2$.
+Note that this identity holds not only for $x\in\mathbb{R}\setminus(\pi\mathbb{Z}+\pi/2)$, but also for `nan`, `+-inf`, and $x\in\pi\mathbb{Z}+\pi/2$.
 Thus this propagation is indeed safe.
 
 ### Csc
@@ -333,9 +421,9 @@ For example, `Csc[100000 * Pi]` does not generate `POLE_DETECT` warning and give
 If `x` is numeric token, it just computes `Csc[x]` so that it can be simplified into one simple numeric token.
 Computation table is as follows.
 
-| `x` | $\mathrm{Nan}$ | $-\infty$ | $\mathbb{R}\setminus\pi\mathbb{Z}$ | $\pi\mathbb{Z}$ | $\infty$ |
+| `x` | `nan` | `-inf` | $\mathbb{R}\setminus\pi\mathbb{Z}$ | $\pi\mathbb{Z}$ | `inf` |
 | --- | :---: | :---: | :---: | :---: | :---: |
-| `Csc[x]` | $\mathrm{Nan}$ | $\mathrm{Nan}$ | $\cosec(x)$ | $\mathrm{Nan}$ | $\mathrm{Nan}$ |
+| `Csc[x]` | `nan` | `nan` | $\cosec(x)$ | `nan` | `nan` |
 
 The value of $\cosec(x)$ is computed as `1 / math.sin(x)` which reflects its definition directly.
 Thus error will depend on implementation of `math.sin` which we described in detail [above](#sin).
@@ -345,15 +433,132 @@ Test input and reference output (correct answer) is generated by [arbitrary prec
 Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
 One can read detailed description on these MATLAB codes at ...
 
-| ![Scs_Small](Figures/Csc_Small.eps) |
-| --- |
-| __Figure 1__. Error of `Csc[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$. One can see that relative error of `Csc[x]` for small input is bounded by (about) $3\times10^{-16}$. Also, since the value of cosecant function diverges at $0$, $\pi$, and $2\pi$, absolute error grows rapidly as input point approaches to those points.|
+<!-- tabs:start -->
+#### ** Small input **
+![Csc_Small](Figures/Csc_Small.eps)
 
+__Figure 1__. Error of `Csc[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
 
 - Sign propagation
 
 Since cosecant function is odd function, sign can be propagated using identity $\cosec(-x)=-\cosec(x)$.
-Note that this identity holds not only for $x\in\mathbb{R}\setminus\pi\mathbb{Z}$, but also for `nan`, $\pm\infty$, and $x\in\pi\mathbb{Z}$.
+Note that this identity holds not only for $x\in\mathbb{R}\setminus\pi\mathbb{Z}$, but also for `nan`, `+-inf`, and $x\in\pi\mathbb{Z}$.
+Thus this propagation is indeed safe.
+
+### Sec
+- Warning check
+
+If `x` is numeric token, it checks warning conditions and generates warning if needed.
+The warning generation rules for `Sec[x]` are as follows.
+1. If `x` is greater than the maximum size of representable `float` size, it generates `BIG_INT` warning and replaces `x` with `math.inf`.
+2. If `x` is smaller than the minimum size of representable `float` size, it generates `SMALL_INT` warning and replaces `x` with `-math.inf`.
+3. If `x` is `math.nan`, it generates `NAN_DETECT` warning.
+4. If `x` is `math.inf` or `-math.inf`, it generates `INF_DETECT` warning.
+5. If `x` is $(n+1/2)\pi$ for some $n\in\mathbb{Z}$, it generates `POLE_DETECT` warning.
+
+> [!NOTE]
+> These rules are sequential. That is, the first rule is checked and then the second one will be checked.
+Also, these rules are exclusive. That is, if one rule is applied, then rules after that will not be applied.
+Thus even if `x` is replaced with `math.inf` by rule 1, generating `BIG_INT` warning, `INF_DETECT` warning will not be generated by rule 4.
+
+> [!WARNING]
+> Because of rounding error of floating point arithmetic, `POLE_DETECT` warning might not be generated even if rule 5 is met.
+For example, `Sec[100000.5 * Pi]` does not generate `POLE_DETECT` warning and gives result `27379258862.917953` instead of `nan`.
+
+- Constant folding
+
+If `x` is numeric token, it just computes `Sec[x]` so that it can be simplified into one simple numeric token.
+Computation table is as follows.
+
+| `x` | `nan` | `-inf` | $\mathbb{R}\setminus(\pi\mathbb{Z}+\pi/2)$ | $\pi\mathbb{Z}+\pi/2$ | `inf` |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| `Sec[x]` | `nan` | `nan` | $\sec(x)$ | `nan` | `nan` |
+
+The value of $\sec(x)$ is computed as `1 / math.cos(x)` which reflects its definition directly.
+Thus error will depend on implementation of `math.cos` which we described in detail [above](#cos).
+
+Anyway, we present a thorough report on errors of `Sec[x]`.
+Test input and reference output (correct answer) is generated by [arbitrary precision arithmetic functionality](https://www.mathworks.com/help/symbolic/vpa.html) of MATLAB with precision of 100 significant digits.
+Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
+One can read detailed description on these MATLAB codes at ...
+
+<!-- tabs:start -->
+#### ** Small input **
+![Sec_Small](Figures/Sec_Small.eps)
+
+__Figure 1__. Error of `Sec[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
+
+- Dead expression stripping
+
+Since secant function is even function, minus sign inside of secant can be safely removed using identity $\sec(-x)=\sec(x)$.
+Note that this identity holds not only for $x\in\mathbb{R}$, but also for `nan` and `+-inf`.
+Thus this removal is indeed safe.
+
+### Cot
+- Warning check
+
+If `x` is numeric token, it checks warning conditions and generates warning if needed.
+The warning generation rules for `Cot[x]` are as follows.
+1. If `x` is greater than the maximum size of representable `float` size, it generates `BIG_INT` warning and replaces `x` with `math.inf`.
+2. If `x` is smaller than the minimum size of representable `float` size, it generates `SMALL_INT` warning and replaces `x` with `-math.inf`.
+3. If `x` is `math.nan`, it generates `NAN_DETECT` warning.
+4. If `x` is `math.inf` or `-math.inf`, it generates `INF_DETECT` warning.
+5. If `x` is $n\pi$ for some $n\in\mathbb{Z}$, it generates `POLE_DETECT` warning.
+
+> [!NOTE]
+> These rules are sequential. That is, the first rule is checked and then the second one will be checked.
+Also, these rules are exclusive. That is, if one rule is applied, then rules after that will not be applied.
+Thus even if `x` is replaced with `math.inf` by rule 1, generating `BIG_INT` warning, `INF_DETECT` warning will not be generated by rule 4.
+
+> [!WARNING]
+> Because of rounding error of floating point arithmetic, `POLE_DETECT` warning might not be generated even if rule 5 is met.
+For example, `Cot[100000 * Pi]` does not generate `POLE_DETECT` warning and gives result `-29445840474.947422` instead of `nan`.
+
+- Constant folding
+
+If `x` is numeric token, it just computes `Cot[x]` so that it can be simplified into one simple numeric token.
+Computation table is as follows.
+
+| `x` | `nan` | `-inf` | $\mathbb{R}\setminus\pi\mathbb{Z}$ | $\pi\mathbb{Z}$ | `inf` |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| `Cot[x]` | `nan` | `nan` | $\cot(x)$ | `nan` | `nan` |
+
+The value of $\sec(x)$ is computed as `1 / math.tan(x)` which reflects its definition directly.
+Thus error will depend on implementation of `math.tan` which we described in detail [above](#tan).
+
+Anyway, we present a thorough report on errors of `Cot[x]`.
+Test input and reference output (correct answer) is generated by [arbitrary precision arithmetic functionality](https://www.mathworks.com/help/symbolic/vpa.html) of MATLAB with precision of 100 significant digits.
+Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
+One can read detailed description on these MATLAB codes at ...
+
+<!-- tabs:start -->
+#### ** Small input **
+![Cot_Small](Figures/Cot_Small.eps)
+
+__Figure 1__. Error of `Cot[x]` on $[-\pi/2,\,\pi/2]$. Input points are drawn randomly from $\mathbf{U}(-\pi/2,\,\pi/2)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
+
+- Sign propagation
+
+Since cotangent function is odd function, sign can be propagated using identity $\cot(-x)=-\cot(x)$.
+Note that this identity holds not only for $x\in\mathbb{R}\setminus\pi\mathbb{Z}$, but also for `nan`, `+-inf`, and $x\in\pi\mathbb{Z}$.
 Thus this propagation is indeed safe.
 
 ### Asin
@@ -380,9 +585,9 @@ Note that this does not make any change in the result of computation.
 If `x` is numeric token, it just computes `Asin[x]` so that it can be simplified into one simple numeric token.
 Computation table is as follows.
 
-| `x` | $\mathrm{Nan}$ | $[-\infty,\,1)$ | $[-1,\,1]$ | $(1,\,\infty]$ |
-| --- | :---: | :---: | :---: | :---: |
-| `Asin[x]` | $\mathrm{Nan}$ | $\mathrm{Nan}$ | $\mathrm{asin}(x)$ | $\mathrm{Nan}$ |
+| `x` | `nan` | `-inf` | $[-1,\,1]$ | $\mathbb{R}\setminus[-1,\,1]$ | `inf` |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| `Asin[x]` | `nan` | `nan` | $\mathrm{asin}(x)$ | `nan` | `nan` |
 
 The value of $\mathrm{asin}(x)$ is computed using `math.asin` in basic Python math package `math`.
 The exact implementation of `math.asin` is not known.
@@ -396,14 +601,22 @@ Test input and reference output (correct answer) is generated by [arbitrary prec
 Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
 One can read detailed description on these MATLAB codes at ...
 
-| ![Asin_Small](Figures/Asin_Small.eps) |
-| --- |
-| __Figure 1__. Error of `Asin[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$. One can see that relative error of `Asin[x]` for small input is bounded by (about) $1.5\times10^{-16}$. |
+<!-- tabs:start -->
+#### ** Small input **
+![Asin_Small](Figures/Asin_Small.eps)
+
+__Figure 1__. Error of `Asin[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
 
 - Sign propagation
 
 Since arcsine function is odd function, sign can be propagated using identity $\mathrm{asin}(-x)=-\mathrm{asin}(x)$.
-Note that this identity holds not only for $x\in[-1,\,1]$, but also for `nan`, $\pm\infty$, and $x\in\mathbb{R}\setminus[-1,\,1]$.
+Note that this identity holds not only for $x\in[-1,\,1]$, but also for `nan`, `+-inf`, and $x\in\mathbb{R}\setminus[-1,\,1]$.
 Thus this propagation is indeed safe.
 
 ### Acos
@@ -430,9 +643,9 @@ Note that this does not make any change in the result of computation.
 If `x` is numeric token, it just computes `Acos[x]` so that it can be simplified into one simple numeric token.
 Computation table is as follows.
 
-| `x` | $\mathrm{Nan}$ | $[-\infty,\,1)$ | $[-1,\,1]$ | $(1,\,\infty]$ |
-| --- | :---: | :---: | :---: | :---: |
-| `Acos[x]` | $\mathrm{Nan}$ | $\mathrm{Nan}$ | $\mathrm{acos}(x)$ | $\mathrm{Nan}$ |
+| `x` | `nan` | `-inf` | $[-1,\,1]$ | $\mathbb{R}\setminus[-1,\,1]$ | `inf` |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| `Acos[x]` | `nan` | `nan` | $\mathrm{acos}(x)$ | `nan` | `nan` |
 
 The value of $\mathrm{acos}(x)$ is computed using `math.acos` in basic Python math package `math`.
 The exact implementation of `math.acos` is not known.
@@ -446,9 +659,17 @@ Test input and reference output (correct answer) is generated by [arbitrary prec
 Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
 One can read detailed description on these MATLAB codes at ...
 
-| ![Acos_Small](Figures/Acos_Small.eps) |
-| --- |
-| __Figure 1__. Error of `Acos[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$. One can see that relative error of `Acos[x]` for small input is bounded by (about) $1.5\times10^{-16}$. |
+<!-- tabs:start -->
+#### ** Small input **
+![Acos_Small](Figures/Acos_Small.eps)
+
+__Figure 1__. Error of `Acos[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
 
 ### Atan
 - Warning check
@@ -470,9 +691,9 @@ Thus even if `x` is replaced with `math.inf` by rule 1, generating `BIG_INT` war
 If `x` is numeric token, it just computes `Atan[x]` so that it can be simplified into one simple numeric token.
 Computation table is as follows.
 
-| `x` | $\mathrm{Nan}$ | $-\infty$ | $\mathbb{R}$ | $\infty$ |
+| `x` | `nan` | `-inf` | $\mathbb{R}$ | `inf` |
 | --- | :---: | :---: | :---: | :---: |
-| `Atan[x]` | $\mathrm{Nan}$ | $-\pi/2$ | $\mathrm{atan}(x)$ | $\pi/2$ |
+| `Atan[x]` | `nan` | $-\pi/2$ | $\mathrm{atan}(x)$ | $\pi/2$ |
 
 The value of $\mathrm{atan}(x)$ is computed using `math.atan` in basic Python math package `math`.
 The exact implementation of `math.atab` is not known.
@@ -486,15 +707,181 @@ Test input and reference output (correct answer) is generated by [arbitrary prec
 Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
 One can read detailed description on these MATLAB codes at ...
 
-| ![Atan_Small](Figures/Atan_Small.eps) |
-| --- |
-| __Figure 1__. Error of `Atan[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$. One can see that relative error of `Atan[x]` for small input is bounded by (about) $1.5\times10^{-16}$. |
+<!-- tabs:start -->
+#### ** Small input **
+![Atan_Small](Figures/Atan_Small.eps)
+
+__Figure 1__. Error of `Atan[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
 
 - Sign propagation
 
 Since arctangent function is odd function, sign can be propagated using identity $\mathrm{atan}(-x)=-\mathrm{atan}(x)$.
-Note that this identity holds not only for $x\in\mathbb{R}$, but also for `nan` and $\pm\infty$.
+Note that this identity holds not only for $x\in\mathbb{R}$, but also for `nan` and `+-inf`.
 Thus this propagation is indeed safe.
+
+### Acsc
+- Warning check
+
+If `x` is numeric token, it checks warning conditions and generates warning if needed.
+The warning generation rules for `Acsc[x]` are as follows.
+1. If `x` is greater than the maximum size of representable `float` size, it generates `BIG_INT` warning and replaces `x` with `math.inf`.
+2. If `x` is smaller than the minimum size of representable `float` size, it generates `SMALL_INT` warning and replaces `x` with `-math.inf`.
+3. If `x` is `math.nan`, it generates `NAN_DETECT` warning.
+4. If `x` is `math.inf` or `-math.inf`, it generates `INF_DETECT` warning.
+5. If `x` is in $(-1,\,1)$, it generates `DOMAIN_OUT` warning.
+
+> [!NOTE]
+> These rules are sequential. That is, the first rule is checked and then the second one will be checked.
+Also, these rules are exclusive. That is, if one rule is applied, then rules after that will not be applied.
+Thus even if `x` is replaced with `math.inf` by rule 1, generating `BIG_INT` warning, `INF_DETECT` warning will not be generated by rule 4.
+
+- Constant folding
+
+If `x` is numeric token, it just computes `Acsc[x]` so that it can be simplified into one simple numeric token.
+Computation table is as follows.
+
+| `x` | `nan` | `-inf` | $\mathbb{R}\setminus(-1,\,1)$ | $(-1,\,1)$ | `inf` |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| `Acsc[x]` | `nan` | $0$ | $\mathrm{acosec}(x)$ | `nan` | $0$ | 
+
+The value of $\mathrm{acosec}(x)$ is computed as `math.asin(1 / x)` which comes from identity $\mathrm{acosec}(x)=\mathrm{asin}(1/x)$.
+Thus error will depend on implementation of `math.asin` which we described in detail [above](#asin).
+For more information on the identity we used, consult to the following reference.
+
+- [https://en.wikipedia.org/wiki/Inverse_trigonometric_functions](https://en.wikipedia.org/wiki/Inverse_trigonometric_functions)
+
+Anyway, we present a thorough report on errors of `Acsc[x]`.
+Test input and reference output (correct answer) is generated by [arbitrary precision arithmetic functionality](https://www.mathworks.com/help/symbolic/vpa.html) of MATLAB with precision of 100 significant digits.
+Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
+One can read detailed description on these MATLAB codes at ...
+
+<!-- tabs:start -->
+#### ** Small input **
+![Acsc_Small](Figures/Acsc_Small.eps)
+
+__Figure 1__. Error of `Acsc[x]` on $[-5,\,5]\setminus(-1,\,1)$.
+Input points are drawn randomly from $\mathbf{U}(-4,\,4)$ and mapped by $x\mapsto (x-1)\mathbf{1}_{\mathbb{R}^-}(x)+(x+1)\mathbf{1}_{\mathbb{R}^+}(x)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
+
+- Sign propagation
+
+Since arccosecant function is odd function, sign can be propagated using identity $\mathrm{acosec}(-x)=-\mathrm{acosec}(x)$.
+Note that this identity holds not only for $x\in\mathbb{R}\setminus(-1,\,1)$, but also for `nan`,`+-inf`, and $x\in(-1,\,1)$.
+Thus this propagation is indeed safe.
+
+### Asec
+- Warning check
+
+If `x` is numeric token, it checks warning conditions and generates warning if needed.
+The warning generation rules for `Asec[x]` are as follows.
+1. If `x` is greater than the maximum size of representable `float` size, it generates `BIG_INT` warning and replaces `x` with `math.inf`.
+2. If `x` is smaller than the minimum size of representable `float` size, it generates `SMALL_INT` warning and replaces `x` with `-math.inf`.
+3. If `x` is `math.nan`, it generates `NAN_DETECT` warning.
+4. If `x` is `math.inf` or `-math.inf`, it generates `INF_DETECT` warning.
+5. If `x` is in $(-1,\,1)$, it generates `DOMAIN_OUT` warning.
+
+> [!NOTE]
+> These rules are sequential. That is, the first rule is checked and then the second one will be checked.
+Also, these rules are exclusive. That is, if one rule is applied, then rules after that will not be applied.
+Thus even if `x` is replaced with `math.inf` by rule 1, generating `BIG_INT` warning, `INF_DETECT` warning will not be generated by rule 4.
+
+- Constant folding
+
+If `x` is numeric token, it just computes `Asec[x]` so that it can be simplified into one simple numeric token.
+Computation table is as follows.
+
+| `x` | `nan` | `-inf` | $\mathbb{R}\setminus(-1,\,1)$ | $(-1,\,1)$ | `inf` |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| `Asec[x]` | `nan` | $0$ | $\mathrm{asec}(x)$ | `nan` | $0$ | 
+
+The value of $\mathrm{asec}(x)$ is computed as `math.acos(1 / x)` which comes from identity $\mathrm{asec}(x)=\mathrm{acos}(1/x)$.
+Thus error will depend on implementation of `math.acos` which we described in detail [above](#acos).
+For more information on the identity we used, consult to the following reference.
+
+- [https://en.wikipedia.org/wiki/Inverse_trigonometric_functions](https://en.wikipedia.org/wiki/Inverse_trigonometric_functions)
+
+Anyway, we present a thorough report on errors of `Asec[x]`.
+Test input and reference output (correct answer) is generated by [arbitrary precision arithmetic functionality](https://www.mathworks.com/help/symbolic/vpa.html) of MATLAB with precision of 100 significant digits.
+Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
+One can read detailed description on these MATLAB codes at ...
+
+<!-- tabs:start -->
+#### ** Small input **
+![Asec_Small](Figures/Asec_Small.eps)
+
+__Figure 1__. Error of `Asec[x]` on $[-5,\,5]\setminus(-1,\,1)$.
+Input points are drawn randomly from $\mathbf{U}(-4,\,4)$ and mapped by $x\mapsto (x-1)\mathbf{1}_{\mathbb{R}^-}(x)+(x+1)\mathbf{1}_{\mathbb{R}^+}(x)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
+
+### Acot
+- Warning check
+
+If `x` is numeric token, it checks warning conditions and generates warning if needed.
+The warning generation rules for `Asec[x]` are as follows.
+1. If `x` is greater than the maximum size of representable `float` size, it generates `BIG_INT` warning and replaces `x` with `math.inf`.
+2. If `x` is smaller than the minimum size of representable `float` size, it generates `SMALL_INT` warning and replaces `x` with `-math.inf`.
+3. If `x` is `math.nan`, it generates `NAN_DETECT` warning.
+4. If `x` is `math.inf` or `-math.inf`, it generates `INF_DETECT` warning.
+
+> [!NOTE]
+> These rules are sequential. That is, the first rule is checked and then the second one will be checked.
+Also, these rules are exclusive. That is, if one rule is applied, then rules after that will not be applied.
+Thus even if `x` is replaced with `math.inf` by rule 1, generating `BIG_INT` warning, `INF_DETECT` warning will not be generated by rule 4.
+
+- Constant folding
+
+If `x` is numeric token, it just computes `Acot[x]` so that it can be simplified into one simple numeric token.
+Computation table is as follows.
+
+| `x` | `nan` | `-inf` | $\mathbb{R}$ | `inf` |
+| --- | :---: | :---: | :---: | :---: |
+| `Acot[x]` | `nan` | $0$ | $\mathrm{acot}(x)$ | $0$ |
+
+The value of $\mathrm{acot}(x)$ is computed as `-math.pi / 2 - math.atan(x)` for negative `x` and `math.pi / 2 - math.atan(x)` for non-negative `x`.
+This comes from identity
+
+$\mathrm{acot}(x)=\begin{cases}
+    -\pi/2-\mathrm{atan}(x) & \text{when } x<0 \\
+    \pi/2-\mathrm{atan}(x) & \text{ow.}
+\end{cases}$
+
+Thus error will depend on implementation of `math.atan` which we described in detail [above](#atan).
+For more information on the identity we used, consult to the following reference.
+
+- [https://en.wikipedia.org/wiki/Inverse_trigonometric_functions](https://en.wikipedia.org/wiki/Inverse_trigonometric_functions)
+
+Anyway, we present a thorough report on errors of `Acot[x]`.
+Test input and reference output (correct answer) is generated by [arbitrary precision arithmetic functionality](https://www.mathworks.com/help/symbolic/vpa.html) of MATLAB with precision of 100 significant digits.
+Test output is computed by `test` method described [below](#test) and the result is analyzed using MATLAB again.
+One can read detailed description on these MATLAB codes at ...
+
+<!-- tabs:start -->
+#### ** Small input **
+![Acot_Small](Figures/Acot_Small.eps)
+
+__Figure 1__. Error of `Acot[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
+
+#### ** Medium input **
+
+#### ** Large input **
+
+<!-- tabs:end -->
 
 ## test
 <span class="badge badge-pill badge-success">public</span> <span class="badge badge-pill badge-secondary">class method</span> <span class="badge badge-pill badge-warning">debug&analysis</span> 
