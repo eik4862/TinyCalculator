@@ -50,7 +50,7 @@ class TestManager:
 
         return cls.__inst
 
-    def test(self, fun: Union[Type.FunT, Callable[[Decimal], Union[float, Decimal]]], verb: bool = False,
+    def test(self, fun: Union[Type.FunT, Callable[[Decimal], Union[float, Decimal]]], argc:int = 1, verb: bool = False,
              id: str = None) -> None:
         """
         Run test, report with supplementary statistics and save the result.
@@ -75,12 +75,13 @@ class TestManager:
         Printer.Printer.inst().buf(Printer.Printer.inst().f_title('test info'), buf)
 
         if isinstance(fun, Type.FunT):
-            Printer.Printer.inst().buf(f'@target        : {fun.name.capitalize()}', buf, indent=2)
+            Printer.Printer.inst().buf(f'@target     : {fun.name.capitalize()}', buf, indent=2)
         else:
-            Printer.Printer.inst().buf(f'@target        : {id}', buf, indent=2)
+            Printer.Printer.inst().buf(f'@target     : {id}', buf, indent=2)
 
-        Printer.Printer.inst().buf(f'@input size    : {len(test_in)}', buf, indent=2)
-        Printer.Printer.inst().buf(f'@reference size: {len(test_ref)}', buf, indent=2)
+        Printer.Printer.inst().buf(f'@argc       : {argc}', buf, indent=2)
+        Printer.Printer.inst().buf(f'@input size : {round(len(test_in) / argc)}', buf, indent=2)
+        Printer.Printer.inst().buf(f'@ref size   : {len(test_ref)}', buf, indent=2)
         Printer.Printer.inst().buf_newline(buf)
 
         # Start test.

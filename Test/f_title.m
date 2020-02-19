@@ -1,10 +1,6 @@
 function title = f_title(str, len)
 % F_TITLE formats string as a title.
 % 
-% F_TITLE(STR) formats input string STR as title using placeholder
-% character '-'. The length of title will be 56. If the lenght of STR
-% exceeds 56, STR will be returned without any formatting.
-%
 % F_TITLE(STR, LEN) formats input string STR as title using placeholder
 % character '-'. The length of title will be LEN. If the length of STR
 % exceeds LEN, STR will be returned without any formatting.

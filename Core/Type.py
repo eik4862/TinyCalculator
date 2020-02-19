@@ -134,6 +134,7 @@ class FunT(Enum):
     ATANH = auto()
     GAMMA = auto()
     LGAMMA = auto()
+    BETA = auto()
     ERF = auto()
     ERFC = auto()
     LOG = auto()

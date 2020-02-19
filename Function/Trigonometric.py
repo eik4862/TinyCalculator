@@ -239,7 +239,7 @@ class Tri:
                 elif math.isnan(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle="Csc"))
                 elif math.isinf(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=2, handle="Csc"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle="Csc"))
                 elif rt.chd[0].v % math.pi == 0:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 26))
 
@@ -325,20 +325,20 @@ class Tri:
             # The following logic is an implementation of these rules.
             if rt.chd[0].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle="Sec"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle="Cot"))
                     rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle="Sec"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle="Cot"))
                     rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle="Sec"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle="Cot"))
                 elif math.isinf(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle="Sec"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle="Cot"))
                 elif rt.chd[0].v % math.pi == 0:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 28))
 
             # Constant folding.
-            # Secant function with parameter x has following rules.
+            # Cotangent function with parameter x has following rules.
             #   1. If x is +-inf or nan, the result is nan.
             #   2. If x is finite which is integer multiple of pi, the result is nan.
             #   3. If x is finite which is not integer multiple of pi, the result is ``1 / math.tan(x)``.
@@ -377,7 +377,7 @@ class Tri:
                 elif math.isnan(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle="Asin"))
                 elif math.isinf(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=2, handle="Asin"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle="Asin"))
                 elif not (-1 <= rt.chd[0].v <= 1):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 3))
 
@@ -574,7 +574,7 @@ class Tri:
             #   * https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
             if rt.chd[0].tok_t == Type.TokT.NUM:
                 if math.isinf(rt.chd[0].v):
-                    rt.chd[0].v = 0
+                    rt.chd[0].v = math.pi / 2
                 elif -1 < rt.chd[0].v < 1:
                     rt.chd[0].v = math.nan
                 else:
@@ -603,7 +603,7 @@ class Tri:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle="Acot"))
 
             # Constant folding.
-            # Arccosecant function with parameter x has following rules.
+            # Arccotagent function with parameter x has following rules.
             #   1. If x is nan, the result is nan.
             #   2. If x is +-inf, the result is 0.
             #   3. If x is finite negative, the result is ``-(math.pi / 2 + math.atan(x))``.

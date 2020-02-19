@@ -541,18 +541,63 @@ Cos[-x]
 
 # Tan
 # Warnings
-Tan[0 / 0]          # NAN_DETECT
-Tan[1000! + 1]      # INF_DETECT
-Tan[-1000! - 1]     # INF_DETECT
-Tan[10 * Pi / 2]    # POLE_DETECT
-Tan[1000!]          # BIG_INT
-Tan[-1000!]         # SMALL_INT
+Tan[0 / 0]      # NAN_DETECT
+Tan[1000! + 1]  # INF_DETECT
+Tan[-1000! - 1] # INF_DETECT
+Tan[10.5 * Pi]  # POLE_DETECT
+Tan[1000!]      # BIG_INT
+Tan[-1000!]     # SMALL_INT
 
 # Constant folding
 Tan[2]
 
 # Sign propagation
 Tan[-x]
+
+# Csc
+# Warnings
+Csc[0 / 0]      # NAN_DETECT
+Csc[1000! + 1]  # INF_DETECT
+Csc[-1000! - 1] # INF_DETECT
+Csc[1000!]      # BIG_INT
+Csc[-1000!]     # SMALL_INT
+Csc[10 * Pi]    # POLE_DETECT
+
+# Constant folding
+Csc[2]
+
+# Sign propagation
+Csc[-x]
+
+# Sec
+# Warnings
+Sec[0 / 0]      # NAN_DETECT
+Sec[1000! + 1]  # INF_DETECT
+Sec[-1000! - 1] # INF_DETECT
+Sec[1000!]      # BIG_INT
+Sec[-1000!]     # SMALL_INT
+Sec[10.5 * Pi]  # POLE_DETECT
+
+# Constant folding
+# Sec[2]
+
+# Dead expr stripping
+Sec[-x]
+
+# Cot
+# Warnings
+Cot[0 / 0]      # NAN_DETECT
+Cot[1000! + 1]  # INF_DETECT
+Cot[-1000! - 1] # INF_DETECT
+Cot[1000!]      # BIG_INT
+Cot[-1000!]     # SMALL_INT
+Cot[10 * Pi]    # POLE_DETECT
+
+# Constant folding
+Cot[2]
+
+# Sign propagation
+Cot[-x]
 
 # Asin
 # Warnings
@@ -594,6 +639,50 @@ Atan[2]
 
 # Sign propagation
 Atan[-x]
+
+# Acsc
+# Warnings
+Acsc[0 / 0]         # NAN_DETECT
+Acsc[1000! + 1]     # INF_DETECT
+Acsc[-1000! - 1]    # INF_DETECT
+Acsc[1000!]         # BIG_INT
+Acsc[-1000!]        # SMALL_INT
+Acsc[0]             # POLE_DETECT
+
+# Constant folding
+Acsc[2]
+Acsc[-1]
+Acsc[1]
+
+# Sign propagation
+Acsc[-x]
+
+# Asec
+# Warnings
+Asec[0 / 0]         # NAN_DETECT
+Asec[1000! + 1]     # INF_DETECT
+Asec[-1000! - 1]    # INF_DETECT
+Asec[1000!]         # BIG_INT
+Asec[-1000!]        # SMALL_INT
+Asec[0]             # POLE_DETECT
+
+# Constant folding
+Asec[2]
+Asec[-1]
+Asec[1]
+
+# Acot
+# Warnings
+Acot[0 / 0]         # NAN_DETECT
+Acot[1000! + 1]     # INF_DETECT
+Acot[-1000! - 1]    # INF_DETECT
+Acot[1000!]         # BIG_INT
+Acot[-1000!]        # SMALL_INT
+
+# Constant folding
+Acot[-2]
+Acot[2]
+Acot[0]
 
 ## Check timeout
 Sleep[2.9]  # Can be evaluated in 3sec.

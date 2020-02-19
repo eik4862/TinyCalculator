@@ -9,6 +9,10 @@ function prog_update(curr, tot)
 %   TOT  - Total amout of work.
 
     % Argument validation.
+    if nargin ~= 2
+        error('Some arguments are missing. Terminate.')
+    end
+    
     if curr > tot
         error('current status must be less than or equal to total amout of work. Terminate.')
     end

@@ -1,31 +1,33 @@
-function plt_err(in_file, ref_file, out_file, size, main)
+function fig = plt_err(in_file, ref_file, out_file, size, main)
 % PLT_ERR processes test output and plots the result.
 % 
-% PLT_ERR(IN, REF, OUT, SIZE) processes and plots test result using
-% test input IN, test reference output REF and test output OUT where SIZE
-% is the # of test outputs.
-%
 % PLT_ERR(IN, REF, OUT, SIZE, TITLE) processes and plots test result using
 % test input IN, test reference output REF and test output OUT where SIZE
-% is the # of test outputs and TITLE is the title of plots.
+% is the # of test outputs and MAIN is the title of plots. The plot
+% includes the followings.
+%   - Trend of input points/abs error/rel error estimated using
+%     OLS/LOESS/moving ave
+%   - Scatter plot of input points/abs error/rel error with mean and one sd
+%     band
+%   - Histogram of input points/abs error/rel error with fitted dist using
+%     Epanechnikov kernel.
 % 
 % Inputs:
 %   IN   - Test input file.
 %   REF  - Test reference output file.
 %   OUT  - Test output file.
 %   SIZE - The # of test outputs.
+%   MAIN - The title of the plot.
 %
-% Optional inputs:
-%   TITLE - The title of plot. (default = 'Error analysis report')
-%   
+% Outputs:
+%   FIG - Figure handle of the plot.
+%
 % Notes:
 %   - Since it does not close those files after reading them, one must
 %     close them manually.
 
     % Argument validation.
-    if nargin == 4
-        main = 'Error analysis report';
-    elseif nargin ~= 5
+    if nargin ~= 4
         error('Some arguments are missing. Terminate.')
     end
     
@@ -33,6 +35,9 @@ function plt_err(in_file, ref_file, out_file, size, main)
         error('The # of test outputs must be positive integer. Terminate.')
     end
 
+    % Turning off all warnings.
+    warning('off', 'all')
+    
     in.path = fopen(in_file);
     ref.path = fopen(ref_file);
     out.path = fopen(out_file);
@@ -83,13 +88,13 @@ function plt_err(in_file, ref_file, out_file, size, main)
     prog_update(6, 39)
     in.pdf = fitdist(double(in.data), 'Kernel', 'Kernel', 'epanechnikov');
     prog_update(7, 39)
-    in.col_deepdark = [0.3373 0 0.5882];	% #560096
+    in.col_deepdark = hex2rgb('#560096');
     prog_update(8, 39)
-    in.col_dark = [0.7373 0.3882 1];        % #bc63ff
+    in.col_dark = hex2rgb('#bc63ff');
     prog_update(9, 39)
-    in.col = [0.8235 0.5882 1];             % #d296ff
+    in.col = hex2rgb('#d296ff');
     prog_update(10, 39)
-    in.col_light = [0.9098 0.7882 1];       % #e8c9ff
+    in.col_light = hex2rgb('#e8c9ff');
     prog_update(11, 39)
     in.xlim = [1 size];
     prog_update(12, 39)
@@ -113,13 +118,13 @@ function plt_err(in_file, ref_file, out_file, size, main)
     prog_update(20, 39)
     abs_err.pdf = fitdist(double(abs_err.data), 'Kernel', 'Kernel', 'epanechnikov');
     prog_update(21, 39)
-    abs_err.col = [0.9725 0.4627 0.4275];           % #f8766d
+    abs_err.col = hex2rgb('#f8766d');
     prog_update(22, 39)
-    abs_err.col_deepdark = [0.6 0.0667 0.0275];     % #991107
+    abs_err.col_deepdark = hex2rgb('#991107');
     prog_update(23, 39)
-    abs_err.col_dark = [0.9686 0.3725 0.3333];      % #f75f55
+    abs_err.col_dark = hex2rgb('#f75f55');
     prog_update(24, 39)
-    abs_err.col_light = [0.9804 0.6431 0.6196];     % #faa49e
+    abs_err.col_light = hex2rgb('#faa49e');
     prog_update(25, 39)
     abs_err.xlim = double([min(in.data) max(in.data)]);
     prog_update(26, 39)
@@ -144,11 +149,11 @@ function plt_err(in_file, ref_file, out_file, size, main)
     prog_update(34, 39)
     rel_err.pdf = fitdist(double(rel_err.data), 'Kernel', 'Kernel', 'epanechnikov');
     prog_update(35, 39)
-    rel_err.col = [0.4873 0.6824 0];            % #7cae00
+    rel_err.col = hex2rgb('#7cae00');
     prog_update(36, 39)
-    rel_err.col_deepdark = [0.3216 0.451 0];    % #527300
+    rel_err.col_deepdark = hex2rgb('#527300');
     prog_update(37, 39)
-    rel_err.col_light = [0.8549 0.9804 0.549];  % #dafa8c
+    rel_err.col_light = hex2rgb('#dafa8c');
     prog_update(38, 39)
     rel_err.xlim = abs_err.xlim;
     prog_update(39, 39)
@@ -214,7 +219,7 @@ function plt_err(in_file, ref_file, out_file, size, main)
     hold on
     
     hist = histogram(double(in.data), 10, 'FaceColor', in.col, 'Normalization', 'probability');
-    x = sub_4.XLim(1):0.01:sub_4.XLim(2);
+    x = sub_4.XLim(1):(sub_4.XLim(2) - sub_4.XLim(1)) / 100:sub_4.XLim(2);
     y = pdf(in.pdf, x);
     y = y / max(y) * (sub_4.YLim(2) * 0.9);
     plt_pdf = plot(x, y, 'Linewidth', 1.5, 'Color', in.col_deepdark);
@@ -291,7 +296,7 @@ function plt_err(in_file, ref_file, out_file, size, main)
     hold on
     
     hist = histogram(double(abs_err.data * sym(1e16)), 10, 'FaceColor', abs_err.col, 'Normalization', 'probability');
-    x = sub_4.XLim(1):0.01:sub_4.XLim(2);
+    x = sub_4.XLim(1):(sub_4.XLim(2) - sub_4.XLim(1)) / 100:sub_4.XLim(2);
     y = pdf(abs_err.pdf, x * 1e-16);
     y = y / max(y) * (sub_4.YLim(2) * 0.9);
     plt_pdf = plot(x, y, 'Linewidth', 1.5, 'Color', abs_err.col_deepdark);
@@ -368,7 +373,7 @@ function plt_err(in_file, ref_file, out_file, size, main)
     hold on
     
     hist = histogram(double(rel_err.data * sym(1e16)), 10, 'FaceColor', rel_err.col, 'Normalization', 'probability');
-    x = sub_4.XLim(1):0.01:sub_4.XLim(2);
+    x = sub_4.XLim(1):(sub_4.XLim(2) - sub_4.XLim(1)) / 100:sub_4.XLim(2);
     y = pdf(rel_err.pdf, x * 1e-16);
     y = y / max(y) * (sub_4.YLim(2) * 0.9);
     plt_pdf = plot(x, y, 'Linewidth', 1.5, 'Color', rel_err.col_deepdark);
@@ -396,4 +401,6 @@ function plt_err(in_file, ref_file, out_file, size, main)
     fprintf(']\n\n%s\n', f_title('PROCESSING FINISHED'))
     fprintf('  @elapsed: %.02fms\n\n', elapsed * 1000)
     
+    % Turning on all warnings.
+    warning('on', 'all')
 end

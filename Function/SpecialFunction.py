@@ -1,4 +1,5 @@
 import math
+import sys
 from decimal import Decimal
 from typing import Dict, List, Tuple, Optional, final
 
@@ -17,7 +18,8 @@ class SpecialFunc:
         Type.FunT.GAMMA: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.GAMMA)],
         Type.FunT.LGAMMA: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.LGAMMA)],
         Type.FunT.ERF: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.ERF)],
-        Type.FunT.ERFC: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.ERFC)]
+        Type.FunT.ERFC: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.ERFC)],
+        Type.FunT.BETA: [Type.Sign([Type.T.NUM, Type.T.NUM], Type.T.NUM, Type.FunT.BETA)]
     }
 
     def __init__(self) -> None:

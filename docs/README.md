@@ -3,7 +3,7 @@
 > Tiny calculator for undergraduate-level numerical analysis & statistics.
 
 With easy grammar similar that of MATHEMATICA, enjoy basic numerical computations.
-__
+
 ## Where its name comes from?
 The name __tiny calculator__ comes from The famous computer architecture textbook _Computer Systems: a programmer's perspective_ written by Randal E. Bryant.
 In the textbook, there is a sample code for server using multithreading and as you might have noticed, the name of this server is __tiny server__!
