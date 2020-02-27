@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Dict, List, TextIO, final, Final, Union
+from typing import Dict, List, TextIO, final, Final, Union, Tuple
 
 from Core import Type, Error
 from Util import Printer
@@ -37,9 +37,104 @@ class DB:
         'debug_in': Type.FileSrc('../Data/Debug.in', 'debug input', False),
         'debug_out': Type.FileSrc('../Data/Debug.out', 'debug output', True)
     }
+    __TEST_IDX_OFFSET: Final[int] = len(__FILE_SRC)
     __TEST_SRC: Final[Dict[str, Type.FileSrc]] = {
-        'test_in': Type.FileSrc('../Test/Test.in', 'Sin test input', False),
-        'test_ref': Type.FileSrc('../Test/Test.ref', 'Sin test output', False),
+        'custom_in': Type.FileSrc('../Test/In/Test.in', 'Custom test input', False),
+        'sin_small_in': Type.FileSrc('../Test/In/Test_Sin_Small.in', 'Sin test input', False),
+        'sin_medium_in': Type.FileSrc('../Test/In/Test_Sin_Medium.in', 'Sin test input', False),
+        'sin_large_in': Type.FileSrc('../Test/In/Test_Sin_Large.in', 'Sin test input', False),
+        'cos_small_in': Type.FileSrc('../Test/In/Test_Cos_Small.in', 'Cos test input', False),
+        'cos_medium_in': Type.FileSrc('../Test/In/Test_Cos_Medium.in', 'Cos test input', False),
+        'cos_large_in': Type.FileSrc('../Test/In/Test_Cos_Large.in', 'Cos test input', False),
+        'tan_small_in': Type.FileSrc('../Test/In/Test_Tan_Small.in', 'Tan test input', False),
+        'tan_medium_in': Type.FileSrc('../Test/In/Test_Tan_Medium.in', 'Tan test input', False),
+        'tan_large_in': Type.FileSrc('../Test/In/Test_Tan_Large.in', 'Tan test input', False),
+        'csc_small_in': Type.FileSrc('../Test/In/Test_Csc_Small.in', 'Csc test input', False),
+        'csc_medium_in': Type.FileSrc('../Test/In/Test_Csc_Medium.in', 'Csc test input', False),
+        'csc_large_in': Type.FileSrc('../Test/In/Test_Csc_Large.in', 'Csc test input', False),
+        'sec_small_in': Type.FileSrc('../Test/In/Test_Sec_Small.in', 'Sec test input', False),
+        'sec_medium_in': Type.FileSrc('../Test/In/Test_Sec_Medium.in', 'Sec test input', False),
+        'sec_large_in': Type.FileSrc('../Test/In/Test_Sec_Large.in', 'Sec test input', False),
+        'cot_small_in': Type.FileSrc('../Test/In/Test_Cot_Small.in', 'Cot test input', False),
+        'cot_medium_in': Type.FileSrc('../Test/In/Test_Cot_Medium.in', 'Cot test input', False),
+        'cot_large_in': Type.FileSrc('../Test/In/Test_Cot_Large.in', 'Cot test input', False),
+        'asin_small_in': Type.FileSrc('../Test/In/Test_Asin_Small.in', 'Asin test input', False),
+        'acos_small_in': Type.FileSrc('../Test/In/Test_Acos_Small.in', 'Acos test input', False),
+        'atan_small_in': Type.FileSrc('../Test/In/Test_Atan_Small.in', 'Atan test input', False),
+        'atan_medium_in': Type.FileSrc('../Test/In/Test_Atan_Medium.in', 'Atan test input', False),
+        'atan_large_in': Type.FileSrc('../Test/In/Test_Atan_Large.in', 'Atan test input', False),
+        'acsc_small_in': Type.FileSrc('../Test/In/Test_Acsc_Small.in', 'Acsc test input', False),
+        'acsc_medium_in': Type.FileSrc('../Test/In/Test_Acsc_Medium.in', 'Acsc test input', False),
+        'acsc_large_in': Type.FileSrc('../Test/In/Test_Acsc_Large.in', 'Acsc test input', False),
+        'asec_small_in': Type.FileSrc('../Test/In/Test_Asec_Small.in', 'Asec test input', False),
+        'asec_medium_in': Type.FileSrc('../Test/In/Test_Asec_Medium.in', 'Asec test input', False),
+        'asec_large_in': Type.FileSrc('../Test/In/Test_Asec_Large.in', 'Asec test input', False),
+        'acot_small_in': Type.FileSrc('../Test/In/Test_Acot_Small.in', 'Acot test input', False),
+        'acot_medium_in': Type.FileSrc('../Test/In/Test_Acot_Medium.in', 'Acot test input', False),
+        'acot_large_in': Type.FileSrc('../Test/In/Test_Acot_Large.in', 'Acot test input', False),
+        'erf_small_in': Type.FileSrc('../Test/In/Test_Erf_Small.in', 'Erf test input', False),
+        'erf_medium_in': Type.FileSrc('../Test/In/Test_Erf_Medium.in', 'Erf test input', False),
+        'erf_large_in': Type.FileSrc('../Test/In/Test_Erf_Large.in', 'Erf test input', False),
+        'erfc_small_in': Type.FileSrc('../Test/In/Test_Erfc_Small.in', 'Erfc test input', False),
+        'erfc_medium_in': Type.FileSrc('../Test/In/Test_Erfc_Medium.in', 'Erfc test input', False),
+        'erfc_large_in': Type.FileSrc('../Test/In/Test_Erfc_Large.in', 'Erfc test input', False),
+        'gamma_small_in': Type.FileSrc('../Test/In/Test_Gamma_Small.in', 'Gamma test input', False),
+        'gamma_medium_in': Type.FileSrc('../Test/In/Test_Gamma_Medium.in', 'Gamma test input', False),
+        'gamma_large_in': Type.FileSrc('../Test/In/Test_Gamma_Large.in', 'Gamma test input', False),
+        'lgamma_small_in': Type.FileSrc('../Test/In/Test_Lgamma_Small.in', 'Lgamma test input', False),
+        'lgamma_medium_in': Type.FileSrc('../Test/In/Test_Lgamma_Medium.in', 'Lgamma test input', False),
+        'lgamma_large_in': Type.FileSrc('../Test/In/Test_Lgamma_Large.in', 'Lgamma test input', False),
+        'beta_small_in': Type.FileSrc('../Test/In/Test_Beta_Small.in', 'Beta test input', False),
+        'beta_medium_in': Type.FileSrc('../Test/In/Test_Beta_Medium.in', 'Beta test input', False),
+        'beta_large_in': Type.FileSrc('../Test/In/Test_Beta_Large.in', 'Beta test input', False),
+        'custom_ref': Type.FileSrc('../Test/Ref/Test.ref', 'Custom ref output', False),
+        'sin_small_ref': Type.FileSrc('../Test/Ref/Test_Sin_Small.ref', 'Sin ref output', False),
+        'sin_medium_ref': Type.FileSrc('../Test/Ref/Test_Sin_Medium.ref', 'Sin ref output', False),
+        'sin_large_ref': Type.FileSrc('../Test/Ref/Test_Sin_Large.ref', 'Sin ref output', False),
+        'cos_small_ref': Type.FileSrc('../Test/Ref/Test_Cos_Small.ref', 'Cos ref output', False),
+        'cos_medium_ref': Type.FileSrc('../Test/Ref/Test_Cos_Medium.ref', 'Cos ref output', False),
+        'cos_large_ref': Type.FileSrc('../Test/Ref/Test_Cos_Large.ref', 'Cos ref output', False),
+        'tan_small_ref': Type.FileSrc('../Test/Ref/Test_Tan_Small.ref', 'Tan ref output', False),
+        'tan_medium_ref': Type.FileSrc('../Test/Ref/Test_Tan_Medium.ref', 'Tan ref output', False),
+        'tan_large_ref': Type.FileSrc('../Test/Ref/Test_Tan_Large.ref', 'Tan ref output', False),
+        'csc_small_ref': Type.FileSrc('../Test/Ref/Test_Csc_Small.ref', 'Csc ref output', False),
+        'csc_medium_ref': Type.FileSrc('../Test/Ref/Test_Csc_Medium.ref', 'Csc ref output', False),
+        'csc_large_ref': Type.FileSrc('../Test/Ref/Test_Csc_Large.ref', 'Csc ref output', False),
+        'sec_small_ref': Type.FileSrc('../Test/Ref/Test_Sec_Small.ref', 'Sec ref output', False),
+        'sec_medium_ref': Type.FileSrc('../Test/Ref/Test_Sec_Medium.ref', 'Sec ref output', False),
+        'sec_large_ref': Type.FileSrc('../Test/Ref/Test_Sec_Large.ref', 'Sec ref output', False),
+        'cot_small_ref': Type.FileSrc('../Test/Ref/Test_Cot_Small.ref', 'Cot ref output', False),
+        'cot_medium_ref': Type.FileSrc('../Test/Ref/Test_Cot_Medium.ref', 'Cot ref output', False),
+        'cot_large_ref': Type.FileSrc('../Test/Ref/Test_Cot_Large.ref', 'Cot ref output', False),
+        'asin_small_ref': Type.FileSrc('../Test/Ref/Test_Asin_Small.ref', 'Asin ref output', False),
+        'acos_small_ref': Type.FileSrc('../Test/Ref/Test_Acos_Small.ref', 'Acos ref output', False),
+        'atan_small_ref': Type.FileSrc('../Test/Ref/Test_Atan_Small.ref', 'Atan ref output', False),
+        'atan_medium_ref': Type.FileSrc('../Test/Ref/Test_Atan_Medium.ref', 'Atan ref output', False),
+        'atan_large_ref': Type.FileSrc('../Test/Ref/Test_Atan_Large.ref', 'Atan ref output', False),
+        'acsc_small_ref': Type.FileSrc('../Test/Ref/Test_Acsc_Small.ref', 'Acsc ref output', False),
+        'acsc_medium_ref': Type.FileSrc('../Test/Ref/Test_Acsc_Medium.ref', 'Acsc ref output', False),
+        'acsc_large_ref': Type.FileSrc('../Test/Ref/Test_Acsc_Large.ref', 'Acsc ref output', False),
+        'asec_small_ref': Type.FileSrc('../Test/Ref/Test_Asec_Small.ref', 'Asec ref output', False),
+        'asec_medium_ref': Type.FileSrc('../Test/Ref/Test_Asec_Medium.ref', 'Asec ref output', False),
+        'asec_large_ref': Type.FileSrc('../Test/Ref/Test_Asec_Large.ref', 'Asec ref output', False),
+        'acot_small_ref': Type.FileSrc('../Test/Ref/Test_Acot_Small.ref', 'Acot ref output', False),
+        'acot_medium_ref': Type.FileSrc('../Test/Ref/Test_Acot_Medium.ref', 'Acot ref output', False),
+        'acot_large_ref': Type.FileSrc('../Test/Ref/Test_Acot_Large.ref', 'Acot ref output', False),
+        'erf_small_ref': Type.FileSrc('../Test/Ref/Test_Erf_Small.ref', 'Erf ref output', False),
+        'erf_medium_ref': Type.FileSrc('../Test/Ref/Test_Erf_Medium.ref', 'Erf ref output', False),
+        'erf_large_ref': Type.FileSrc('../Test/Ref/Test_Erf_Large.ref', 'Erf ref output', False),
+        'erfc_small_ref': Type.FileSrc('../Test/Ref/Test_Erfc_Small.ref', 'Erfc ref output', False),
+        'erfc_medium_ref': Type.FileSrc('../Test/Ref/Test_Erfc_Medium.ref', 'Erfc ref output', False),
+        'erfc_large_ref': Type.FileSrc('../Test/Ref/Test_Erfc_Large.ref', 'Erfc ref output', False),
+        'gamma_small_ref': Type.FileSrc('../Test/Ref/Test_Gamma_Small.ref', 'Gamma ref output', False),
+        'gamma_medium_ref': Type.FileSrc('../Test/Ref/Test_Gamma_Medium.ref', 'Gamma ref output', False),
+        'gamma_large_ref': Type.FileSrc('../Test/Ref/Test_Gamma_Large.ref', 'Gamma ref output', False),
+        'lgamma_small_ref': Type.FileSrc('../Test/Ref/Test_Lgamma_Small.ref', 'Lgamma ref output', False),
+        'lgamma_medium_ref': Type.FileSrc('../Test/Ref/Test_Lgamma_Medium.ref', 'Lgamma ref output', False),
+        'lgamma_large_ref': Type.FileSrc('../Test/Ref/Test_Lgamma_Large.ref', 'Lgamma ref output', False),
+        'beta_small_ref': Type.FileSrc('../Test/Ref/Test_Beta_Small.ref', 'Beta ref output', False),
+        'beta_medium_ref': Type.FileSrc('../Test/Ref/Test_Beta_Medium.ref', 'Beta ref output', False),
+        'beta_large_ref': Type.FileSrc('../Test/Ref/Test_Beta_Large.ref', 'Beta ref output', False)
     }
 
     __inst = None
@@ -354,65 +449,66 @@ class DB:
         import time
 
         buf: Type.BufT = Type.BufT.DEBUG  # Debug buffer.
-        test_in: Type.FileSrc = self.__TEST_SRC.get('test_in')  # Input.
-        test_ref: Type.FileSrc = self.__TEST_SRC.get('test_ref')  # Ref output.
 
         # Print out loading target.
         Printer.Printer.inst().buf(Printer.Printer.inst().f_title('database info'), buf)
         Printer.Printer.inst().buf(f'@pwd : {getcwd()}', buf, indent=2)
         Printer.Printer.inst().buf('@path:', buf, indent=2)
-        Printer.Printer.inst().buf(f'[0] {test_in.path:28} (plain)', buf, indent=4)
-        Printer.Printer.inst().buf(f'[1] {test_ref.path:28} (plain)', buf, indent=4)
-        Printer.Printer.inst().buf_newline(buf)
 
-        # Clear all previously loaded test DB.
-        Printer.Printer.inst().buf(Printer.Printer.inst().f_title('initializing DB storage'), buf)
-        self.__storage_test.clear()
-        Printer.Printer.inst().buf(f'@__storage_test: {len(self.__storage_test)} (cleared)', buf, indent=2)
+        for _, src in self.__TEST_SRC.items():
+            Printer.Printer.inst().buf(f'[{src.idx - self.__TEST_IDX_OFFSET:02d}] {src.path}', buf, indent=4)
+
         Printer.Printer.inst().buf_newline(buf)
 
         # Load DB source files.
         Printer.Printer.inst().buf(Printer.Printer.inst().f_title('start database loading'), buf)
 
         start: float = time.process_time()  # Start time stamp for elapsed time measure.
-        tot_cnt: int = 0  # Total # of DB items.
-        tot_sz: int = 0  # Total size of DB.
 
-        # Load input.
-        Printer.Printer.inst().buf(Printer.Printer.inst().f_prog(f'[0] Loading {test_in.brief}'), buf, False, 2)
+        # Register function/command/constant handles.
+        cnt: int = 0  # DB load counter.
 
-        try:
-            self.__load_test_hlpr(test_in.path)
-        except Error.DBErr as DB_err:
-            Printer.Printer.inst().buf(Printer.Printer.inst().f_col('fail', Type.Col.RED), buf)
-            Printer.Printer.inst().buf_newline(buf)
+        for src in self.__HANDLE_SRC:
+            bf_cnt: int = len(self.__handle_tb)  # # of items in table before registration.
+            bf_sz: int = getsizeof(self.__handle_tb)  # Size of table before registration.
+            Printer.Printer.inst().buf(Printer.Printer.inst().f_prog(f'[{cnt}] Registering {src.brief}'), buf,
+                                       False, 2)
 
-            raise DB_err
-        else:
+            for handle in src.enum:
+                self.__handle_tb[handle.name.capitalize()] = handle
+
             Printer.Printer.inst().buf(Printer.Printer.inst().f_col('done', Type.Col.BLUE), buf)
-
-        Printer.Printer.inst().buf(f'@size: {len(self.__storage_test[0])} ({getsizeof(self.__storage_test[0])} bytes)',
-                                   buf, indent=4)
-        Printer.Printer.inst().buf_newline(buf)
-        tot_cnt += len(self.__storage_test[0])
-        tot_sz += getsizeof(self.__storage_test[0])
-
-        # Load ref output.
-        Printer.Printer.inst().buf(Printer.Printer.inst().f_prog(f'[1] Loading {test_ref.brief}'), buf, False, 2)
-
-        try:
-            self.__load_test_hlpr(test_ref.path)
-        except Error.DBErr as DB_err:
-            Printer.Printer.inst().buf(Printer.Printer.inst().f_col('fail', Type.Col.RED), buf)
+            Printer.Printer.inst().buf(
+                f'@size: {len(self.__handle_tb) - bf_cnt} ({getsizeof(self.__handle_tb) - bf_sz} bytes)', buf,
+                indent=4)
             Printer.Printer.inst().buf_newline(buf)
+            cnt += 1
 
-            raise DB_err
-        else:
-            Printer.Printer.inst().buf(Printer.Printer.inst().f_col('done', Type.Col.BLUE), buf)
+        tot_cnt: int = len(self.__handle_tb)  # Total # of DB items.
+        tot_sz: int = getsizeof(self.__handle_tb)  # Total size of DB.
 
-        Printer.Printer.inst().buf(f'@size: {len(self.__storage_test[1])} ({getsizeof(self.__storage_test[1])} bytes)',
-                                   buf, indent=4)
-        Printer.Printer.inst().buf_newline(buf)
+        # Load inputs and references.
+        for k, src in self.__TEST_SRC.items():
+            src_t: str = 'custom' if 'custom' in k else k[(k.find('_') + 1):k.find('_', k.find('_') + 1)]
+            Printer.Printer.inst().buf(Printer.Printer.inst().f_prog(f'[{cnt}] Loading {src.brief}'), buf, False, 2)
+
+            try:
+                self.__load_test_hlpr(src.path)
+            except Error.DBErr as DB_err:
+                Printer.Printer.inst().buf(Printer.Printer.inst().f_col('fail', Type.Col.RED), buf)
+                Printer.Printer.inst().buf_newline(buf)
+
+                raise DB_err
+            else:
+                Printer.Printer.inst().buf(Printer.Printer.inst().f_col('done', Type.Col.BLUE), buf)
+
+            Printer.Printer.inst().buf(
+                f'@size: {len(self.__storage_test[-1])} ({getsizeof(self.__storage_test[-1])} bytes)', buf, indent=4)
+            Printer.Printer.inst().buf(f'@type: {src_t}', buf, indent=4)
+            Printer.Printer.inst().buf_newline(buf)
+            tot_cnt += len(self.__storage_test[-1])
+            tot_sz += getsizeof(self.__storage_test[-1])
+            cnt += 1
 
         elapsed: float = time.process_time() - start  # Elapsed time.
         tot_cnt += len(self.__storage_test[1])
@@ -504,20 +600,39 @@ class DB:
         """
         return len(self.__storage[self.__FILE_SRC.get(storage).idx])
 
-    def get_test_in(self) -> List[Decimal]:
+    def get_test_in(self, fun: Type.FunT = None, sz: Type.TestSzT = None) -> List[Decimal]:
         """
         Getter for test input.
 
         :return: Test input.
         :rtype: List[Decimal]
         """
-        return self.__storage_test[0]
+        storage = f'{fun.name.lower()}_{sz.name.lower()}_in' if fun else 'custom_in'
 
-    def get_test_ref(self) -> List[Decimal]:
+        return self.__storage_test[self.__TEST_SRC.get(storage).idx - self.__TEST_IDX_OFFSET]
+
+    def get_test_ref(self, fun: Type.FunT = None, sz: Type.TestSzT = None) -> List[Decimal]:
         """
         Getter for test reference output.
 
         :return: Test reference output.
         :rtype: List[Decimal]
         """
-        return self.__storage_test[1]
+        storage = f'{fun.name.lower()}_{sz.name.lower()}_ref' if fun else 'custom_ref'
+
+        return self.__storage_test[self.__TEST_SRC.get(storage).idx - self.__TEST_IDX_OFFSET]
+
+    def get_test_target(self) -> List[Tuple[Type.FunT, Type.TestSzT]]:
+        keys: List[List[str]] = [k.split('_') for k in [k[:-3] for k in list(self.__TEST_SRC.keys())]]
+        keys = keys[1:int(len(keys) / 2)]
+        target: List[Tuple[Type.FunT, Type.TestSzT]] = []
+
+        for k in keys:
+            if k[1] == 'small':
+                target.append((self.get_handle(k[0].capitalize()), Type.TestSzT.SMALL))
+            elif k[1] == 'medium':
+                target.append((self.get_handle(k[0].capitalize()), Type.TestSzT.MEDIUM))
+            else:
+                target.append((self.get_handle(k[0].capitalize()), Type.TestSzT.LARGE))
+
+        return target

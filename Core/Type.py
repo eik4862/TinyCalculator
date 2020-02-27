@@ -3,6 +3,7 @@ import sys
 from enum import Enum, auto
 from typing import final, List, Union, Callable
 
+
 @final
 class TokT(Enum):
     """
@@ -103,11 +104,19 @@ class FunT(Enum):
     :cvar SINH: Sine hyperbolic function.
     :cvar COSH: Cosine hyperbolic function.
     :cvar TANH: Tangent hyperbolic function.
+    :cvar CSCH: Cosecant hyperbolic function.
+    :cvar SECH: Secant hyperbolic function.
+    :cvar COTH: Cotangent hyperbolic function.
     :cvar ASINH: Arcsine hyperbolic function.
     :cvar ACOSH: Arccosine hyperbolic function.
     :cvar ATANH: Arctangent hyperbolic function.
+    :cvar ACSCH: Arccosecant hyperbolic function.
+    :cvar ASECH: Arcsecant hyperbolic function.
+    :cvar ACOTH: Arccotangent hyperbolic function.
     :cvar GAMMA: Gamma function.
     :cvar LGAMMA: Log gamma function.
+    :cvar RECIGAMMA: Reicprocal gamma function.
+    :cvar BESSELCLIFFORD: Bessel-Clifford function.
     :cvar ERF: Error function.
     :cvar ERFC: Complementary error function.
     :cvar LOG: Log function.
@@ -129,11 +138,19 @@ class FunT(Enum):
     SINH = auto()
     COSH = auto()
     TANH = auto()
+    CSCH = auto()
+    SECH = auto()
+    COTH = auto()
     ASINH = auto()
     ACOSH = auto()
     ATANH = auto()
+    ACSCH = auto()
+    ASECH = auto()
+    ACOTH = auto()
     GAMMA = auto()
     LGAMMA = auto()
+    RECIGAMMA = auto()
+    BESSELCLIFFORD = auto()
     BETA = auto()
     ERF = auto()
     ERFC = auto()
@@ -361,6 +378,13 @@ class UtilWarnT(Enum):
     DOMAIN_OUT = auto()
     TURN_OFF = auto()
     INF_DETECT = auto()
+
+
+@final
+class TestSzT(Enum):
+    SMALL = auto()
+    MEDIUM = auto()
+    LARGE = auto()
 
 
 @final

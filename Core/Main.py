@@ -336,8 +336,9 @@ def main(debug: bool = False, verb: bool = False, to: TextIO = sys.stdout) -> No
                 Printer.Printer.inst().print(Type.BufT.STDERR, to=to)
 
 
-def test(target: Union[Type.FunT, Callable[[Decimal], Decimal]], verb: bool = False, to: TextIO = sys.stdout) -> None:
+def test(target: Type.FunT = None, verb: bool = False, to: TextIO = sys.stdout) -> None:
     from Test import TestManager
+
     # Load DB.
     try:
         DB.DB.inst().load_test()
@@ -363,5 +364,5 @@ def test(target: Union[Type.FunT, Callable[[Decimal], Decimal]], verb: bool = Fa
 
 if __name__ == '__main__':
     # to = open('../Data/Debug.out', 'w')
-    test(Type.FunT.ACSC)
-    # main(False, True)
+    test()
+    # main(True, False)

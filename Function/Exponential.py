@@ -263,7 +263,7 @@ class Exp:
             return rt, warn
 
     @classmethod
-    def test(cls, fun: Type.FunT, test_in: List[Decimal]) -> List[Decimal]:
+    def test(cls, fun: Type.FunT, test_in: List[List[Decimal]]) -> List[Decimal]:
         """
         Test function for exponential and logarithm function.
 
@@ -278,8 +278,8 @@ class Exp:
         :rtype: List[Decimal]
         """
         if fun == Type.FunT.EXP:
-            return list(map(lambda x: Decimal(math.exp(float(x))), test_in))
+            return list(map(lambda x: Decimal(math.exp(float(*x))), test_in))
         elif fun == Type.FunT.SQRT:
-            return list(map(lambda x: Decimal(math.sqrt(float(x))), test_in))
+            return list(map(lambda x: Decimal(math.sqrt(float(*x))), test_in))
         else:
-            return list(map(lambda x: Decimal(math.log(float(x))), test_in))
+            return list(map(lambda x: Decimal(math.log(float(*x))), test_in))

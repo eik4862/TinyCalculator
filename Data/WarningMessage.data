@@ -19,7 +19,7 @@ Big integer which is too big to be casted to float is detected at $1 operand of 
 Big integer which is too small to be casted to float is detected at $1 operand of $2. -Inf will be used instead, but this may cause unexpected behaviors.       # OK
 Limit for timeout is given as Inf. Limit 0 which just turns off timeout functionality will be used instead, but this may burden your machine too much.         # OK
 Arccosine hyperbolic of real less than 1 may cause unexpected behaviors. Use Help["Acosh"] for more information.        # OK
-Arctangent hyperbolic of real less than 1 or greater than 1 may cause unexpected behaviors. Use Help["Atanh"] for more information.                            # OK
+Arctangent hyperbolic of real less than -1 or greater than 1 may cause unexpected behaviors. Use Help["Atanh"] for more information.                           # OK
 Gamma function of nonpositive integer may cause unexpected behaviors. Use Help["Gamma"] for more information.           # OK
 Loggamma function of nonpositive integer may cause unexpected behaviors. Use Help["Lgamma"] for more information.       # OK
 Square root function of negative integer may cause unexpected behaviors. Use Help["Sqrt"] for more information.
@@ -28,3 +28,12 @@ Secant of real which is integer multiple of pi + pi/2 may cause unexpected behav
 Cotangent of real which is integer multiple of pi may cause unexpected behaviors. Use Help["Cot"] for more information.
 Arccosecant of real greater than -1 and less than 1 may cause unexpected behaviors. Use Help["Acsc"] for more information.
 Arcsecant of real greater than -1 and less than 1 may cause unexpected behaviors. Use Help["Asec"] for more information.
+Beta function with nonpositive integer as one of its parameter may cause unexpected behaviors. Use Help["Beta"] for more information.
+Arctangent hyperbolic of real -1 or 1 may cause unexpected behaviors. Use Help["Atanh"] for more information.
+Cosecant hyperbolic of real 0 may cause unexpected behaviors. Use Help["Csch"] for more information.
+Cotangent hyperbolic of real 0 may cause unexpected behaviors. Use Help["Coth"] for more information.
+Arccosecant hyperbolic of real 0 may cause unexpected behaviors. Use Help["Acsch"] for more information.
+Arcsecant hyperbolic of real less than 0 or greater than 1 may cause unexpected behaviors. Use Help["Asech"] for more information.
+Arcsecant hyperbolic of real 0 may cause unexpected behaviors. Use Help["Asech"] for more information.
+Arccotangent hyperbolic of real greater than -1 and less than 1 may cause unexpected behaviors. Use Help["Acoth"] for more information.
+Arccotangent hyperbolic of real -1 or 1 may cause unexpected behaviors. Use Help["Acoth"] for more information.

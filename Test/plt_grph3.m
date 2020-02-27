@@ -5,7 +5,7 @@ function fig = plt_grph3(f, from, to, main, ylab, level, margin, lim, x_asymp, y
 % MARK_IN, MARK_OUT, SETP) plots following graphs of bivariate function F
 % on range [FROM, TO].
 %   - Contour plot where LEVEL is the # of contours
-%   - Surface plot where LEVEL is the # of contours
+%   - Density plot where LEVEL is the # of contours
 %   - Marginal plot where MARGIN specifies x and y cutting potins and YLAB
 %     is the label of z axis
 % The sample points for plotting will be drawn uniformly with step size
@@ -233,10 +233,11 @@ function fig = plt_grph3(f, from, to, main, ylab, level, margin, lim, x_asymp, y
     hold off
     sub2.Colormap = colmap;
     sub2.View = [0 90];
-    title('Surface plot', 'FontWeight', 'bold')
+    title('Density plot', 'FontWeight', 'bold')
     xlabel('x')
     ylabel('y')
     colorbar
+    fig.Children(3).Limits = lim;
     prog_update(2, 4)
     
     % Marginal plot for x

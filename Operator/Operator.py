@@ -177,15 +177,15 @@ class Op:
             # The following logic is an implementation of these rules.
             for idx in cls.__idx_l:
                 if is_bigint(rt.chd[idx].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=idx + 1, handle="addition"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=idx + 1, handle='addition'))
                     rt.chd[idx].v = math.inf
                 elif is_smallint(rt.chd[idx].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 19, arg_pos=idx + 1, handle="addition"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 19, arg_pos=idx + 1, handle='addition'))
                     rt.chd[idx].v = -math.inf
                 elif math.isnan(rt.chd[idx].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=idx + 1, handle="addition"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=idx + 1, handle='addition'))
                 elif math.isinf(rt.chd[idx].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=idx + 1, handle="addition"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=idx + 1, handle='addition'))
 
             # Constant folding.
             # Addition (b/w two operand left and right) has following rules.
@@ -357,18 +357,18 @@ class Op:
             for idx in cls.__idx_l:
                 if is_bigint(rt.chd[idx].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=idx + 1, handle="multiplication"))
+                        Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=idx + 1, handle='multiplication'))
                     rt.chd[idx].v = math.inf
                 elif is_smallint(rt.chd[idx].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 19, arg_pos=idx + 1, handle="multiplication"))
+                        Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 19, arg_pos=idx + 1, handle='multiplication'))
                     rt.chd[idx].v = -math.inf
                 elif math.isnan(rt.chd[idx].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=idx + 1, handle="multiplication"))
+                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=idx + 1, handle='multiplication'))
                 elif math.isinf(rt.chd[idx].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=idx + 1, handle="multiplication"))
+                        Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=idx + 1, handle='multiplication'))
 
             # If there are no numeric children, we are done.
             # Do packing and return.
@@ -697,34 +697,34 @@ class Op:
             if rt.chd[0].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=1, handle="remainder operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=1, handle='remainder operation'))
                     rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 19, arg_pos=1, handle="remainder operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 19, arg_pos=1, handle='remainder operation'))
                     rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=1, handle="remainder operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=1, handle='remainder operation'))
                 elif math.isinf(rt.chd[0].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=1, handle="remainder operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=1, handle='remainder operation'))
 
             if rt.chd[1].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[1].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=2, handle="remainder operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=2, handle='remainder operation'))
                     rt.chd[1].v = math.inf
                 elif is_smallint(rt.chd[1].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 19, arg_pos=2, handle="remainder operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 19, arg_pos=2, handle='remainder operation'))
                     rt.chd[1].v = -math.inf
                 elif math.isnan(rt.chd[1].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=2, handle="remainder operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=2, handle='remainder operation'))
                 elif math.isinf(rt.chd[1].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=2, handle="remainder operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=2, handle='remainder operation'))
                 elif rt.chd[1].v == 0:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 10))
 
@@ -785,17 +785,17 @@ class Op:
             if rt.chd[0].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=1, handle="factorial operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=1, handle='factorial operation'))
                     rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 9))
                     rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=1, handle="factorial operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=1, handle='factorial operation'))
                 elif math.isinf(rt.chd[0].v):
                     warn.append(
-                        Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=1, handle="factorial operation"))
+                        Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=1, handle='factorial operation'))
                 elif rt.chd[0].v % 1 == 0 and rt.chd[0].v < 0:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 9))
 
@@ -844,15 +844,15 @@ class Op:
             # The following logic is an implementation of these rules.
             if rt.chd[0].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=1, handle="power operation"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=1, handle='power operation'))
                     rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 19, arg_pos=1, handle="power operation"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 19, arg_pos=1, handle='power operation'))
                     rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=1, handle="power operation"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=1, handle='power operation'))
                 elif math.isinf(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=1, handle="power operation"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=1, handle='power operation'))
 
                 if rt.chd[1].tok_t == Type.TokT.NUM:
                     if rt.chd[0].v == 0 and rt.chd[1].v < 0:
@@ -865,15 +865,15 @@ class Op:
 
             if rt.chd[1].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[1].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=2, handle="power operation"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 18, arg_pos=2, handle='power operation'))
                     rt.chd[1].v = math.inf
                 elif is_smallint(rt.chd[1].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 19, arg_pos=2, handle="power operation"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 19, arg_pos=2, handle='power operation'))
                     rt.chd[1].v = -math.inf
                 elif math.isnan(rt.chd[1].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=2, handle="power operation"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 7, arg_pos=2, handle='power operation'))
                 elif math.isinf(rt.chd[1].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=2, handle="power operation"))
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 8, arg_pos=2, handle='power operation'))
 
             # Hoisting.
             # For hoisting, it uses following rules with simple optimization (x^-1)^-1 = x, (x^y)^-1=x^(-y).

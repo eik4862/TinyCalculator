@@ -90,7 +90,7 @@ class Interp:
                           Type.FunT.ATANH]:
                 cand = HyperbolicTrigonometric.HyperTri.chk_t(rt)
             elif rt.v in [Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.ERFC, Type.FunT.ERF]:
-                cand = SpecialFunction.SpecialFunc.chk_t(rt)
+                cand = SpecialFunction.SpecialFun.chk_t(rt)
 
             if cand:
                 wrong: Type.Sign = Type.Sign([tok.t for tok in rt.chd], Type.T.NUM, rt.v)
@@ -180,7 +180,7 @@ class Interp:
                           Type.FunT.ATANH]:
                 simple, warn = HyperbolicTrigonometric.HyperTri.simplify(rt)
             elif rt.v in [Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.ERFC, Type.FunT.ERF]:
-                simple, warn = SpecialFunction.SpecialFunc.simplify(rt)
+                simple, warn = SpecialFunction.SpecialFun.simplify(rt)
 
             for it in warn:
                 WarningManager.WarnManager.inst().push(it)

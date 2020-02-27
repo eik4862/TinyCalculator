@@ -1,4 +1,4 @@
-function test_gen(f, from, to, cnt, in, ref, map, prec)
+function test_gen(f, from, to, cnt, in, ref, map, prec, verbose)
 % TEST_GEN generates test DB input and reference output.
 %
 % TEST_GEN(F, FROM, TO, CNT, IN, REF, MAP, PREC) geneates CNT random test
@@ -31,11 +31,15 @@ function test_gen(f, from, to, cnt, in, ref, map, prec)
 
     % Argument validation.
     if nargin == 6
-        map = {@(x) x};
-        prec = 100;
+        map = {@(x) x; @(x) x};
+        prec = 300;
+        verbose = true;
     elseif nargin == 7
-        prec = 100;
-    elseif nargin ~= 8
+        prec = 300;
+        verbose = true;
+    elseif nargin == 8
+        verbose = true;
+    elseif nargin ~= 9
         error('Some arguments are missing. Terminate.')
     end
     
@@ -43,12 +47,10 @@ function test_gen(f, from, to, cnt, in, ref, map, prec)
     
     if length(from) ~= length(to) || any(double(from) >= double(to))
         error('Generation range is invalid. Terminate.')
-    elseif cnt < 2
-        error('The # of test points must be at least 2. Terminate.')
-    elseif mod(cnt, 1) ~= 0
-        error('The # of test points must be integer. Terminate.')
+    elseif cnt < 2 || mod(cnt, 1) ~= 0
+        error('The # of test points must be integer greater than 1. Terminate.')
     elseif prec <= 0 || mod(prec, 1) ~= 0
-        error('The # of test points must be positive integer. Terminate.')
+        error('The precision must be positive integer. Terminate.')
     elseif ~ismember(argc, [1 2])
         error('The target function must be univariate or bivariate. Terminate.')    
     end
@@ -62,29 +64,31 @@ function test_gen(f, from, to, cnt, in, ref, map, prec)
         error('Cannot open test reference output file to write on. Terminate.')
     end
     
-    % Turning off all warnings.
+    % Turning off all warnings and set 100 as float precision.
     warning('off', 'all')
+    digitOld = digits(300);
     
-    % Report.
-    fprintf('%s\n', f_title('TEST DB GENERATOR'))
-    fprintf('  @in   : %s\n', in_name)
-    fprintf('  @out  : %s\n', ref_name)
-    
-    if argc == 1
-        fprintf('  @range: [%.3g, %.3g]\n', from, to)
-        fprintf('  @size : %d\n', cnt)
-    else
-        fprintf('  @range: [%.3g, %.3g]*[%.3g, %.3g]\n', from(1), to(1), from(2), to(2))
-        fprintf('  @size : %d\n', cnt^2)
-    end
-    
-    fprintf('  @argc : %d\n', argc)
-    fprintf('  @prec : %d\n\n', prec)
+    if verbose
+        % Report.
+        fprintf('%s\n', f_title('TEST DB GENERATOR'))
+        fprintf('  @in   : %s\n', in_name)
+        fprintf('  @out  : %s\n', ref_name)
 
-    % Generate input.
-    fprintf('%s\n', f_title('START GENERATION'))
-    fprintf('  Generating input....[%06.2f%%', 0)
-    tic
+        if argc == 1
+            fprintf('  @range: [%.3g, %.3g]\n', from, to)
+        else
+            fprintf('  @range: [%.3g, %.3g]*[%.3g, %.3g]\n', from(1), to(1), from(2), to(2))
+        end
+        
+        fprintf('  @size : %d\n', cnt)
+        fprintf('  @argc : %d\n', argc)
+        fprintf('  @prec : %d\n\n', prec)
+
+        % Generate input.
+        fprintf('%s\n', f_title('START GENERATION'))
+        fprintf('  Generating input....[%06.2f%%', 0)
+        tic
+    end
     
     if argc == 1
         % Since random number generation uses bitwise operation, precision
@@ -92,47 +96,77 @@ function test_gen(f, from, to, cnt, in, ref, map, prec)
         % But not a big deal!
         x = map{1}(sym(unifrnd(double(from), double(to), 1, cnt)));
 
-        for i = 1:cnt
-            fprintf(in, '%s\n', string(vpa(x(i), prec)));            
-            prog_update(i, cnt)
+        if verbose
+            for i = 1:cnt
+                fprintf(in, '%s\n', string(vpa(x(i), prec))); 
+                prog_update(i, cnt)
+            end
+        else
+            for i = 1:cnt
+                fprintf(in, '%s\n', string(vpa(x(i), prec)));
+                prog_update(i, 2 * cnt)
+            end
         end
 
         % Generate output.
-        fprintf(']\n  Generating output...[%06.2f%%', 0)
+        if verbose
+            fprintf(']\n  Generating output...[%06.2f%%', 0)
+        end
+        
         y = f(x);
     else
         % Since random number generation uses bitwise operation, precision
         % may be compromised here.
         % But not a big deal!
         x = sym([map{1}(unifrnd(double(from(1)), double(to(1)), 1, cnt));
-                 map{1}(unifrnd(double(from(2)), double(to(2)), 1, cnt))]);
+                 map{2}(unifrnd(double(from(2)), double(to(2)), 1, cnt))]);
 
-        for i = 1:cnt
-            fprintf(in, '%s\n%s\n', string(vpa(x(1,i), prec)), string(vpa(x(2,i), prec)));            
-            prog_update(i, cnt)
+        if verbose
+            for i = 1:cnt
+                fprintf(in, '%s\n%s\n', string(vpa(x(1,i), prec)), string(vpa(x(2,i), prec)));            
+                prog_update(i, cnt)
+            end
+        else
+            for i = 1:cnt
+                fprintf(in, '%s\n%s\n', string(vpa(x(1,i), prec)), string(vpa(x(2,i), prec)));
+                prog_update(i, 2 * cnt)
+            end
         end
 
         % Generate output.
-        fprintf(']\n  Generating output...[%06.2f%%', 0)
+        if verbose
+            fprintf(']\n  Generating output...[%06.2f%%', 0)
+        end
+        
         y = f(x(1,:), x(2,:));
     end
     
-    for i = 1:cnt
-        fprintf(ref, '%s\n', string(vpa(y(i), prec)));
-        prog_update(i, cnt)
+    if verbose
+        for i = 1:cnt
+            fprintf(ref, '%s\n', string(vpa(y(i), prec)));
+            prog_update(i, cnt)
+        end
+    else
+        for i = 1:cnt
+            fprintf(ref, '%s\n', string(vpa(y(i), prec)));
+            prog_update(cnt + i, 2 * cnt)
+        end
     end
 
-    elapsed = toc;
-    fprintf(']\n\n')
+    if verbose
+        elapsed = toc;
+        fprintf(']\n\n')
+
+        % Report.
+        dir_in = dir(in_name);
+        dir_ref = dir(ref_name);
+        fprintf('%s\n', f_title('GENERATION FINISHED'))
+        fprintf('  @in     : %s (%dbytes)\n', in_name, dir_in.bytes)
+        fprintf('  @out    : %s (%dbytes)\n', ref_name, dir_ref.bytes)
+        fprintf('  @elapsed: %.02fms\n\n', elapsed * 1000)
+    end
     
-    % Report.
-    dir_in = dir(in_name);
-    dir_ref = dir(ref_name);
-    fprintf('%s\n', f_title('GENERATION FINISHED'))
-    fprintf('  @in     : %s (%dbytes)\n', in_name, dir_in.bytes)
-    fprintf('  @out    : %s (%dbytes)\n', ref_name, dir_ref.bytes)
-    fprintf('  @elapsed: %.02fms\n\n', elapsed * 1000)
-    
-    % Turning on all warnings.
+    % Turning on all warnings and restore original digit precision.
     warning('on', 'all')
+    digits(digitOld)
 end
