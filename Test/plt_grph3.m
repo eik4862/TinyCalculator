@@ -160,7 +160,7 @@ function fig = plt_grph3(f, from, to, main, ylab, level, margin, lim, x_asymp, y
         y_x{1} = tmp_y;
         prog_update(2 * part_x + 3, 2 * (part_x + part_y + 1))
         
-        z_x{1} = f(x_y{1}, y_y{1});
+        z_x{1} = f(x_x{1}, y_x{1});
         prog_update(2 * part_x + 4, 2 * (part_x + part_y + 1))
     else
         msk = tmp_y(:,1) < y_asymp(1);

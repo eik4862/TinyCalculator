@@ -86,10 +86,14 @@ class Interp:
             if rt.v in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.CSC, Type.FunT.SEC, Type.FunT.COT,
                         Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC, Type.FunT.ASEC, Type.FunT.ACOT]:
                 cand = Trigonometric.Tri.chk_t(rt)
-            elif rt.v in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.ASINH, Type.FunT.ACOSH,
-                          Type.FunT.ATANH]:
+            elif rt.v in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.CSCH, Type.FunT.SECH,
+                          Type.FunT.COTH, Type.FunT.ASINH, Type.FunT.ACOSH, Type.FunT.ATANH, Type.FunT.ACSCH,
+                          Type.FunT.ASECH, Type.FunT.ACOTH]:
                 cand = HyperbolicTrigonometric.HyperTri.chk_t(rt)
-            elif rt.v in [Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.ERFC, Type.FunT.ERF]:
+            elif rt.v in [Type.FunT.ERF, Type.FunT.ERFC, Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.RECIGAMMA,
+                          Type.FunT.BESSELCLIFFORD, Type.FunT.BETA, Type.FunT.CENTRALBETA, Type.FunT.SINC,
+                          Type.FunT.TANC, Type.FunT.SINHC, Type.FunT.COSHC, Type.FunT.TANHC, Type.FunT.DIRICHLETKERNEL,
+                          Type.FunT.FEJERKERNEL, Type.FunT.TOPOLOGISTSIN]:
                 cand = SpecialFunction.SpecialFun.chk_t(rt)
 
             if cand:
@@ -174,12 +178,16 @@ class Interp:
             warn = []  # Also should be deleted later
 
             if rt.v in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.CSC, Type.FunT.SEC, Type.FunT.COT,
-                    Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC, Type.FunT.ASEC, Type.FunT.ACOT]:
+                        Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC, Type.FunT.ASEC, Type.FunT.ACOT]:
                 simple, warn = Trigonometric.Tri.simplify(rt)
-            elif rt.v in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.ASINH, Type.FunT.ACOSH,
-                          Type.FunT.ATANH]:
+            elif rt.v in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.CSCH, Type.FunT.SECH,
+                          Type.FunT.COTH, Type.FunT.ASINH, Type.FunT.ACOSH, Type.FunT.ATANH, Type.FunT.ACSCH,
+                          Type.FunT.ASECH, Type.FunT.ACOTH]:
                 simple, warn = HyperbolicTrigonometric.HyperTri.simplify(rt)
-            elif rt.v in [Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.ERFC, Type.FunT.ERF]:
+            elif rt.v in [Type.FunT.ERF, Type.FunT.ERFC, Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.RECIGAMMA,
+                          Type.FunT.BESSELCLIFFORD, Type.FunT.BETA, Type.FunT.CENTRALBETA, Type.FunT.SINC,
+                          Type.FunT.TANC, Type.FunT.SINHC, Type.FunT.COSHC, Type.FunT.TANHC, Type.FunT.DIRICHLETKERNEL,
+                          Type.FunT.FEJERKERNEL, Type.FunT.TOPOLOGISTSIN]:
                 simple, warn = SpecialFunction.SpecialFun.simplify(rt)
 
             for it in warn:

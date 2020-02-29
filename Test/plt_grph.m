@@ -76,9 +76,9 @@ function fig = plt_grph(f, from, to, main, ylab, lim, x_asymp, y_asymp, mark_in,
     
     % Report.
     fprintf('%s\n', f_title('PLOTTING PROCEDURE'))
-    fprintf('  @range     : [%.3g, %.3g]\n', from, to)
-    fprintf('  @ylim      : [%.3g, %.3g]\n', lim(1), lim(2))
-    fprintf('  @step      : %.3g\n\n', step)
+    fprintf('  @range : [%.3g, %.3g]\n', from, to)
+    fprintf('  @ylim  : [%.3g, %.3g]\n', lim(1), lim(2))
+    fprintf('  @step  : %.3g\n\n', step)
     
     % Compute plotting points.
     fprintf('%s\n', f_title('START PLOTTING'))

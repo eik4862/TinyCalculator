@@ -29,11 +29,19 @@ Cotangent of real which is integer multiple of pi may cause unexpected behaviors
 Arccosecant of real greater than -1 and less than 1 may cause unexpected behaviors. Use Help["Acsc"] for more information.
 Arcsecant of real greater than -1 and less than 1 may cause unexpected behaviors. Use Help["Asec"] for more information.
 Beta function with nonpositive integer as one of its parameter may cause unexpected behaviors. Use Help["Beta"] for more information.
-Arctangent hyperbolic of real -1 or 1 may cause unexpected behaviors. Use Help["Atanh"] for more information.
-Cosecant hyperbolic of real 0 may cause unexpected behaviors. Use Help["Csch"] for more information.
-Cotangent hyperbolic of real 0 may cause unexpected behaviors. Use Help["Coth"] for more information.
-Arccosecant hyperbolic of real 0 may cause unexpected behaviors. Use Help["Acsch"] for more information.
+Arctangent hyperbolic of -1 or 1 may cause unexpected behaviors. Use Help["Atanh"] for more information.
+Cosecant hyperbolic of 0 may cause unexpected behaviors. Use Help["Csch"] for more information.
+Cotangent hyperbolic of 0 may cause unexpected behaviors. Use Help["Coth"] for more information.
+Arccosecant hyperbolic of 0 may cause unexpected behaviors. Use Help["Acsch"] for more information.
 Arcsecant hyperbolic of real less than 0 or greater than 1 may cause unexpected behaviors. Use Help["Asech"] for more information.
-Arcsecant hyperbolic of real 0 may cause unexpected behaviors. Use Help["Asech"] for more information.
+Arcsecant hyperbolic of 0 may cause unexpected behaviors. Use Help["Asech"] for more information.
 Arccotangent hyperbolic of real greater than -1 and less than 1 may cause unexpected behaviors. Use Help["Acoth"] for more information.
-Arccotangent hyperbolic of real -1 or 1 may cause unexpected behaviors. Use Help["Acoth"] for more information.
+Arccotangent hyperbolic of -1 or 1 may cause unexpected behaviors. Use Help["Acoth"] for more information.
+Central beta of nonpositive integer may cause unexpected behaviors. Use Help["Centralbeta"] for more information.
+Tanc of real which is integer multiple of pi + pi/2 may cause unexpected behaviors. Use Help["Tanc"] for more information.
+Coshc of 0 may cause unexpected behaviors. Use Help["Coshc"] for more information.
+Topologist's sine of nonpositve real may cause unexpected behaviors. Use Help["Topologistsin"] for more information.
+Dirichlet kernel with negative real as second parameter may cause unexpected behaviors. Use Help["Dirichletkernel"] for more information.
+Noninteger as second parameter of Dirichlet kernel will be rounded to integer. Use Help["Dirichletkernel"] for more information.
+Fejer kernel with nonpositive real as second parameter may cause unexpected behaviors. Use Help["Fejerkernel"] for more information.
+Noninteger as second parameter of Fejer kernel will be rounded to integer. Use Help["Fejerkernel"] for more information.

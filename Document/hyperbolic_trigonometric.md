@@ -36,70 +36,70 @@ Following plots are computed and rendered by MATLAB and one can read detailed de
 #### ** Sinh **
 ![Sinh_Graph](Figures/Sinh_Graph.eps)
 
-__Figure 1__. Graph of $\sinh(x)$ on $[-2\pi,\,2\pi]$.
+__Figure 1__. Graph of $\sinh(x)$ on $[-5,\,5]$.
 
 #### ** Cosh **
 ![Cosh_Graph](Figures/Cosh_Graph.eps)
 
-__Figure 2__. Graph of $\cosh(x)$ on $[-2\pi,\,2\pi]$.
+__Figure 2__. Graph of $\cosh(x)$ on $[-5,\,5]$.
 
 #### ** Tanh **
 ![Tanh_Graph](Figures/Tanh_Graph.eps)
 
-__Figure 3__. Graph of $\tanh(x)$ on $[-\pi,\,\pi]$.<br/>
-Gray dashes are asymptotic line of tangent function, $x=\pm\pi/2$.
+__Figure 3__. Graph of $\tanh(x)$ on $[-3,\,3]$.<br/>
+Gray dashes are asymptotic line of tangent hyperbolic function, $y=\pm1$.
 
 #### ** Csch **
 ![Csch_Graph](Figures/Csch_Graph.eps)
 
-__Figure 4__. Graph of $\mathrm{cosech}(x)$ on $[-2\pi,\,2\pi]$.<br/>
-Gray dashes are asymptotic line of cosecant function, $x=\pm\pi$ and $x=0$.
+__Figure 4__. Graph of $\mathrm{cosech}(x)$ on $[-5,\,5]$.<br/>
+Gray dash is asymptotic line of cosecant hyperbolic function, $x=0$ with $x$ axis.
 
 #### ** Sech **
 ![Sech_Graph](Figures/Sech_Graph.eps)
 
-__Figure 5__. Graph of $\mathrm{sech}(x)$ on $[-2\pi,\,2\pi]$.<br/>
-Gray dashes are asymptotic line of secant function, $x=\pm3\pi / 2$ and $x=\pm\pi/2$.
+__Figure 5__. Graph of $\mathrm{sech}(x)$ on $[-5,\,5]$.<br/>
+Here, $x$ axis is asymptotic line of secant hyperbolic function.
 
 #### ** Coth **
 ![Coth_Graph](Figures/Coth_Graph.eps)
 
-__Figure 6__. Graph of $\coth(x)$ on $[-\pi,\,\pi]$.<br/>
-Gray dash is asymptotic line of cotangent function, $x=0$.
+__Figure 6__. Graph of $\coth(x)$ on $[-3,\,3]$.<br/>
+Gray dashes are asymptotic line of cotangent hyperbolic function, $x=0$ and $y=\pm1$.
 
 #### ** Asinh **
 ![Asinh_Graph](Figures/Asinh_Graph.eps)
 
-__Figure 7__. Graph of $\mathrm{asinh}(x)$ on $[-1,\,1]$.
+__Figure 7__. Graph of $\mathrm{asinh}(x)$ on $[-5,\,5]$.
 
 #### ** Acos **
 ![Acosh_Graph](Figures/Acosh_Graph.eps)
 
-__Figure 8__. Graph of $\mathrm{acosh}(x)$ on $[-1,\,1]$.
+__Figure 8__. Graph of $\mathrm{acosh}(x)$ on $[1,\,5]$.
 
 #### ** Atanh **
 ![Atanh_Graph](Figures/Atanh_Graph.eps)
 
-__Figure 9__. Graph of $\mathrm{atanh}(x)$ on $[-5,\,5]$.<br/>
-Gray dashes are asymptotic line of arctangent function, $y=\pm\pi/2$.
+__Figure 9__. Graph of $\mathrm{atanh}(x)$ on $[-1,\,1]$.<br/>
+Here, $x=\pm1$ is asymptotic line of arctangent hyperbolic function.
 
 #### ** Acsch **
 ![Acsch_Graph](Figures/Acsch_Graph.eps)
 
 __Figure 10__. Graph of $\mathrm{acosech}(x)$ on $[-5,\,5]$.<br/>
-Here, $x$ axis is asymptotic line of arccosecant function.
+Gray dash is asymptotic line of arccosecant hyperbolic function, $x=0$ with $x$ axis.
 
 #### ** Asech **
 ![Asech_Graph](Figures/Asech_Graph.eps)
 
-__Figure 11__. Graph of $\mathrm{asech}(x)$ on $[-5,\,5]$.<br/>
-Gray dash is asymptotic line of arcsecant function, $y=\pi/2$.
+__Figure 11__. Graph of $\mathrm{asech}(x)$ on $[0,\,1]$.<br/>
+Here, $y$ axis is asymptotic line of arcsecant hyperbolic function.
 
 #### ** Acoth **
 ![Acoth_Graph](Figures/Acoth_Graph.eps)
 
 __Figure 12__. Graph of $\mathrm{acoth}(x)$ on $[-5,\,5]$.<br/>
-Here, $x$ axis is asymptotic line of arccotangent function.
+Gray dashes are asymptotic line of arccotangent hyperbolic function, $x=\pm1$ with $x$ axis.
 <!-- tabs:end -->
 </center>
 
@@ -178,17 +178,17 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Sinh_Small](Figures/Sinh_Small.eps)
 
-__Figure 1__. Error of `Sinh[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
+__Figure 1__. Error of `Sinh[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
 
 #### ** Medium input **
 ![Sinh_Medium](Figures/Sinh_Medium.eps)
 
-__Figure 2__. Error of `Sinh[x]` on $[-100\pi,\,100\pi]$. Input points are drawn randomly from $\mathbf{U}(-100\pi,\,100\pi)$.
+__Figure 2__. Error of `Sinh[x]` on $[-50,\,50]$. Input points are drawn randomly from $\mathbf{U}(-50,\,50)$.
 
 #### ** Large input **
 ![Sinh_Large](Figures/Sinh_Large.eps)
 
-__Figure 3__. Error of `Sinh[x]` on $[-10^{10}\pi,\,10^{10}\pi]$. Input points are drawn randomly from $\mathbf{U}(-10^{10}\pi,\,10^{10}\pi)$.
+__Figure 3__. Error of `Sinh[x]` on $[-500,\,500]$. Input points are drawn randomly from $\mathbf{U}(-500,\,500)$.
 <!-- tabs:end -->
 
 - References
@@ -231,17 +231,17 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Cosh_Small](Figures/Cosh_Small.eps)
 
-__Figure 1__. Error of `Cosh[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
+__Figure 1__. Error of `Cosh[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
 
 #### ** Medium input **
 ![Cosh_Medium](Figures/Cosh_Medium.eps)
 
-__Figure 2__. Error of `Cosh[x]` on $[-100\pi,\,100\pi]$. Input points are drawn randomly from $\mathbf{U}(-100\pi,\,100\pi)$.
+__Figure 2__. Error of `Cosh[x]` on $[-50,\,50]$. Input points are drawn randomly from $\mathbf{U}(-50,\,50)$.
 
 #### ** Large input **
 ![Cosh_Large](Figures/Cosh_Large.eps)
 
-__Figure 3__. Error of `Cosh[x]` on $[-10^{10}\pi,\,10^{10}\pi]$. Input points are drawn randomly from $\mathbf{U}(-10^{10}\pi,\,10^{10}\pi)$.
+__Figure 3__. Error of `Cosh[x]` on $[-500,\,500]$. Input points are drawn randomly from $\mathbf{U}(-500,\,500)$.
 <!-- tabs:end -->
 
 - References
@@ -284,17 +284,17 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Tanh_Small](Figures/Tanh_Small.eps)
 
-__Figure 1__. Error of `Tanh[x]` on $[-\pi/2,\,\pi/2]$. Input points are drawn randomly from $\mathbf{U}(-\pi/2,\,\pi/2)$.
+__Figure 1__. Error of `Tanh[x]` on $[-3,\,3]$. Input points are drawn randomly from $\mathbf{U}(-3,\,3)$.
 
 #### ** Medium input **
 ![Tanh_Medium](Figures/Tanh_Medium.eps)
 
-__Figure 2__. Error of `Tanh[x]` on $[-50\pi,\,50\pi]$. Input points are drawn randomly from $\mathbf{U}(-50\pi,\,50\pi)$.
+__Figure 2__. Error of `Tanh[x]` on $[-30,\,30]$. Input points are drawn randomly from $\mathbf{U}(-30,\,30)$.
 
 #### ** Large input **
 ![Tanh_Large](Figures/Tanh_Large.eps)
 
-__Figure 3__. Error of `Tanh[x]` on $[-10^{10}\pi/2,\,10^{10}\pi/2]$. Input points are drawn randomly from $\mathbf{U}(-10^{10}\pi/2,\,10^{10}\pi/2)$.
+__Figure 3__. Error of `Tanh[x]` on $[-300,\,300]$. Input points are drawn randomly from $\mathbf{U}(-300,\,300)$.
 <!-- tabs:end -->
 
 - References
@@ -334,17 +334,17 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Csch_Small](Figures/Csch_Small.eps)
 
-__Figure 1__. Error of `Csch[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
+__Figure 1__. Error of `Csch[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
 
 #### ** Medium input **
 ![Csch_Medium](Figures/Csch_Medium.eps)
 
-__Figure 2__. Error of `Csch[x]` on $[-100\pi,\,100\pi]$. Input points are drawn randomly from $\mathbf{U}(-100\pi,\,100\pi)$.
+__Figure 2__. Error of `Csch[x]` on $[-50,\,50]$. Input points are drawn randomly from $\mathbf{U}(-50,\,50)$.
 
 #### ** Large input **
 ![Csch_Large](Figures/Csch_Large.eps)
 
-__Figure 3__. Error of `Csch[x]` on $[-10^{10}\pi,\,10^{10}\pi]$. Input points are drawn randomly from $\mathbf{U}(-10^{10}\pi,\,10^{10}\pi)$.
+__Figure 3__. Error of `Csch[x]` on $[-500,\,500]$. Input points are drawn randomly from $\mathbf{U}(-500,\,500)$.
 <!-- tabs:end -->
 
 ## __sech(x)
@@ -381,17 +381,17 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Sech_Small](Figures/Sech_Small.eps)
 
-__Figure 1__. Error of `Sech[x]` on $[0,\,2\pi]$. Input points are drawn randomly from $\mathbf{U}(0,\,2\pi)$.
+__Figure 1__. Error of `Sech[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
 
 #### ** Medium input **
 ![Sech_Medium](Figures/Sech_Medium.eps)
 
-__Figure 2__. Error of `Sech[x]` on $[-100\pi,\,100\pi]$. Input points are drawn randomly from $\mathbf{U}(-100\pi,\,100\pi)$.
+__Figure 2__. Error of `Sech[x]` on $[-50,\,50]$. Input points are drawn randomly from $\mathbf{U}(-50,\,50)$.
 
 #### ** Large input **
 ![Sech_Large](Figures/Sech_Large.eps)
 
-__Figure 3__. Error of `Sech[x]` on $[-10^{10}\pi,\,10^{10}\pi]$. Input points are drawn randomly from $\mathbf{U}(-10^{10}\pi,\,10^{10}\pi)$.
+__Figure 3__. Error of `Sech[x]` on $[-500,\,500]$. Input points are drawn randomly from $\mathbf{U}(-500,\,500)$.
 <!-- tabs:end -->
 
 ## __coth(x)
@@ -428,17 +428,17 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Coth_Small](Figures/Coth_Small.eps)
 
-__Figure 1__. Error of `Coth[x]` on $[-\pi/2,\,\pi/2]$. Input points are drawn randomly from $\mathbf{U}(-\pi/2,\,\pi/2)$.
+__Figure 1__. Error of `Coth[x]` on $[-3,\,3]$. Input points are drawn randomly from $\mathbf{U}(-3,\,3)$.
 
 #### ** Medium input **
 ![Coth_Medium](Figures/Coth_Medium.eps)
 
-__Figure 2__. Error of `Coth[x]` on $[-50\pi,\,50\pi]$. Input points are drawn randomly from $\mathbf{U}(-50\pi,\,50\pi)$.
+__Figure 2__. Error of `Coth[x]` on $[-30,30]$. Input points are drawn randomly from $\mathbf{U}(-30,\,30)$.
 
 #### ** Large input **
 ![Coth_Large](Figures/Coth_Large.eps)
 
-__Figure 3__. Error of `Coth[x]` on $[-10^{10}\pi/2,\,10^{10}\pi/2]$. Input points are drawn randomly from $\mathbf{U}(-10^{10}\pi/2,\,10^{10}\pi/2)$.
+__Figure 3__. Error of `Coth[x]` on $[-300,\,300]$. Input points are drawn randomly from $\mathbf{U}(-300,\,300)$.
 <!-- tabs:end -->
 
 ## __asinh(x)
@@ -478,17 +478,17 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Asinh_Small](Figures/Asinh_Small.eps)
 
-__Figure 1__. Error of `Asinh[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$.
+__Figure 1__. Error of `Asinh[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
 
 #### ** Medium input **
 ![Asinh_Medium](Figures/Asinh_Medium.eps)
 
-__Figure 2__. Error of `Asinh[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$.
+__Figure 2__. Error of `Asinh[x]` on $[-500,\,500]$. Input points are drawn randomly from $\mathbf{U}(-500,\,500)$.
 
 #### ** Large input **
 ![Asinh_Large](Figures/Asinh_Large.eps)
 
-__Figure 3__. Error of `Asinh[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$.
+__Figure 3__. Error of `Asinh[x]` on $[-5\times10^{10},\,5\times10^{10}]$. Input points are drawn randomly from $\mathbf{U}(-5\times10^{10},\,5\times10^{10})$.
 <!-- tabs:end -->
 
 - References
@@ -531,17 +531,17 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Acosh_Small](Figures/Acosh_Small.eps)
 
-__Figure 1__. Error of `Acosh[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$.
+__Figure 1__. Error of `Acosh[x]` on $[1,\,5]$. Input points are drawn randomly from $\mathbf{U}(1,\,5)$.
 
 #### ** Medium input **
 ![Acosh_Medium](Figures/Acosh_Medium.eps)
 
-__Figure 2__. Error of `Acosh[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$.
+__Figure 2__. Error of `Acosh[x]` on $[1,\,500]$. Input points are drawn randomly from $\mathbf{U}(1,\,500)$.
 
 #### ** Large input **
 ![Acosh_Large](Figures/Acosh_Large.eps)
 
-__Figure 3__. Error of `Acosh[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$.
+__Figure 3__. Error of `Acosh[x]` on $[1,\,5\times10^{10}]$. Input points are drawn randomly from $\mathbf{U}(1,\,5\times10^{10})$.
 <!-- tabs:end -->
 
 - References
@@ -584,17 +584,7 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Atanh_Small](Figures/Atanh_Small.eps)
 
-__Figure 1__. Error of `Atan[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
-
-#### ** Medium input **
-![Atanh_Medium](Figures/Atanh_Medium.eps)
-
-__Figure 2__. Error of `Atanh[x]` on $[-500,\,500]$. Input points are drawn randomly from $\mathbf{U}(-500,\,500)$.
-
-#### ** Large input **
-![Atanh_Large](Figures/Atanh_Large.eps)
-
-__Figure 3__. Error of `Atanh[x]` on $[-5\times10^{10},\,5\times10^{10}]$. Input points are drawn randomly from $\mathbf{U}(-5\times10^{10},\,5\times10^{10})$.
+__Figure 1__. Error of `Atan[x]` on $[-1,\,1]$. Input points are drawn randomly from $\mathbf{U}(-1,\,1)$.
 <!-- tabs:end -->
 
 - References
@@ -635,17 +625,17 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Acsch_Small](Figures/Acsch_Small.eps)
 
-__Figure 1__. Error of `Acsch[x]` on $[-5,\,5]$.
+__Figure 1__. Error of `Acsch[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
 
 #### ** Medium input **
 ![Acsch_Medium](Figures/Acsch_Medium.eps)
 
-__Figure 2__. Error of `Acsch[x]` on $[-500,\,500]$.
+__Figure 2__. Error of `Acsch[x]` on $[-500,\,500]$. Input points are drawn randomly from $\mathbf{U}(-500,\,500)$.
 
 #### ** Large input **
 ![Acsch_Large](Figures/Acsch_Large.eps)
 
-__Figure 3__. Error of `Acsch[x]` on $[-5\times10^{10},\,5\times10^{10}]$.
+__Figure 3__. Error of `Acsch[x]` on $[-5\times10^{10},\,5\times10^{10}]$. Input points are drawn randomly from $\mathbf{U}(-5\times10^{10},\,5\times10^{10})$.
 <!-- tabs:end -->
 
 - References
@@ -686,17 +676,7 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Asech_Small](Figures/Asech_Small.eps)
 
-__Figure 1__. Error of `Asech[x]` on $[-5,\,5]$.
-
-#### ** Medium input **
-![Asech_Medium](Figures/Asech_Medium.eps)
-
-__Figure 2__. Error of `Asech[x]` on $[-500,\,500]$.
-
-#### ** Large input **
-![Asech_Large](Figures/Asech_Large.eps)
-
-__Figure 3__. Error of `Asech[x]` on $[-5\times10^{10},\,5\times10^{10}]$.
+__Figure 1__. Error of `Asech[x]` on $[0,\,1]$. Input points are drawn randomly from $\mathbf{U}(0,\,1)$.
 <!-- tabs:end -->
 
 - References
@@ -737,17 +717,20 @@ One can read detailed description on these MATLAB codes at ...
 #### ** Small input **
 ![Acoth_Small](Figures/Acoth_Small.eps)
 
-__Figure 1__. Error of `Acoth[x]` on $[-5,\,5]$. Input points are drawn randomly from $\mathbf{U}(-5,\,5)$.
+__Figure 1__. Error of `Acoth[x]` on $[-5,\,5]$.
+Input points are drawn randomly from $\mathbf{U}(-4,\,4)$ and mapped by $x\mapsto (x-1)\mathbf{1}_{\mathbb{R}^-}(x)+(x+1)\mathbf{1}_{\mathbb{R}^+}(x)$.
 
 #### ** Medium input **
 ![Acoth_Medium](Figures/Acoth_Medium.eps)
 
-__Figure 2__. Error of `Acoth[x]` on $[-500,\,500]$. Input points are drawn randomly from $\mathbf{U}(-500,\,500)$.
+__Figure 2__. Error of `Acoth[x]` on $[-500,\,500]$.
+Input points are drawn randomly from $\mathbf{U}(-499,\,499)$ and mapped by $x\mapsto (x-1)\mathbf{1}_{\mathbb{R}^-}(x)+(x+1)\mathbf{1}_{\mathbb{R}^+}(x)$.
 
 #### ** Large input **
 ![Acoth_Large](Figures/Acoth_Large.eps)
 
-__Figure 3__. Error of `Acoth[x]` on $[-5\times10^{10},\,5\times10^{10}]$. Input points are drawn randomly from $\mathbf{U}(-5\times10^{10},\,5\times10^{10})$.
+__Figure 3__. Error of `Acoth[x]` on $[-5\times10^{10},\,5\times10^{10}]$.
+Input points are drawn randomly from $\mathbf{U}(-5\times10^{10}+1,\,5\times10^{10}-1)$ and mapped by $x\mapsto (x-1)\mathbf{1}_{\mathbb{R}^-}(x)+(x+1)\mathbf{1}_{\mathbb{R}^+}(x)$.
 <!-- tabs:end -->
 
 - References

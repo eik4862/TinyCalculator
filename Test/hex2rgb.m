@@ -26,7 +26,7 @@ function rgb = hex2rgb(hex, norm)
         hex = hex(2:end);
     end
     
-    % Convert hex color code to rgb.
+    % Convert hex color code to rgb color code.
     if norm
         rgb = [hex2dec(hex(1:2)) hex2dec(hex(3:4)) hex2dec(hex(5:6))] / 255;
     else

@@ -19,13 +19,24 @@ Class `SpecialFun` supports following special functions.
 | `Recigamma[x]` | $\frac{1}{\Gamma(x)}$ | $\mathbb{R}$ | $\mathbb{R}$ |
 | `Besselclifford[x]` | $\frac{1}{\Gamma(x + 1)}$ | $\mathbb{R}$ | $\mathbb{R}$ |
 | `Beta[x, y]` | $\mathrm{B}(x,\,y) = \frac{\Gamma(x)\Gamma(y)}{\Gamma(x+y)}$ | $(\mathbb{R}\setminus\mathbb{Z}^-_0)^2$ | $\mathbb{R}$ |
+| `Centralbeta[x]` | $\beta(x) = \mathrm{B}(x,\,x)$ | $\mathbb{R}\setminus\mathbb{Z}^-_0$ | $\mathbb{R}$ |
+| `Sinc[x]` | $\mathrm{sinc}(x) = \frac{\sin(x)}{x}$ | $\mathbb{R}$ | $\approx[-0.217,\,1]$ |
+| `Tanc[x]` | $\mathrm{tanc}(x) = \frac{\tan(x)}{x}$ | $\mathbb{R}$ | $\mathbb{R}$ |
+| `Sinhc[x]` | $\mathrm{sinhc}(x) = \frac{\sinh(x)}{x}$ | $\mathbb{R}$ | $[1,\,\infty)$ |
+| `Coshc[x]` | $\mathrm{coshc}(x) = \frac{\cosh(x)}{x}$ | $\mathbb{R}$ | $\approx\mathbb{R}\setminus(-1.509,\,1.509)$ |
+| `Tanhc[x]` | $\mathrm{tanhc}(x) = \frac{\tanh(x)}{x}$ | $\mathbb{R}$ | $(0,\,1]$ |
+| `Dirichletkernel[x, n]` | $D_n(x) = \frac{\sin((n+1/2)x)}{\sin(x/2)}$ | $\mathbb{R}\times\mathbb{N}_0$ | $\mathbb{R}$ | 
+| `Fejerkernel[x, n]` | $F_n(x) = \frac{1}{n}\left[\frac{1-\cos(nx)}{1-\cos(x)}\right]$ | $\mathbb{R}\times\mathbb{N}$ | $\mathbb{R}^+_0$ |
+| `Topologistsin[x]` | $\sin(1/x)$ | $\mathbb{R}^+$ | $[-1,\,1]$ |
 
 > [!NOTE]
 > 1. Here, $\mu$ stands for [Lebesgue measure](https://en.wikipedia.org/wiki/Lebesgue_measure) on measure space $(\mathbb{R},\,\mathcal{M},\,\mu)$ and $x^{\overline{n}}$ stands for [rising factorial](https://en.wikipedia.org/wiki/Falling_and_rising_factorials) which is defined by $x^{\overline{n}}=x\cdots(x+n-1)$
 2. For convenience, we employ convention $1/\pm\infty=0$.
 3. One can show that integral in the definition of error function and limit in the definition of gamma function converges for all $x$ in each domain so that they are indeed well-defined.
 4. One can show that other definitions of gamma function, like [analytic continuation](https://en.wikipedia.org/wiki/Analytic_continuation) of$$\int_0^\infty t^{x-1}e^{-x}\,d\mu(t)$$to $\mathbb{C}\setminus\mathbb{Z}^-_0$ by Euler or $$\frac{1}{xe^{\gamma x}}\prod_{n=1}^\infty\frac{e^{x/n}}{1+x/n}$$by Weierstrass coincide with the definition above. (Here, $\gamma$ is [Euler–Mascheroni constant](https://en.wikipedia.org/wiki/Euler–Mascheroni_constant).)
-5. One cas easily show that the definition of beta function above coincides with the definition using [analytic continuation](https://en.wikipedia.org/wiki/Analytic_continuation) of$$\int_0^1t^{x-1}(1-t)^{y-1}\,d\mu(t)$$to $(\mathbb{R}\setminus\mathbb{Z}^-_0)^2$.
+5. One can show that the definition of beta function above coincides with the definition using [analytic continuation](https://en.wikipedia.org/wiki/Analytic_continuation) of$$\int_0^1t^{x-1}(1-t)^{y-1}\,d\mu(t)$$to $(\mathbb{R}\setminus\mathbb{Z}^-_0)^2$.
+6. In the definition of $\mathrm{sinc}(x)$, $\mathrm{tanh}(x)$, $\mathrm{sinhc}(x)$, and $\mathrm{tanhc}(x)$ above, we define their value at $x=0$ as $1$, which is their limit value as $x\to0$.
+7. One can show that the definition of Dirichlet kernel and Fejer kernel above coincides with the definition through summation, $\sum_{k=-n}^ne^{\mathbf{i}kx}/2\pi$ and $\sum_{k=0}^{n-1}D_k(x)/n$, resp. (Here, $\mathbf{i}$ is imaginary unit.)
 
 We present some simple graph of functions above.
 Following plots are computed and rendered by MATLAB and one can read detailed description on these code at ...
@@ -59,17 +70,71 @@ Gray dashes are asymptotic line of log gamma function, $x=0,\,\cdots,\,-3$.
 #### ** Recigamma **
 ![Recigamma_Graph](Figures/Recigamma_Graph.eps)
 
-__Figure 5__. Graph of $1/\Gamma(x)$ on $[-4,\,4]$.
+__Figure 5__. Graph of $1/\Gamma(x)$ on $[-4,\,4]$.<br/>
+Here, $x$ axis is asymptotic line of reciprocal gamma function.
 
 #### ** Besselclifford **
 ![Besselclifford_Graph](Figures/Besselclifford_Graph.eps)
 
-__Figure 6__. Graph of $1/\Gamma(x+1)$ on $[-4,\,4]$.
+__Figure 6__. Graph of $1/\Gamma(x+1)$ on $[-4,\,4]$.<br/>
+Here, $x$ axis is asymptotic line of Bessel-Clifford function.
 
 #### ** Beta **
 ![Beta_Graph](Figures/Beta_Graph.eps)
 
-__Figure 7__. Graph of $\mathrm{B}(x,\,y)$ on $[-3,\,3]\times[-3,\,3]$.
+__Figure 7__. Graph of $\mathrm{B}(x,\,y)$ on $[-3,\,3]\times[-3,\,3]$.<br/>
+Here, $x=0,\,-1,\,-2$ and $y=0,\,-1,\,-2$ are asymptotic plane of beta function.
+
+#### ** Centralbeta **
+![Centralbeta_Graph](Figures/Centralbeta_Graph.eps)
+
+__Figure 8__. Graph of $\beta(x)$ on $[-3,\,3]$.<br/>
+Gray dashes are asymptotic line of central beta function, $x=0,\,-1,\,-2$.
+
+#### ** Sinc **
+![Sinc_Graph](Figures/Sinc_Graph.eps)
+
+__Figure 9__. Graph of $\mathrm{sinc}(x)$ on $[-5\pi,\,5\pi]$.<br/>
+Here, $x$ axis is asymptotic line of sinc function.
+
+#### ** Tanc **
+![Tanc_Graph](Figures/Tanc_Graph.eps)
+
+__Figure 10__. Graph of $\mathrm{tanc}(x)$ on $[-5\pi/2,\,5\pi/2]$.<br/>
+Gray dashes are asymptotic line of tanc function, $x=\pm3\pi/2$ and $x=\pm\pi/2$.
+
+#### ** Sinhc **
+![Sinhc_Graph](Figures/Sinhc_Graph.eps)
+
+__Figure 11__. Graph of $\mathrm{sinhc}(x)$ on $[-5,\,5]$.
+
+#### ** Coshc **
+![Coshc_Graph](Figures/Coshc_Graph.eps)
+
+__Figure 12__. Graph of $\mathrm{coshc}(x)$ on $[-5,\,5]$.<br/>
+Gray dash is asymptotic line of coshc function, $x=0$.
+
+#### ** Tanhc **
+![Tanhc_Graph](Figures/Tanhc_Graph.eps)
+
+__Figure 13__. Graph of $\mathrm{tanhc}(x)$ on $[-10,\,10]$.<br/>
+Here, $x$ axis is asymptotic line of tanhc function.
+
+#### ** Dirichletkernel **
+![Dirichletkernel_Graph](Figures/Dirichletkernel_Graph.eps)
+
+__Figure 14__. Graph of $D_n(x)$ on $[-3,\,3]$.
+
+#### ** Fejerkernel **
+![Fejerkernel_Graph](Figures/Fejerkernel_Graph.eps)
+
+__Figure 15__. Graph of $F_n(x)$ on $[-3,\,3]$.
+
+#### ** Topologistsin **
+![Topologistsin_Graph](Figures/Topologistsin_Graph.eps)
+
+__Figure 16__. Graph of $\sin(1/x)$ on $[0,\,3]$.<br/>
+Here, $x$ axis is asymptotic line of topologist's sine function.
 <!-- tabs:end -->
 </center>
 
@@ -81,6 +146,16 @@ For more information on special functions, refer to following references.
 - [https://en.wikipedia.org/wiki/Reciprocal_gamma_function](https://en.wikipedia.org/wiki/Reciprocal_gamma_function)
 - [https://en.wikipedia.org/wiki/Bessel–Clifford_function](https://en.wikipedia.org/wiki/Bessel–Clifford_function)
 - [http://mathworld.wolfram.com/BetaFunction.html](http://mathworld.wolfram.com/BetaFunction.html)
+- [http://mathworld.wolfram.com/CentralBetaFunction.html](http://mathworld.wolfram.com/CentralBetaFunction.html)
+- [http://mathworld.wolfram.com/SincFunction.html](http://mathworld.wolfram.com/SincFunction.html)
+- [http://mathworld.wolfram.com/TancFunction.html](http://mathworld.wolfram.com/TancFunction.html)
+- [http://mathworld.wolfram.com/SinhcFunction.html](http://mathworld.wolfram.com/SinhcFunction.html)
+- [https://en.wikipedia.org/wiki/Coshc_function](https://en.wikipedia.org/wiki/Coshc_function)
+- [http://mathworld.wolfram.com/TanhcFunction.html](http://mathworld.wolfram.com/TanhcFunction.html)
+- [https://en.wikipedia.org/wiki/Dirichlet_kernel](https://en.wikipedia.org/wiki/Dirichlet_kernel)
+- [https://en.wikipedia.org/wiki/Fejér_kernel](https://en.wikipedia.org/wiki/Fejér_kernel)
+- [http://mathworld.wolfram.com/TopologistsSineCurve.html](http://mathworld.wolfram.com/TopologistsSineCurve.html)
+
 
 ## __sign
 <span class="badge badge-pill badge-danger">private</span> <span class="badge badge-pill badge-info">const</span> <span class="badge badge-pill badge-secondary">class variable</span>
@@ -92,7 +167,18 @@ For more information on special functions, refer to following references.
         FunT.ERFC: [Sign([T.NUM], T.NUM, FunT.ERFC)],
         FunT.GAMMA: [Sign([T.NUM], T.NUM, FunT.GAMMA)],
         FunT.LGAMMA: [Sign([T.NUM], T.NUM, FunT.LGAMMA)],
-        FunT.BETA: [Sign([T.NUM, T.NUM], T.NUM, FunT.BETA)]
+        FunT.RECIGAMMA: [Sign([T.NUM], T.NUM, FunT.RECIGAMMA)],
+        FunT.BESSELCLIFFORD: [Sign([T.NUM], T.NUM, FunT.BESSELCLIFFORD)],
+        FunT.BETA: [Sign([T.NUM, T.NUM], T.NUM, FunT.BETA)],
+        FunT.CENTRALBETA: [Sign([T.NUM], T.NUM, FunT.CENTRALBETA)],
+        FunT.SINC: [Sign([T.NUM], T.NUM, FunT.SINC)],
+        FunT.TANC: [Sign([T.NUM], T.NUM, FunT.TANC)],
+        FunT.SINHC: [Sign([T.NUM], T.NUM, FunT.SINHC)],
+        FunT.COSHC: [Sign([T.NUM], T.NUM, FunT.COSHC)],
+        FunT.TANHC: [Sign([T.NUM], T.NUM, FunT.TANHC)],
+        FunT.DIRICHLETKERNEL: [Sign([T.NUM, T.NUM], T.NUM, FunT.DIRICHLETKERNEL)],
+        FunT.FEJERKERNEL: [Sign([T.NUM, T.NUM], T.NUM, FunT.FEJERKERNEL)],
+        FunT.TOPOLOGISTSIN: [Sign([T.NUM], T.NUM, FunT.TOPOLOGISTSIN)]
     }
 ```
 

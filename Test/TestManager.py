@@ -208,10 +208,15 @@ class TestManager:
                                     Type.FunT.COT, Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC,
                                     Type.FunT.ASEC, Type.FunT.ACOT]:
                     test_out.append(Trigonometric.Tri.test(target[i][0], test_in))
-                elif target[i][0] in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.ASINH, Type.FunT.ACOSH,
-                                      Type.FunT.ATANH]:
+                elif target[i][0] in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.CSCH, Type.FunT.SECH,
+                                      Type.FunT.COTH, Type.FunT.ASINH, Type.FunT.ACOSH, Type.FunT.ATANH,
+                                      Type.FunT.ACSCH, Type.FunT.ASECH, Type.FunT.ACOTH]:
                     test_out.append(HyperbolicTrigonometric.HyperTri.test(target[i][0], test_in))
-                elif target[i][0] in [Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.ERF, Type.FunT.ERFC, Type.FunT.BETA]:
+                elif target[i][0] in [Type.FunT.ERF, Type.FunT.ERFC, Type.FunT.GAMMA, Type.FunT.LGAMMA,
+                                      Type.FunT.RECIGAMMA, Type.FunT.BESSELCLIFFORD, Type.FunT.BETA,
+                                      Type.FunT.CENTRALBETA, Type.FunT.SINC, Type.FunT.TANC, Type.FunT.SINHC,
+                                      Type.FunT.COSHC, Type.FunT.TANHC, Type.FunT.DIRICHLETKERNEL,
+                                      Type.FunT.FEJERKERNEL, Type.FunT.TOPOLOGISTSIN]:
                     test_out.append(SpecialFunction.SpecialFun.test(target[i][0], test_in))
                 else:
                     test_out.append(Exponential.Exp.test(target[i][0], test_in))

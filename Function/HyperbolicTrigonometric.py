@@ -50,7 +50,7 @@ class HyperTri:
         try:
             return math.sinh(x)
         except OverflowError:
-            return math.inf
+            return math.inf if x > 0 else -math.inf
 
     @classmethod
     def __cosh(cls, x: float) -> float:

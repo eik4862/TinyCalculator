@@ -19,7 +19,18 @@ class SpecialFun:
         Type.FunT.ERFC: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.ERFC)],
         Type.FunT.GAMMA: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.GAMMA)],
         Type.FunT.LGAMMA: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.LGAMMA)],
-        Type.FunT.BETA: [Type.Sign([Type.T.NUM, Type.T.NUM], Type.T.NUM, Type.FunT.BETA)]
+        Type.FunT.RECIGAMMA: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.RECIGAMMA)],
+        Type.FunT.BESSELCLIFFORD: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.BESSELCLIFFORD)],
+        Type.FunT.BETA: [Type.Sign([Type.T.NUM, Type.T.NUM], Type.T.NUM, Type.FunT.BETA)],
+        Type.FunT.CENTRALBETA: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.CENTRALBETA)],
+        Type.FunT.SINC: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.SINC)],
+        Type.FunT.TANC: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.TANC)],
+        Type.FunT.SINHC: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.SINHC)],
+        Type.FunT.COSHC: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.COSHC)],
+        Type.FunT.TANHC: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.TANHC)],
+        Type.FunT.DIRICHLETKERNEL: [Type.Sign([Type.T.NUM, Type.T.NUM], Type.T.NUM, Type.FunT.DIRICHLETKERNEL)],
+        Type.FunT.FEJERKERNEL: [Type.Sign([Type.T.NUM, Type.T.NUM], Type.T.NUM, Type.FunT.FEJERKERNEL)],
+        Type.FunT.TOPOLOGISTSIN: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.TOPOLOGISTSIN)]
     }
 
     def __init__(self) -> None:
@@ -90,7 +101,7 @@ class SpecialFun:
         :return: Computed value of gamma function.
         :rtype: float
         """
-        if (math.isinf(x) or x % 1 == 0) and x <= 0:
+        if x == -math.inf or (x % 1 == 0 and x <= 0):
             return math.nan
         else:
             try:
@@ -118,7 +129,31 @@ class SpecialFun:
         :return: Computed value of log gamma function.
         :rtype: float
         """
-        return math.nan if (math.isinf(x) or x % 1 == 0) and x <= 0 else math.lgamma(x)
+        return math.nan if x == -math.inf or (x % 1 == 0 and x <= 0) else math.lgamma(x)
+
+    @classmethod
+    def __recigamma(cls, x: float) -> float:
+        if math.isinf(x):
+            return math.nan if x < 0 else 0
+        elif x % 1 == 0 and x <= 0:
+            return 0
+        else:
+            try:
+                return 1 / math.gamma(x)
+            except OverflowError:
+                return 0
+
+    @classmethod
+    def __bessel_clifford(cls, x: float) -> float:
+        if math.isinf(x):
+            return math.nan if x < 0 else 0
+        elif x % 1 == 0 and x < 0:
+            return 0
+        else:
+            try:
+                return 1 / math.gamma(x + 1)
+            except OverflowError:
+                return 0
 
     @classmethod
     def __beta(cls, x: float, y: float) -> float:
@@ -153,7 +188,7 @@ class SpecialFun:
         :return: Computed value of beta function.
         :rtype: float
         """
-        if (x % 1 == 0 and x <= 0) or (y % 1 == 0 and y <= 0):
+        if ((x % 1 == 0 or math.isinf(x)) and x <= 0) or ((y % 1 == 0 or math.isinf(y)) and y <= 0):
             return math.nan
         elif math.isinf(x):
             return 0 if math.isinf(y) else math.inf if y > 0 or math.ceil(y) % 2 == 1 else -math.inf
@@ -173,7 +208,70 @@ class SpecialFun:
             if x + y < 0 and math.ceil(x + y) % 2 == 0:
                 sgn *= -1
 
-            return sgn * math.exp(math.lgamma(x) + math.lgamma(y) - math.lgamma(x + y))
+            try:
+                return sgn * math.exp(math.lgamma(x) + math.lgamma(y) - math.lgamma(x + y))
+            except OverflowError:
+                return sgn * math.inf
+
+    @classmethod
+    def __cenbeta(cls, x: float) -> float:
+        if x == math.inf:
+            return 0
+        elif x % 1 == 0 and x <= 0:
+            return math.nan
+        elif 2 * x % 1 == 0 and x <= 0:
+            return 0
+        else:
+            sgn = 1 if x % 1 < 0.5 else -1
+
+            try:
+                return sgn * math.exp(math.lgamma(x) * 2 - math.lgamma(2 * x))
+            except OverflowError:
+                return sgn * math.inf
+
+    @classmethod
+    def __sinc(cls, x: float) -> float:
+        return 1 if x == 0 else math.sin(x) / x
+
+    @classmethod
+    def __tanc(cls, x: float) -> float:
+        return math.nan if math.isinf(x) or (x - math.pi / 2) % math.pi == 0 else 0 if x == 0 else math.tan(x) / x
+
+    @classmethod
+    def __sinhc(cls, x: float) -> float:
+        try:
+            return 1 if x == 0 else math.sinh(x) / x
+        except OverflowError:
+            return math.inf
+
+    @classmethod
+    def __coshc(cls, x: float) -> float:
+        try:
+            return math.nan if x == 0 else math.cosh(x) / x
+        except OverflowError:
+            return math.inf if x > 0 else -math.inf
+
+    @classmethod
+    def __tanhc(cls, x: float) -> float:
+        return 1 if x == 0 else math.tanh(x) / x
+
+    @classmethod
+    def __dirichlet_ker(cls, x: float, n: int) -> float:
+        if not math.isfinite(x + n) or n < 0:
+            return math.nan
+        else:
+            return 2 * n + 1 if x % (2 * math.pi) == 0 else math.sin((n + 0.5) * x) / math.sin(x / 2)
+
+    @classmethod
+    def __fejer_ker(cls, x:float, n:int) -> float:
+        if not math.isfinite(x + n) or n <= 0:
+            return math.nan
+        else:
+            return n if x % (2 * math.pi) == 0 else (1 - math.cos(n * x)) / (1 - math.cos(x)) / n
+
+    @classmethod
+    def __topo_sin(cls, x:float) -> float:
+        return math.nan if x <= 0 else math.sin(1 / x)
 
     @classmethod
     def chk_t(cls, rt: Token.FunTok) -> Optional[List[Type.Sign]]:
@@ -266,8 +364,8 @@ class SpecialFun:
             # Check for warnings.
             # Complementary error function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
-            #   3. x is nan. (NAN_DETECT)
-            #   4. x is +-inf. (INF_DETECT)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
             # The following logic is an implementation of these rules.
             if rt.chd[0].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
@@ -349,7 +447,61 @@ class SpecialFun:
                 return rt.chd[0], warn
 
             return rt, warn
-        else:
+        elif rt.v == Type.FunT.RECIGAMMA:
+            # Check for warnings.
+            # Reciprocal gamma function with parameter x generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Recigamma'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Recigamma'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Recigamma'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Recigamma'))
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__recigamma``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__recigamma(rt.chd[0].v)
+
+                return rt.chd[0], warn
+            
+            return rt, warn
+        elif rt.v == Type.FunT.BESSELCLIFFORD:
+            # Check for warnings.
+            # Bessel-Clifford function with parameter x generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Besselclifford'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Besselclifford'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Besselclifford'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Besselclifford'))
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__bessel_clifford``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__bessel_clifford(rt.chd[0].v)
+
+                return rt.chd[0], warn
+
+            return rt, warn
+        elif rt.v == Type.FunT.BETA:
             # Check for warnings.
             # Beta function with parameter x and y generates warning for followings cases.
             #   1. x exceeds floating point max size. (BIG_INT)
@@ -397,6 +549,368 @@ class SpecialFun:
                 return rt.chd[0], warn
 
             return rt, warn
+        elif rt.v == Type.FunT.CENTRALBETA:
+            # Check for warnings.
+            # Central beta function with parameter x generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            #   4. x is finite nonpositive integer. (POLE_DETECT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Centralbeta'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Centralbeta'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Centralbeta'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Centralbeta'))
+                elif rt.chd[0].v % 1 == 0 and rt.chd[0].v <= 0:
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 40))
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__cenbeta``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__cenbeta(rt.chd[0].v)
+
+                return rt.chd[0], warn
+
+            return rt, warn
+        elif rt.v == Type.FunT.SINC:
+            # Check for warnings.
+            # Sinc function with parameter x generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Sinc'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Sinc'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Sinc'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Sinc'))
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__sinc``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__sinc(rt.chd[0].v)
+
+                return rt.chd[0], warn
+
+            # Dead expr stripping.
+            # For dead expr stripping, it uses following rules.
+            #   1. Sinc[-x] = Sinc[x]
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].v == Type.OpT.MINUS:
+                rt.swap_chd(rt.chd[0].chd[0], 0)
+
+                return rt, warn
+
+            return rt, warn
+        elif rt.v == Type.FunT.TANC:
+            # Check for warnings.
+            # Tanc function with parameter x generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            #   4. x is integer multiple of pi + pi/2. (POLE_DETECT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Tanc'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Tanc'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Tanc'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Tanc'))
+                elif (rt.chd[0].v - math.pi / 2) % math.pi == 0:
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 41))
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__tanc``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__tanc(rt.chd[0].v)
+
+                return rt.chd[0], warn
+
+            # Dead expr stripping.
+            # For dead expr stripping, it uses following rules.
+            #   1. Tanc[-x] = Tanc[x]
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].v == Type.OpT.MINUS:
+                rt.swap_chd(rt.chd[0].chd[0], 0)
+
+                return rt, warn
+
+            return rt, warn
+        elif rt.v == Type.FunT.SINHC:
+            # Check for warnings.
+            # Sinhc function with parameter x generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Sinhc'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Sinhc'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Sinhc'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Sinhc'))
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__sinhc``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__sinhc(rt.chd[0].v)
+
+                return rt.chd[0], warn
+
+            # Dead expr stripping.
+            # For dead expr stripping, it uses following rules.
+            #   1. Sinhc[-x] = Sinhc[x]
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].v == Type.OpT.MINUS:
+                rt.swap_chd(rt.chd[0].chd[0], 0)
+
+                return rt, warn
+
+            return rt, warn
+        elif rt.v == Type.FunT.COSHC:
+            # Check for warnings.
+            # Coshc function with parameter x generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            #   4. x is 0. (POLE_DETECT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Coshc'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Coshc'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Coshc'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Coshc'))
+                elif rt.chd[0].v == 0:
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 42))
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__coshc``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__coshc(rt.chd[0].v)
+
+                return rt.chd[0], warn
+
+            # Sign propagation.
+            # For sign propagation, it uses following rule.
+            #   1. Coshc[-x] = -Coshc[x]
+            # The following logic is an implementation of this rule.
+            if rt.chd[0].v == Type.OpT.MINUS:
+                tmp = rt.chd[0]
+                rt.swap_chd(rt.chd[0].chd[0], 0)
+                tmp.swap_chd(rt, 0)
+
+                return tmp, warn
+
+            return rt, warn
+        elif rt.v == Type.FunT.TANHC:
+            # Check for warnings.
+            # Tanhc function with parameter x generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Tanhc'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Tanhc'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Tanhc'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Tanhc'))
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__tanhc``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__tanhc(rt.chd[0].v)
+
+                return rt.chd[0], warn
+
+            # Dead expr stripping.
+            # For dead expr stripping, it uses following rules.
+            #   1. Tanhc[-x] = Tanhc[x]
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].v == Type.OpT.MINUS:
+                rt.swap_chd(rt.chd[0].chd[0], 0)
+
+                return rt, warn
+
+            return rt, warn
+        elif rt.v == Type.FunT.DIRICHLETKERNEL:
+            # Check for warnings.
+            # Dirichlet kernel with parameter x and n generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            #   4. n exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   5. n is nan. (NAN_DETECT)
+            #   6. n is +-inf. (INF_DETECT)
+            #   7. n is not nonnegative integer. (DOMAIN_OUT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Dirichletkernel'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Dirichletkernel'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Dirichletkernel'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Dirichletkernel'))
+
+            if rt.chd[1].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[1].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=2, handle='Dirichletkernel'))
+                    rt.chd[1].v = math.inf
+                elif is_smallint(rt.chd[1].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=2, handle='Dirichletkernel'))
+                    rt.chd[1].v = -math.inf
+                elif math.isnan(rt.chd[1].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=2, handle='Dirichletkernel'))
+                elif math.isinf(rt.chd[1].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=2, handle='Dirichletkernel'))
+                elif rt.chd[1].v < 0:
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 44))
+                elif rt.chd[1].v % 1 != 0:
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 45))
+                    rt.chd[1].v = round(rt.chd[1].v)
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__dirichlet_ker``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__dirichlet_ker(rt.chd[0].v, rt.chd[1].v)
+
+                return rt.chd[0], warn
+
+            # Dead expr stripping.
+            # For dead expr stripping, it uses following rules.
+            #   1. Dirichletkernel[-x, n] = Dirichletkernel[x, n]
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].v == Type.OpT.MINUS:
+                rt.swap_chd(rt.chd[0].chd[0], 0)
+
+                return rt, warn
+
+            return rt, warn
+        elif rt.v == Type.FunT.FEJERKERNEL:
+            # Check for warnings.
+            # Fejer kernel with parameter x and n generates warning for followings cases.
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            #   4. n exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   5. n is nan. (NAN_DETECT)
+            #   6. n is +-inf. (INF_DETECT)
+            #   7. n is not positive integer. (DOMAIN_OUT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Fejerkernel'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Fejerkernel'))
+                    rt.chd[0].v = -math.inf
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Fejerkernel'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Fejerkernel'))
+
+            if rt.chd[1].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[1].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=2, handle='Fejerkernel'))
+                    rt.chd[1].v = math.inf
+                elif is_smallint(rt.chd[1].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=2, handle='Fejerkernel'))
+                    rt.chd[1].v = -math.inf
+                elif math.isnan(rt.chd[1].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=2, handle='Fejerkernel'))
+                elif math.isinf(rt.chd[1].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=2, handle='Fejerkernel'))
+                elif rt.chd[1].v <= 0:
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 46))
+                elif rt.chd[1].v % 1 != 0:
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 47))
+                    rt.chd[1].v = round(rt.chd[1].v)
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__fejer_ker``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__fejer_ker(rt.chd[0].v, rt.chd[1].v)
+
+                return rt.chd[0], warn
+
+            # Dead expr stripping.
+            # For dead expr stripping, it uses following rules.
+            #   1. Fejerkernel[-x, n] = Fejerkernel[x, n]
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].v == Type.OpT.MINUS:
+                rt.swap_chd(rt.chd[0].chd[0], 0)
+
+                return rt, warn
+
+            return rt, warn
+        else:
+            # Check for warnings.
+            # Topologist's sine function with parameter x generates warning for followings cases.
+            #   1. x exceeds floating point max size. (BIG_INT)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            #   4. x is finite nonpositive. (DOMAIN_OUT)
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Topologistsin'))
+                    rt.chd[0].v = math.inf
+                elif is_smallint(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 43))
+                    rt.chd[0].v = 0
+                elif math.isnan(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Topologistsin'))
+                elif math.isinf(rt.chd[0].v):
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Topologistsin'))
+                elif rt.chd[0].v <= 0:
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 43))
+
+            # Constant folding.
+            # For detailed computation rule, refer to the comment in ``SpecialFun.__topo_sin``.
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                rt.chd[0].v = cls.__topo_sin(rt.chd[0].v)
+
+                return rt.chd[0], warn
+
+            return rt, warn
 
     @classmethod
     def test(cls, fun: Type.FunT, test_in: List[List[Decimal]]) -> List[Decimal]:
@@ -421,5 +935,27 @@ class SpecialFun:
             return list(map(lambda x: Decimal(cls.__gamma(*list(map(float, x)))), test_in))
         elif fun == Type.FunT.LGAMMA:
             return list(map(lambda x: Decimal(cls.__lgamma(*list(map(float, x)))), test_in))
-        else:
+        elif fun == Type.FunT.RECIGAMMA:
+            return list(map(lambda x: Decimal(cls.__recigamma(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.BESSELCLIFFORD:
+            return list(map(lambda x: Decimal(cls.__bessel_clifford(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.BETA:
             return list(map(lambda x: Decimal(cls.__beta(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.CENTRALBETA:
+            return list(map(lambda x: Decimal(cls.__cenbeta(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.SINC:
+            return list(map(lambda x: Decimal(cls.__sinc(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.TANC:
+            return list(map(lambda x: Decimal(cls.__tanc(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.SINHC:
+            return list(map(lambda x: Decimal(cls.__sinhc(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.COSHC:
+            return list(map(lambda x: Decimal(cls.__coshc(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.TANHC:
+            return list(map(lambda x: Decimal(cls.__tanhc(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.DIRICHLETKERNEL:
+            return list(map(lambda x: Decimal(cls.__dirichlet_ker(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.FEJERKERNEL:
+            return list(map(lambda x: Decimal(cls.__fejer_ker(*list(map(float, x)))), test_in))
+        elif fun == Type.FunT.TOPOLOGISTSIN:
+            return list(map(lambda x: Decimal(cls.__topo_sin(*list(map(float, x)))), test_in))

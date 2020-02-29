@@ -353,7 +353,7 @@ def test(target: Type.FunT = None, verb: bool = False, to: TextIO = sys.stdout) 
         Printer.Printer.inst().print(Type.BufT.DEBUG, to=to)
 
     # Set precision.
-    getcontext().prec = 100
+    getcontext().prec = 300
 
     # Run test.
     TestManager.TestManager.inst().test(target, verb)

@@ -113,12 +113,22 @@ class FunT(Enum):
     :cvar ACSCH: Arccosecant hyperbolic function.
     :cvar ASECH: Arcsecant hyperbolic function.
     :cvar ACOTH: Arccotangent hyperbolic function.
+    :cvar ERF: Error function.
+    :cvar ERFC: Complementary error function.
     :cvar GAMMA: Gamma function.
     :cvar LGAMMA: Log gamma function.
     :cvar RECIGAMMA: Reicprocal gamma function.
     :cvar BESSELCLIFFORD: Bessel-Clifford function.
-    :cvar ERF: Error function.
-    :cvar ERFC: Complementary error function.
+    :cvar BETA: Beta function.
+    :cvar CENTRALBETA: Central beta function.
+    :cvar SINC: Sinc function.
+    :cvar TANC: Tanc function.
+    :cvar SINHC: Sinhc function.
+    :cvar COSHC: Coshc function.
+    :cvar TANHC: Tanhc function.
+    :cvar DIRICHLETKERNEL: Dirichlet kernel.
+    :cvar FEJERKERNEL: Fejer kernel.
+    :cvar TOPOLOGISTSIN: Topologist's sine function.
     :cvar LOG: Log function.
     :cvar EXP: Exponential function.
     :cvar SQRT: Square root function.
@@ -147,13 +157,22 @@ class FunT(Enum):
     ACSCH = auto()
     ASECH = auto()
     ACOTH = auto()
+    ERF = auto()
+    ERFC = auto()
     GAMMA = auto()
     LGAMMA = auto()
     RECIGAMMA = auto()
     BESSELCLIFFORD = auto()
     BETA = auto()
-    ERF = auto()
-    ERFC = auto()
+    CENTRALBETA = auto()
+    SINC = auto()
+    TANC = auto()
+    SINHC = auto()
+    COSHC = auto()
+    TANHC = auto()
+    DIRICHLETKERNEL = auto()
+    FEJERKERNEL = auto()
+    TOPOLOGISTSIN = auto()
     LOG = auto()
     EXP = auto()
     SQRT = auto()
