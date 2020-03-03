@@ -176,3 +176,7 @@ def is_smallint(n: int) -> bool:
     :rtype: bool
     """
     return isinstance(n, int) and n < -float_info.max
+
+
+def is_int(x: float) -> bool:
+    return x % 1 == 0

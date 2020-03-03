@@ -343,10 +343,9 @@ class HyperTri:
         It does following simplifications.
             1. Constant folding.
             2. Dead expression stripping.
-            3. Function coalescing.
-            4. Sign propagation.
-        For details and detailed explanation of optimization tricks, consult following references and comments of
-        ``Operator.simplify``, ``Function.Trigonometric``, and references therein.
+            3. Sign propagation.
+        For details and detailed explanation of these optimization tricks, refer to the comments of
+        ``Operator.simplify`` and references therein.
 
         :param rt: Root of AST to be simplified.
         :type rt: Token.FunTok
@@ -634,7 +633,7 @@ class HyperTri:
         elif rt.v == Type.FunT.ACOSH:
             # Check for warnings.
             # Arccosine hyperbolic function with parameter x generates warning for followings cases.
-            #   1. x exceeds floating point max. (BIG_INT)
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
             #   2. x is nan. (NAN_DETECT)
             #   3. x is +-inf. (INF_DETECT)
             #   4. x is not in [1, Inf). (DOMAIN_OUT)
@@ -644,8 +643,8 @@ class HyperTri:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle="Acosh"))
                     rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 21))
-                    rt.chd[0].v = 0
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle="Acosh"))
+                    rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle="Acosh"))
                 elif math.isinf(rt.chd[0].v):
@@ -664,18 +663,19 @@ class HyperTri:
         elif rt.v == Type.FunT.ATANH:
             # Check for warnings.
             # Arctangent hyperbolic function with parameter x generates warning for followings cases.
-            #   1. x is nan. (NAN_DETECT)
-            #   2. x is +-inf. (INF_DETECT)'
-            #   3. x is +-1. (POLE_DETECT)
-            #   4. x is not in (-1, 1). (DOMAIN_OUT)
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)'
+            #   4. x is +-1. (POLE_DETECT)
+            #   5. x is not in (-1, 1). (DOMAIN_OUT)
             # The following logic is an implementation of these rules.
             if rt.chd[0].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 22))
-                    rt.chd[0].v = 2
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle="Atanh"))
+                    rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 22))
-                    rt.chd[0].v = 2
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle="Atanh"))
+                    rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle="Atanh"))
                 elif math.isinf(rt.chd[0].v):
@@ -748,18 +748,19 @@ class HyperTri:
         elif rt.v == Type.FunT.ASECH:
             # Check for warnings.
             # Arcsecant hyperbolic function with parameter x generates warning for followings cases.
-            #   1. x is nan. (NAN_DETECT)
-            #   2. x is +-inf. (INF_DETECT)
-            #   3. x is 0. (POLE_DETECT)
-            #   4. x is not in (0, 1]. (DOMAIN_OUT)
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
+            #   2. x is nan. (NAN_DETECT)
+            #   3. x is +-inf. (INF_DETECT)
+            #   4. x is 0. (POLE_DETECT)
+            #   5. x is not in (0, 1]. (DOMAIN_OUT)
             # The following logic is an implementation of these rules.
             if rt.chd[0].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 36))
-                    rt.chd[0].v = 2
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle="Asech"))
+                    rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 36))
-                    rt.chd[0].v = 2
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle="Asech"))
+                    rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle="Asech"))
                 elif math.isinf(rt.chd[0].v):

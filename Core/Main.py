@@ -364,5 +364,5 @@ def test(target: Type.FunT = None, verb: bool = False, to: TextIO = sys.stdout) 
 
 if __name__ == '__main__':
     # to = open('../Data/Debug.out', 'w')
-    test()
-    # main(True, False)
+    # test()
+    main(False, False)

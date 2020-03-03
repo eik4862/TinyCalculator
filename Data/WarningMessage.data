@@ -22,7 +22,7 @@ Arccosine hyperbolic of real less than 1 may cause unexpected behaviors. Use Hel
 Arctangent hyperbolic of real less than -1 or greater than 1 may cause unexpected behaviors. Use Help["Atanh"] for more information.                           # OK
 Gamma function of nonpositive integer may cause unexpected behaviors. Use Help["Gamma"] for more information.           # OK
 Loggamma function of nonpositive integer may cause unexpected behaviors. Use Help["Lgamma"] for more information.       # OK
-Square root function of negative integer may cause unexpected behaviors. Use Help["Sqrt"] for more information.
+Square root of negative integer may cause unexpected behaviors. Use Help["Sqrt"] for more information.
 Cosecant of real which is integer multiple of pi may cause unexpected behaviors. Use Help["Csc"] for more information.
 Secant of real which is integer multiple of pi + pi/2 may cause unexpected behaviors. Use Help["Sec"] for more information.
 Cotangent of real which is integer multiple of pi may cause unexpected behaviors. Use Help["Cot"] for more information.
@@ -45,3 +45,13 @@ Dirichlet kernel with negative real as second parameter may cause unexpected beh
 Noninteger as second parameter of Dirichlet kernel will be rounded to integer. Use Help["Dirichletkernel"] for more information.
 Fejer kernel with nonpositive real as second parameter may cause unexpected behaviors. Use Help["Fejerkernel"] for more information.
 Noninteger as second parameter of Fejer kernel will be rounded to integer. Use Help["Fejerkernel"] for more information.
+Log with exponent 0 may cause unexpected behaviors. Use Help["Log"] for more information.
+Log with negative exponent may cause unexpected behaviors. Use Help["Log"] for more information.
+Log with negative base or exponent may cause unexpected behaviors. Use Help["Log"] for more information.
+Log with base 0 or 1 may cause unexpected behaviors. Use Help["Log"] for more information.
+Power with negative base and noninteger exponent may cause unexpected behaviors. Use Help["Pow"] for more information.
+Power with base 0 and nonpositive exponent may cause unexpected behaviors. Use Help["Pow"] for more information.
+Log with base 2 and exponent 0 may cause unexpected behaviors. Use Help["Log2"] for more information.
+Log with base 2 and negative exponent may cause unexpected behaviors. Use Help["Log2"] for more information.
+Log with base 10 and exponent 0 may cause unexpected behaviors. Use Help["Log10"] for more information.
+Log with base 10 and negative exponent may cause unexpected behaviors. Use Help["Log10"] for more information.

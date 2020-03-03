@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from Command import Utility
 from Core import AST, Type, Token, Error, WarningManager, SystemManager
-from Function import Trigonometric, HyperbolicTrigonometric, SpecialFunction
+from Function import Trigonometric, HyperbolicTrigonometric, SpecialFunction, Exponential
 from Operator import Operator
 from Util import Printer
 
@@ -81,8 +81,6 @@ class Interp:
             for tok in rt.chd:
                 self.__chk_t_hlpr(tok)
 
-            cand: List[Type.Sign] = None  # Should be deleted later.
-
             if rt.v in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.CSC, Type.FunT.SEC, Type.FunT.COT,
                         Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC, Type.FunT.ASEC, Type.FunT.ACOT]:
                 cand = Trigonometric.Tri.chk_t(rt)
@@ -90,10 +88,9 @@ class Interp:
                           Type.FunT.COTH, Type.FunT.ASINH, Type.FunT.ACOSH, Type.FunT.ATANH, Type.FunT.ACSCH,
                           Type.FunT.ASECH, Type.FunT.ACOTH]:
                 cand = HyperbolicTrigonometric.HyperTri.chk_t(rt)
-            elif rt.v in [Type.FunT.ERF, Type.FunT.ERFC, Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.RECIGAMMA,
-                          Type.FunT.BESSELCLIFFORD, Type.FunT.BETA, Type.FunT.CENTRALBETA, Type.FunT.SINC,
-                          Type.FunT.TANC, Type.FunT.SINHC, Type.FunT.COSHC, Type.FunT.TANHC, Type.FunT.DIRICHLETKERNEL,
-                          Type.FunT.FEJERKERNEL, Type.FunT.TOPOLOGISTSIN]:
+            elif rt.v in [Type.FunT.EXP, Type.FunT.LOG, Type.FunT.POW, Type.FunT.SQRT, Type.FunT.LOG2, Type.FunT.LOG10]:
+                cand = Exponential.Exp.chk_t(rt)
+            else:
                 cand = SpecialFunction.SpecialFun.chk_t(rt)
 
             if cand:
@@ -174,8 +171,6 @@ class Interp:
             return simple
         elif rt.tok_t == Type.TokT.FUN:
             rt.chd = [self.__simplify_hlpr(tok, rt) for tok in rt.chd]
-            simple = rt  # should be deleted later.
-            warn = []  # Also should be deleted later
 
             if rt.v in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.CSC, Type.FunT.SEC, Type.FunT.COT,
                         Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC, Type.FunT.ASEC, Type.FunT.ACOT]:
@@ -184,10 +179,9 @@ class Interp:
                           Type.FunT.COTH, Type.FunT.ASINH, Type.FunT.ACOSH, Type.FunT.ATANH, Type.FunT.ACSCH,
                           Type.FunT.ASECH, Type.FunT.ACOTH]:
                 simple, warn = HyperbolicTrigonometric.HyperTri.simplify(rt)
-            elif rt.v in [Type.FunT.ERF, Type.FunT.ERFC, Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.RECIGAMMA,
-                          Type.FunT.BESSELCLIFFORD, Type.FunT.BETA, Type.FunT.CENTRALBETA, Type.FunT.SINC,
-                          Type.FunT.TANC, Type.FunT.SINHC, Type.FunT.COSHC, Type.FunT.TANHC, Type.FunT.DIRICHLETKERNEL,
-                          Type.FunT.FEJERKERNEL, Type.FunT.TOPOLOGISTSIN]:
+            elif rt.v in [Type.FunT.EXP, Type.FunT.LOG, Type.FunT.POW, Type.FunT.SQRT, Type.FunT.LOG2, Type.FunT.LOG10]:
+                simple, warn = Exponential.Exp.simplify(rt)
+            else:
                 simple, warn = SpecialFunction.SpecialFun.simplify(rt)
 
             for it in warn:

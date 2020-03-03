@@ -212,14 +212,11 @@ class TestManager:
                                       Type.FunT.COTH, Type.FunT.ASINH, Type.FunT.ACOSH, Type.FunT.ATANH,
                                       Type.FunT.ACSCH, Type.FunT.ASECH, Type.FunT.ACOTH]:
                     test_out.append(HyperbolicTrigonometric.HyperTri.test(target[i][0], test_in))
-                elif target[i][0] in [Type.FunT.ERF, Type.FunT.ERFC, Type.FunT.GAMMA, Type.FunT.LGAMMA,
-                                      Type.FunT.RECIGAMMA, Type.FunT.BESSELCLIFFORD, Type.FunT.BETA,
-                                      Type.FunT.CENTRALBETA, Type.FunT.SINC, Type.FunT.TANC, Type.FunT.SINHC,
-                                      Type.FunT.COSHC, Type.FunT.TANHC, Type.FunT.DIRICHLETKERNEL,
-                                      Type.FunT.FEJERKERNEL, Type.FunT.TOPOLOGISTSIN]:
-                    test_out.append(SpecialFunction.SpecialFun.test(target[i][0], test_in))
-                else:
+                elif target[i][0] in [Type.FunT.EXP, Type.FunT.LOG, Type.FunT.POW, Type.FunT.SQRT, Type.FunT.LOG2,
+                                      Type.FunT.LOG10]:
                     test_out.append(Exponential.Exp.test(target[i][0], test_in))
+                else:
+                    test_out.append(SpecialFunction.SpecialFun.test(target[i][0], test_in))
 
                 Printer.Printer.inst().buf(Printer.Printer.inst().f_col('done', Type.Col.BLUE), buf)
 

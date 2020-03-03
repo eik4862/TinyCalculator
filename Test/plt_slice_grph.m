@@ -44,7 +44,7 @@ function fig = plt_slice_grph(f, from, to, main, ylab, slice_pt, lim, x_asymp, y
     leg = cell(1, length(slice_pt));
     
     for i = 1:length(slice_pt)
-        leg{i} = sprintf('n=%.3g', slice_pt(i));
+        leg{i} = sprintf('y=%.3g', slice_pt(i));
     end
     
     x = cell(1,part);
@@ -101,6 +101,8 @@ function fig = plt_slice_grph(f, from, to, main, ylab, slice_pt, lim, x_asymp, y
             patch([x{i}(j,:) fliplr(x{i}(j,:))], [y{i}(j,:) zeros(1, length(x{i}(j,:)))], col_fill(mod(j, size(col_fill, 1)) + 1,:), 'FaceAlpha', 0.5, 'LineStyle', 'none')
         end
     end
+    
+    fig.Children.YLim = [max(fig.Children.YLim(1), lim(1)) min(fig.Children.YLim(2), lim(2))];
     
     for i = 1:part
         plt = plot(x{i}', y{i}', 'Linewidth', 1.5);

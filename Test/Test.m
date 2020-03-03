@@ -174,7 +174,7 @@ saveas(fig, './Plt/Besselclifford_Graph', 'epsc')
 close('all')
 
 % Beta
-fig = plt_grph3(@(x, y) gamma(x) .* gamma(y) ./ gamma(x + y), [-3 -3], [3 3], 'Beta function on [-3, 3]\times[-3, 3]', 'B(x, y)', 10, [-1.5 -0.5 0.5 1.5; -1.5 -0.5 1 2], [-6 6], [-3 -2 -1 0], [-3 -2 -1 0]);
+fig = plt_grph3(@(x, y) gamma(x) .* gamma(y) ./ gamma(x + y), [-3 -3], [3 3], 'Beta function on [-3, 3]^2', 'B(x, y)', 10, [-1.5 -0.5 0.5 1.5; -1.5 -0.5 1 2], [-6 6], [-3 -2 -1 0], [-3 -2 -1 0]);
 saveas(fig, './Plt/Beta_Graph', 'epsc')
 close('all')
 
@@ -232,46 +232,38 @@ fig = plt_grph(@(x) sin(1 ./ x), 0.0001, 3, "Topologist's sine function on [0, 3
 saveas(fig, './Plt/Topologistsin_Graph', 'epsc')
 close('all')
 
-%% math.exp
-% [-5, 5] rand
-in = fopen('./In/Test_Sinh_Small.in', 'w');
-ref = fopen('./Ref/Test_Sinh_Small.ref', 'w');
-test_gen(@sinh, sym(-5), sym(5), 1000, in, ref)
+% Exp
+fig = plt_grph(@exp, -3, 3, 'Exponential function on [-3, 3]', 'exp(x)', [0 10]);
+saveas(fig, './Plt/Exp_Graph', 'epsc')
 close('all')
 
-in = fopen('Test.in', 'r');
-ref = fopen('Test.ref', 'r');
-out = fopen('Test.out', 'r');
-fig = plt_err(in, ref, out, 1000, 'Error of math.exp on [-5, 5]')
-saveas(fig, './Plt/Exp_-5_5', 'epsc')
+% Log
+fig = plt_grph3(@(x, y) log(x) ./ log(y), [0 0], [3 3], 'Log function on [0, 3]^2', 'log_y(x)', 10, [0.25 0.5 1.5 2; 0.25 0.5 1.5 2], [-6 6], 0, [0 1]);
+saveas(fig, './Plt/Log_Graph', 'epsc')
 close('all')
 
-%% math.sqrt
-% [0, 5] rand
-in = fopen('Test.in', 'w');
-ref = fopen('Test.ref', 'w');
-test_gen(@sqrt, sym(0), sym(5), 1000, in, ref)
+% Pow
+fig = plt_grph3(@(x, y) x.^y, [0 -3], [3 3], 'Power function on [0, 3]\times[-3, 3]', 'x^y', 10, [0.25 0.5 1.5 2 3; -2 -0.5 0.5 1.5 2], [0 10], 0);
+saveas(fig, './Plt/Pow_Graph', 'epsc')
 close('all')
 
-in = fopen('Test.in', 'r');
-ref = fopen('Test.ref', 'r');
-out = fopen('Test.out', 'r');
-fig = plt_err(in, ref, out, 1000, 'Error of math.sqrt on [0, 5]')
-saveas(fig, './Plt/Sqrt_0_5', 'epsc')
+fig = plt_slice_grph(@(x, y) x.^y, -3, 3, 'Power function with integer exponent on [-3, 3]', 'x^y', [-3 -2 2 3], [-5 5], 0);
+saveas(fig, './Plt/Pow2_Graph', 'epsc')
 close('all')
 
-%% math.log
-% [0, 5] rand
-in = fopen('Test.in', 'w');
-ref = fopen('Test.ref', 'w');
-test_gen(@log, sym(0), sym(5), 1000, in, ref)
+% Sqrt
+fig = plt_grph(@sqrt, 0, 5, 'Square root function on [0, 5]', 'sqrt(x)');
+saveas(fig, './Plt/Sqrt_Graph', 'epsc')
 close('all')
 
-in = fopen('Test.in', 'r');
-ref = fopen('Test.ref', 'r');
-out = fopen('Test.out', 'r');
-fig = plt_err(in, ref, out, 1000, 'Error of math.log on [0, 5]')
-saveas(fig, './Plt/Log_0_5', 'epsc')
+% Log2
+fig = plt_grph(@log2, 0, 5, 'Log function with base 2 on [0, 5]', 'log_2(x)', [-3 3], 0);
+saveas(fig, './Plt/Log2_Graph', 'epsc')
+close('all')
+
+% Log10
+fig = plt_grph(@log10, 0, 5, 'Log function with base 10 on [0, 5]', 'log_{10}(x)', [-1 1], 0);
+saveas(fig, './Plt/Log10_Graph', 'epsc')
 close('all')
 
 %% TEST DB GENERATION
@@ -355,6 +347,57 @@ f = {
     @acoth;
     @acoth;
     @acoth;
+    @(x) 1 ./ gamma(x);
+    @(x) 1 ./ gamma(x);
+    @(x) 1 ./ gamma(x);
+    @(x) 1 ./ gamma(x + 1);
+    @(x) 1 ./ gamma(x + 1);
+    @(x) 1 ./ gamma(x + 1);
+    @(x) gamma(x).^2 ./ gamma(2 * x);
+    @(x) gamma(x).^2 ./ gamma(2 * x);
+    @(x) gamma(x).^2 ./ gamma(2 * x);
+    @(x) sinc(x / pi);
+    @(x) sinc(x / pi);
+    @(x) sinc(x / pi);
+    @(x) tan(x) ./ x;
+    @(x) tan(x) ./ x;
+    @(x) tan(x) ./ x;
+    @(x) sinh(x) ./ x;
+    @(x) sinh(x) ./ x;
+    @(x) sinh(x) ./ x;
+    @(x) cosh(x) ./ x;
+    @(x) cosh(x) ./ x;
+    @(x) cosh(x) ./ x;
+    @(x) tanh(x) ./ x;
+    @(x) tanh(x) ./ x;
+    @(x) tanh(x) ./ x;
+    @(x, n) sin((n + 1 / 2) .* x) ./ sin(x / 2);
+    @(x, n) sin((n + 1 / 2) .* x) ./ sin(x / 2);
+    @(x, n) sin((n + 1 / 2) .* x) ./ sin(x / 2);
+    @(x, n) (1 - cos(n .* x)) ./ (1 - cos(x)) ./ n;
+    @(x, n) (1 - cos(n .* x)) ./ (1 - cos(x)) ./ n;
+    @(x, n) (1 - cos(n .* x)) ./ (1 - cos(x)) ./ n;
+    @(x) sin(1 ./ x);
+    @(x) sin(1 ./ x);
+    @(x) sin(1 ./ x);
+    @exp;
+    @exp;
+    @exp;
+    @(x, y) log(x) ./ log(y);
+    @(x, y) log(x) ./ log(y);
+    @(x, y) log(x) ./ log(y);
+    @sqrt;
+    @sqrt;
+    @sqrt;
+    @log2;
+    @log2;
+    @log2;
+    @log10;
+    @log10;
+    @log10;
+    @(x, y) x.^y;
+    @(x, y) x.^y;
+    @(x, y) x.^y;
 };
 from = {
     sym(0);
@@ -436,6 +479,57 @@ from = {
     sym(-4);
     sym(-499);
     sym(-5e10) + sym(1);
+    sym(-5);
+    sym(-25);
+    sym(-125);
+    sym(-5);
+    sym(-25);
+    sym(-125);
+    sym(-3);
+    sym(-30);
+    sym(-300);
+    sym(-5) * sym(pi);
+    sym(-500) * sym(pi);
+    sym(-5e10) * sym(pi);
+    sym(-2.5) * sym(pi);
+    sym(-250) * sym(pi);
+    sym(-2.5e10) * sym(pi);
+    sym(-5);
+    sym(-50);
+    sym(-500);
+    sym(-5);
+    sym(-50);
+    sym(-500);
+    sym(-3);
+    sym(-30);
+    sym(-300);
+    sym([-5 0.5]);
+    sym([-500 0.5]);
+    sym([-5e10 0.5]);
+    sym([-5 1.5]);
+    sym([-500 1.5]);
+    sym([-5e10, 1.5]);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(-3);
+    sym(-30);
+    sym(-300);
+    sym([0 0]);
+    sym([0 0]);
+    sym([0 0]);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym([0 -3]);
+    sym([0 -30]);
+    sym([0 -100]);
 };
 to = {
     sym(2) * sym(pi);
@@ -517,6 +611,57 @@ to = {
     sym(4);
     sym(499);
     sym(5e10) - sym(1);
+    sym(5);
+    sym(25);
+    sym(125);
+    sym(5);
+    sym(25);
+    sym(125);
+    sym(3);
+    sym(30);
+    sym(300);
+    sym(5) * sym(pi);
+    sym(500) * sym(pi);
+    sym(5e10) * sym(pi);
+    sym(2.5) * sym(pi);
+    sym(250) * sym(pi);
+    sym(2.5e10) * sym(pi);
+    sym(5);
+    sym(50);
+    sym(500);
+    sym(5);
+    sym(50);
+    sym(500);
+    sym(3);
+    sym(30);
+    sym(300);
+    sym([5 5.5]);
+    sym([500 50.5]);
+    sym([5e10 500.5]);
+    sym([5 5.5]);
+    sym([500 50.5]);
+    sym([5e10, 500.5]);
+    sym(3);
+    sym(300);
+    sym(3e10);
+    sym(3);
+    sym(30);
+    sym(300);
+    sym([3 3]);
+    sym([300 300]);
+    sym([3e10 3e10]);
+    sym(5);
+    sym(500);
+    sym(5e10);
+    sym(5);
+    sym(500);
+    sym(5e10);
+    sym(5);
+    sym(500);
+    sym(5e10);
+    sym([3 3]);
+    sym([30 30]);
+    sym([100 100]);
 };
 fname = {
     'Test_Sin_Small';
@@ -598,6 +743,57 @@ fname = {
     'Test_Acoth_Small';
     'Test_Acoth_Medium';
     'Test_Acoth_Large';
+    'Test_Recigamma_Small';
+    'Test_Recigamma_Medium';
+    'Test_Recigamma_Large';
+    'Test_Besselclifford_Small';
+    'Test_Besselclifford_Medium';
+    'Test_Besselclifford_Large';
+    'Test_Centralbeta_Small';
+    'Test_Centralbeta_Medium';
+    'Test_Centralbeta_Large';
+    'Test_Sinc_Small';
+    'Test_Sinc_Medium';
+    'Test_Sinc_Large';
+    'Test_Tanc_Small';
+    'Test_Tanc_Medium';
+    'Test_Tanc_Large';
+    'Test_Sinhc_Small';
+    'Test_Sinhc_Medium';
+    'Test_Sinhc_Large';
+    'Test_Coshc_Small';
+    'Test_Coshc_Medium';
+    'Test_Coshc_Large';
+    'Test_Tanhc_Small';
+    'Test_Tanhc_Medium';
+    'Test_Tanhc_Large';
+    'Test_Dirichletkernel_Small';
+    'Test_Dirichletkernel_Medium';
+    'Test_Dirichletkernel_Large';
+    'Test_Fejerkernel_Small';
+    'Test_Fejerkernel_Medium';
+    'Test_Fejerkernel_Large';
+    'Test_Topologistsin_Small';
+    'Test_Topologistsin_Medium';
+    'Test_Topologistsin_Large';
+    'Test_Exp_Small';
+    'Test_Exp_Medium';
+    'Test_Exp_Large';
+    'Test_Log_Small';
+    'Test_Log_Medium';
+    'Test_Log_Large';
+    'Test_Sqrt_Small';
+    'Test_Sqrt_Medium';
+    'Test_Sqrt_Large';
+    'Test_Log2_Small';
+    'Test_Log2_Medium';
+    'Test_Log2_Large';
+    'Test_Log10_Small';
+    'Test_Log10_Medium';
+    'Test_Log10_Large';
+    'Test_Pow_Small';
+    'Test_Pow_Medium';
+    'Test_Pow_Large';
 };
 map = {
     {@(x) x};
@@ -679,11 +875,67 @@ map = {
     {@(x) x + sign(x)};
     {@(x) x + sign(x)};
     {@(x) x + sign(x)};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x; @(x) round(x)};
+    {@(x) x; @(x) round(x)};
+    {@(x) x; @(x) round(x)};
+    {@(x) x; @(x) round(x)};
+    {@(x) x; @(x) round(x)};
+    {@(x) x; @(x) round(x)};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x; @(x) x};
+    {@(x) x; @(x) x};
+    {@(x) x; @(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x};
+    {@(x) x; @(x) x};
+    {@(x) x; @(x) x};
+    {@(x) x; @(x) x};
 };
 argc = [
     ones(44, 1);
     2 * ones(3, 1);
-    ones(32, 1);
+    ones(56, 1);
+    2 * ones(6, 1);
+    ones(6, 1);
+    2 * ones(3, 1);
+    ones(9, 1);
+    2 * ones(3, 1);
 ];
 multi_test_gen(f, from, to, fname, argc, map)
 
@@ -768,6 +1020,57 @@ fname = {
     'Test_Acoth_Small';
     'Test_Acoth_Medium';
     'Test_Acoth_Large';
+    'Test_Recigamma_Small';
+    'Test_Recigamma_Medium';
+    'Test_Recigamma_Large';
+    'Test_Besselclifford_Small';
+    'Test_Besselclifford_Medium';
+    'Test_Besselclifford_Large';
+    'Test_Centralbeta_Small';
+    'Test_Centralbeta_Medium';
+    'Test_Centralbeta_Large';
+    'Test_Sinc_Small';
+    'Test_Sinc_Medium';
+    'Test_Sinc_Large';
+    'Test_Tanc_Small';
+    'Test_Tanc_Medium';
+    'Test_Tanc_Large';
+    'Test_Sinhc_Small';
+    'Test_Sinhc_Medium';
+    'Test_Sinhc_Large';
+    'Test_Coshc_Small';
+    'Test_Coshc_Medium';
+    'Test_Coshc_Large';
+    'Test_Tanhc_Small';
+    'Test_Tanhc_Medium';
+    'Test_Tanhc_Large';
+    'Test_Dirichletkernel_Small';
+    'Test_Dirichletkernel_Medium';
+    'Test_Dirichletkernel_Large';
+    'Test_Fejerkernel_Small';
+    'Test_Fejerkernel_Medium';
+    'Test_Fejerkernel_Large';
+    'Test_Topologistsin_Small';
+    'Test_Topologistsin_Medium';
+    'Test_Topologistsin_Large';
+    'Test_Exp_Small';
+    'Test_Exp_Medium';
+    'Test_Exp_Large';
+    'Test_Log_Small';
+    'Test_Log_Medium';
+    'Test_Log_Large';
+    'Test_Sqrt_Small';
+    'Test_Sqrt_Medium';
+    'Test_Sqrt_Large';
+    'Test_Log2_Small';
+    'Test_Log2_Medium';
+    'Test_Log2_Large';
+    'Test_Log10_Small';
+    'Test_Log10_Medium';
+    'Test_Log10_Large';
+    'Test_Pow_Small';
+    'Test_Pow_Medium';
+    'Test_Pow_Large';
 };
 size = 1000 * ones(length(fname), 1);
 main = {
@@ -850,11 +1153,67 @@ main = {
     'Error of Acoth[x] on [-5, 5]';
     'Error of Acoth[x] on [-500, 500]';
     'Error of Acoth[x] on [-5\times10^{10}, 5\times10^{10}]';
+    'Error of Recigamma[x] on [-5, 5]';
+    'Error of Recigamma[x] on [-25, 25]';
+    'Error of Recigamma[x] on [-125, 125]';
+    'Error of Besselclifford[x] on [-5, 5]';
+    'Error of Besselclifford[x] on [-25, 25]';
+    'Error of Besselclifford[x] on [-125, 125]';
+    'Error of Centralbeta[x] on [-3, 3]';
+    'Error of Centralbeta[x] on [-30, 30]';
+    'Error of Centralbeta[x] on [-300, 300]';
+    'Error of Sinc[x] on [-5\pi, 5\pi]';
+    'Error of Sinc[x] on [-500\pi, 500\pi]';
+    'Error of Sinc[x] on [-5\times10^{10}\pi, 5\times10^{10}\pi]';
+    'Error of Tanc[x] on [-5\pi/2, 5\pi/2]';
+    'Error of Tanc[x] on [-250\pi, 250\pi]';
+    'Error of Tanc[x] on [-5\times10^{10}\pi/2, 5\times10^{10}\pi/2]';
+    'Error of Sinhc[x] on [-5, 5]';
+    'Error of Sinhc[x] on [-50, 50]';
+    'Error of Sinhc[x] on [-500, 500]';
+    'Error of Coshc[x] on [-5, 5]';
+    'Error of Coshc[x] on [-50, 50]';
+    'Error of Coshc[x] on [-500, 500]';
+    'Error of Tanhc[x] on [-3, 3]';
+    'Error of Tanhc[x] on [-30, 30]';
+    'Error of Tanhc[x] on [-300, 300]';
+    'Error of Dirichletkernel[x, n] on [-5, 5]\times[1, 5]';
+    'Error of Dirichletkernel[x] on [-500, 500]\times[1, 50]';
+    'Error of Dirichletkernel[x] on [-5\times10^{10}, 5\times10^{10}]\times[1, 500]';
+    'Error of Fejerkernel[x] on [-5, 5]\times[2, 5]';
+    'Error of Fejerkernel[x] on [-500, 500]\times[2, 50]';
+    'Error of Fejerkernel[x] on [-5\times10^{10}, 5\times10^{10}]\times[2, 500]';
+    'Error of Topologistsin[x] on [0, 3]';
+    'Error of Topologistsin[x] on [0, 300]';
+    'Error of Topologistsin[x] on [0, 3\times10^{10}]';
+    'Error of Exp[x] on [-3, 3]';
+    'Error of Exp[x] on [-30, 30]';
+    'Error of Exp[x] on [-300, 300]';
+    'Error of Log[x, y] on [0, 3]^2';
+    'Error of Log[x, y] on [0, 300]^2';
+    'Error of Log[x, y] on [0, 3\times10^{10}]^2';
+    'Error of Sqrt[x] on [0, 5]';
+    'Error of Sqrt[x] on [0, 500]';
+    'Error of Sqrt[x] on [0, 5\times10^{10}]';
+    'Error of Log2[x] on [0, 5]';
+    'Error of Log2[x] on [0, 500]';
+    'Error of Log2[x] on [0, 5\times10^{10}]';
+    'Error of Log10[x] on [0, 5]';
+    'Error of Log10[x] on [0, 500]';
+    'Error of Log10[x] on [0, 5\times10^{10}]';
+    'Error of Pow[x, y] on [0, 3]\times[-3, 3]';
+    'Error of Pow[x, y] on [0, 30]\times[-30, 30]';
+    'Error of Pow[x, y] on [0, 100]\times[-100, 100]';
 };
 argc = [
     ones(44, 1);
     2 * ones(3, 1);
-    ones(32, 1);
+    ones(56, 1);
+    2 * ones(6, 1);
+    ones(6, 1);
+    2 * ones(3, 1);
+    ones(9, 1);
+    2 * ones(3, 1);
 ];
 from = {
     sym(0);
@@ -936,6 +1295,57 @@ from = {
     sym(-5);
     sym(-500);
     sym(-5e10);
+    sym(-5);
+    sym(-25);
+    sym(-125);
+    sym(-5);
+    sym(-25);
+    sym(-125);
+    sym(-3);
+    sym(-30);
+    sym(-300);
+    sym(-5) * sym(pi);
+    sym(-500) * sym(pi);
+    sym(-5e10) * sym(pi);
+    sym(-2.5) * sym(pi);
+    sym(-250) * sym(pi);
+    sym(-2.5e10) * sym(pi);
+    sym(-5);
+    sym(-50);
+    sym(-500);
+    sym(-5);
+    sym(-50);
+    sym(-500);
+    sym(-3);
+    sym(-30);
+    sym(-300);
+    sym([-5 1]);
+    sym([-500 1]);
+    sym([-5e10 1]);
+    sym([-5 2]);
+    sym([-500 2]);
+    sym([-5e10 2]);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(-3);
+    sym(-30);
+    sym(-300);
+    sym([0 0]);
+    sym([0 0]);
+    sym([0 0]);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym(0);
+    sym([0 -3]);
+    sym([0 -30]);
+    sym([0 -100]);
 };
 to = {
     sym(2) * sym(pi);
@@ -1017,81 +1427,6 @@ to = {
     sym(5);
     sym(500);
     sym(5e10);
-};
-multi_plt_err(fname, size, main, argc, from, to)
-
-%%
-f = {
-    @(x) 1 ./ gamma(x);
-    @(x) 1 ./ gamma(x);
-    @(x) 1 ./ gamma(x);
-    @(x) 1 ./ gamma(x + 1);
-    @(x) 1 ./ gamma(x + 1);
-    @(x) 1 ./ gamma(x + 1);
-    @(x) gamma(x).^2 ./ gamma(2 * x);
-    @(x) gamma(x).^2 ./ gamma(2 * x);
-    @(x) gamma(x).^2 ./ gamma(2 * x);
-    @(x) sinc(x / pi);
-    @(x) sinc(x / pi);
-    @(x) sinc(x / pi);
-    @(x) tan(x) ./ x;
-    @(x) tan(x) ./ x;
-    @(x) tan(x) ./ x;
-    @(x) sinh(x) ./ x;
-    @(x) sinh(x) ./ x;
-    @(x) sinh(x) ./ x;
-    @(x) cosh(x) ./ x;
-    @(x) cosh(x) ./ x;
-    @(x) cosh(x) ./ x;
-    @(x) tanh(x) ./ x;
-    @(x) tanh(x) ./ x;
-    @(x) tanh(x) ./ x;
-    @(x, n) sin((n + 1 / 2) .* x) ./ sin(x / 2);
-    @(x, n) sin((n + 1 / 2) .* x) ./ sin(x / 2);
-    @(x, n) sin((n + 1 / 2) .* x) ./ sin(x / 2);
-    @(x, n) (1 - cos(n .* x)) ./ (1 - cos(x)) ./ n;
-    @(x, n) (1 - cos(n .* x)) ./ (1 - cos(x)) ./ n;
-    @(x, n) (1 - cos(n .* x)) ./ (1 - cos(x)) ./ n;
-    @(x) sin(1 ./ x);
-    @(x) sin(1 ./ x);
-    @(x) sin(1 ./ x);
-};
-from = {
-    sym(-5);
-    sym(-25);
-    sym(-125);
-    sym(-5);
-    sym(-25);
-    sym(-125);
-    sym(-3);
-    sym(-30);
-    sym(-300);
-    sym(-5) * sym(pi);
-    sym(-500) * sym(pi);
-    sym(-5e10) * sym(pi);
-    sym(-2.5) * sym(pi);
-    sym(-250) * sym(pi);
-    sym(-2.5e10) * sym(pi);
-    sym(-5);
-    sym(-50);
-    sym(-500);
-    sym(-5);
-    sym(-50);
-    sym(-500);
-    sym(-3);
-    sym(-30);
-    sym(-300);
-    sym([-5 -0.5]);
-    sym([-500 -0.5]);
-    sym([-5e10 -0.5]);
-    sym([-5 0.5]);
-    sym([-500 0.5]);
-    sym([-5e10, 0.5]);
-    sym(0);
-    sym(0);
-    sym(0);
-};
-to = {
     sym(5);
     sym(25);
     sym(125);
@@ -1116,91 +1451,32 @@ to = {
     sym(3);
     sym(30);
     sym(300);
-    sym([5 5.5]);
-    sym([500 50.5]);
-    sym([5e10 500.5]);
-    sym([5 5.5]);
-    sym([500 50.5]);
-    sym([5e10, 500.5]);
+    sym([5 5]);
+    sym([500 50]);
+    sym([5e10 500]);
+    sym([5 5]);
+    sym([500 50]);
+    sym([5e10, 500]);
     sym(3);
     sym(300);
     sym(3e10);
+    sym(3);
+    sym(30);
+    sym(300);
+    sym([3 3]);
+    sym([300 300]);
+    sym([3e10 3e10]);
+    sym(5);
+    sym(500);
+    sym(5e10);
+    sym(5);
+    sym(500);
+    sym(5e10);
+    sym(5);
+    sym(500);
+    sym(5e10);
+    sym([3 3]);
+    sym([30 30]);
+    sym([100 100]);
 };
-fname = {
-    'Test_Recigamma_Small';
-    'Test_Recigamma_Medium';
-    'Test_Recigamma_Large';
-    'Test_Besselclifford_Small';
-    'Test_Besselclifford_Medium';
-    'Test_Besselclifford_Large';
-    'Test_Centralbeta_Small';
-    'Test_Centralbeta_Medium';
-    'Test_Centralbeta_Large';
-    'Test_Sinc_Small';
-    'Test_Sinc_Medium';
-    'Test_Sinc_Large';
-    'Test_Tanc_Small';
-    'Test_Tanc_Medium';
-    'Test_Tanc_Large';
-    'Test_Sinhc_Small';
-    'Test_Sinhc_Medium';
-    'Test_Sinhc_Large';
-    'Test_Coshc_Small';
-    'Test_Coshc_Medium';
-    'Test_Coshc_Large';
-    'Test_Tanhc_Small';
-    'Test_Tanhc_Medium';
-    'Test_Tanhc_Large';
-    'Test_Dirichletkernel_Small';
-    'Test_Dirichletkernel_Medium';
-    'Test_Dirichletkernel_Large';
-    'Test_Fejerkernel_Small';
-    'Test_Fejerkernel_Medium';
-    'Test_Fejerkernel_Large';
-    'Test_Topologistsin_Small';
-    'Test_Topologistsin_Medium';
-    'Test_Topologistsin_Large';
-};
-argc = [
-    ones(24, 1);
-    2 * ones(6, 1);
-    ones(3, 1);
-];
-map = {
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x; @(x) round(x)};
-    {@(x) x; @(x) round(x)};
-    {@(x) x; @(x) round(x)};
-    {@(x) x; @(x) round(x)};
-    {@(x) x; @(x) round(x)};
-    {@(x) x; @(x) round(x)};
-    {@(x) x};
-    {@(x) x};
-    {@(x) x};
-};
-multi_test_gen(f, from, to, fname, argc, map)
-
-%%
+multi_plt_err(fname, size, main, argc, from, to)

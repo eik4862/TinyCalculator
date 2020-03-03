@@ -1,10 +1,9 @@
 import math
-import sys
 from decimal import Decimal
 from typing import Dict, List, Tuple, Optional, final
 
 from Core import Type, Token, Warning
-from Util.Macro import is_bigint, is_smallint
+from Util.Macro import is_bigint, is_smallint, is_int
 
 
 @final
@@ -101,7 +100,7 @@ class SpecialFun:
         :return: Computed value of gamma function.
         :rtype: float
         """
-        if x == -math.inf or (x % 1 == 0 and x <= 0):
+        if x == -math.inf or (is_int(x) and x <= 0):
             return math.nan
         else:
             try:
@@ -129,13 +128,30 @@ class SpecialFun:
         :return: Computed value of log gamma function.
         :rtype: float
         """
-        return math.nan if x == -math.inf or (x % 1 == 0 and x <= 0) else math.lgamma(x)
+        return math.nan if x == -math.inf or (is_int(x) and x <= 0) else math.lgamma(x)
 
     @classmethod
     def __recigamma(cls, x: float) -> float:
+        """
+        Reciprocal gamma function.
+
+        Reciprocal gamma function with parameter x has following computation rules.
+            1. If x is nan or -inf, the result is nan.
+            2. If x is +inf, the result is 0.
+            3. If x is finite, the result is ``1 / math.gamma(x)``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where reciprocal gamma function is to be computed.
+        :type x: float
+
+        :return: Computed value of reciprocal gamma function.
+        :rtype: float
+        """
         if math.isinf(x):
             return math.nan if x < 0 else 0
-        elif x % 1 == 0 and x <= 0:
+        elif is_int(x) and x <= 0:
             return 0
         else:
             try:
@@ -145,9 +161,26 @@ class SpecialFun:
 
     @classmethod
     def __bessel_clifford(cls, x: float) -> float:
+        """
+        Bessel-Clifford function.
+
+        Bessel-Clifford function with parameter x has following computation rules.
+            1. If x is nan or -inf, the result is nan.
+            2. If x is +inf, the result is 0.
+            3. If x is finite, the result is ``1 / math.gamma(x + 1)``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where Bessel-Clifford function is to be computed.
+        :type x: float
+
+        :return: Computed value of Bessel-Clifford function.
+        :rtype: float
+        """
         if math.isinf(x):
             return math.nan if x < 0 else 0
-        elif x % 1 == 0 and x < 0:
+        elif is_int(x) and x < 0:
             return 0
         else:
             try:
@@ -188,13 +221,13 @@ class SpecialFun:
         :return: Computed value of beta function.
         :rtype: float
         """
-        if ((x % 1 == 0 or math.isinf(x)) and x <= 0) or ((y % 1 == 0 or math.isinf(y)) and y <= 0):
+        if ((is_int(x) or math.isinf(x)) and x <= 0) or ((is_int(y) or math.isinf(y)) and y <= 0):
             return math.nan
         elif math.isinf(x):
             return 0 if math.isinf(y) else math.inf if y > 0 or math.ceil(y) % 2 == 1 else -math.inf
         elif math.isinf(y):
             return math.inf if x > 0 or math.ceil(x) % 2 == 1 else -math.inf
-        elif (x + y) % 1 == 0 and (x + y) <= 0:
+        elif is_int(x + y) and (x + y) <= 0:
             return 0
         else:
             sgn = 1
@@ -215,14 +248,38 @@ class SpecialFun:
 
     @classmethod
     def __cenbeta(cls, x: float) -> float:
+        """
+        Central beta function.
+
+        Central beta function with parameter x has following computation rules.
+            1. If x is nan or -inf, the result is nan.
+            2. If x is +inf, the result is 0.
+            3. If x is finite nonpositive integer, the result is nan.
+            4. If x is either finite positive or finite negative nonintger, the result is
+               ``math.exp(math.lgamma(x) * 2 - math.lgamma(2 * x))``.
+        Here, rule 4 is based on the identity ``B(x, x) = gamma(x)^2 / gamma(2x)``.
+        Since this identity is vulnerable to overflow, we take logarithm and take exponential again.
+        Before taking logarithm, we must take absolute value first and the lost sign information can be recovered
+        latter using the fact that ``gamma(x)`` is positive iff x is finite positive or in (2n, 2n+1) for some finite
+        negative integer n.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where central beta function is to be computed.
+        :type x: float
+
+        :return: Computed value of central beta function.
+        :rtype: float
+        """
         if x == math.inf:
             return 0
-        elif x % 1 == 0 and x <= 0:
+        elif is_int(x) and x <= 0:
             return math.nan
-        elif 2 * x % 1 == 0 and x <= 0:
+        elif 2 * is_int(x) and x <= 0:
             return 0
         else:
-            sgn = 1 if x % 1 < 0.5 else -1
+            sgn = 1 if x > 0 or x % 1 < 0.5 else -1
 
             try:
                 return sgn * math.exp(math.lgamma(x) * 2 - math.lgamma(2 * x))
@@ -231,14 +288,68 @@ class SpecialFun:
 
     @classmethod
     def __sinc(cls, x: float) -> float:
+        """
+        Sinc function.
+
+        Sinc function with parameter x has following computation rules.
+            1. If x is nan, the result is nan.
+            2. If x is +-inf, the result is 0.
+            3. If x is 0, the result is 1.
+            4. If x is finite nonzero, the result is ``math.sin(x) / x``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where sinc function is to be computed.
+        :type x: float
+
+        :return: Computed value of sinc function.
+        :rtype: float
+        """
         return 1 if x == 0 else math.sin(x) / x
 
     @classmethod
     def __tanc(cls, x: float) -> float:
+        """
+        Tanc function.
+
+        Tanc function with parameter x has following computation rules.
+           1. If x is nan or +-inf, the result is nan.
+           2. If x is finite integer multiple of pi + pi/2, the result is nan.
+           3. If x is 0, the result is 1.
+           4. If x is finite nonzero and not integer multiple of pi + pi/2, the result is ``math.tan(x) / x``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where tanc function is to be computed.
+        :type x: float
+
+        :return: Computed value of tanc function.
+        :rtype: float
+        """
         return math.nan if math.isinf(x) or (x - math.pi / 2) % math.pi == 0 else 0 if x == 0 else math.tan(x) / x
 
     @classmethod
     def __sinhc(cls, x: float) -> float:
+        """
+        Sinhc function.
+
+        Sinhc function with parameter x has following computation rules.
+           1. If x is nan, the result is nan.
+           2. If x is +-inf, the result is inf.
+           3. If x is 0, the result is 1.
+           4. If x is finite nonzero, the result is ``math.sinh(x) / x``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where sinhc function is to be computed.
+        :type x: float
+
+        :return: Computed value of sinhc function.
+        :rtype: float
+        """
         try:
             return 1 if x == 0 else math.sinh(x) / x
         except OverflowError:
@@ -246,6 +357,24 @@ class SpecialFun:
 
     @classmethod
     def __coshc(cls, x: float) -> float:
+        """
+        Coshc function.
+
+        Coshc function with parameter x has following computation rules.
+           1. If x is nan, the result is nan.
+           2. If x is +-inf, the result is +-inf, resp.
+           3. If x is 0, the result is nan.
+           4. If x is finite nonzero, the result is ``math.cosh(x) / x``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where coshc function is to be computed.
+        :type x: float
+
+        :return: Computed value of coshc function.
+        :rtype: float
+        """
         try:
             return math.nan if x == 0 else math.cosh(x) / x
         except OverflowError:
@@ -253,24 +382,102 @@ class SpecialFun:
 
     @classmethod
     def __tanhc(cls, x: float) -> float:
+        """
+        Tanhc function.
+
+        Tanhc function with parameter x has following computation rules.
+           1. If x is nan, the result is nan.
+           2. If x is +-inf, the result is 0≥
+           3. If x is 0, the result is 1.
+           4. If x is finite nonzero, the result is ``math.tanh(x) / x``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where tanhc function is to be computed.
+        :type x: float
+
+        :return: Computed value of tanhc function.
+        :rtype: float
+        """
         return 1 if x == 0 else math.tanh(x) / x
 
     @classmethod
     def __dirichlet_ker(cls, x: float, n: int) -> float:
-        if not math.isfinite(x + n) or n < 0:
+        """
+        Dirichlet kernel function.
+
+        Dirichlet kernel function with parameter x and n has following computation rules.
+           1. If x is nan or +-inf, the result is nan.
+           2. If n is nan or +-inf, the result is nan.
+           3. If n is not nonnegative integer, the result is nan.
+           4. If n is 0, the result is 0.
+           5. If x is finite and n is finite positive integer, the result is
+              ``math.sin((n + 0.5) * x) / math.sin(x / 2)``.
+        Here, rule 4 is based on the identity ``D_n(x) = sin((n + 1 / 2)x) / sin(x / 2)``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where Dirichlet kernel function is to be computed.
+        :type x: float
+
+        :return: Computed value of Dirichlet kernel function.
+        :rtype: float
+        """
+        if not math.isfinite(x + n) or n < 0 or not is_int(n):
             return math.nan
         else:
-            return 2 * n + 1 if x % (2 * math.pi) == 0 else math.sin((n + 0.5) * x) / math.sin(x / 2)
+            return 1 if n == 0 else 2 * n + 1 if x % (2 * math.pi) == 0 else math.sin((n + 0.5) * x) / math.sin(x / 2)
 
     @classmethod
-    def __fejer_ker(cls, x:float, n:int) -> float:
+    def __fejer_ker(cls, x: float, n: int) -> float:
+        """
+        Fejer kernel function.
+
+        Fejer kernel function with parameter x and n has following computation rules.
+           1. If x is nan or +-inf, the result is nan.
+           2. If n is nan or +-inf, the result is nan.
+           3. If n is not positive integer, the result is nan.
+           4. If n is 1, the result is 1.
+           5. If x is finite and n is finite positive integer, the result is
+              ``(1 - math.cos(n * x)) / (1 - math.cos(x)) / n``.
+        Here, rule 4 is based on the identity ``F_n(x) = gamma(x)^2 / gamma(2x)``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where Fejer kernel function is to be computed.
+        :type x: float
+
+        :return: Computed value of Fejer kernel function.
+        :rtype: float
+        """
         if not math.isfinite(x + n) or n <= 0:
             return math.nan
         else:
-            return n if x % (2 * math.pi) == 0 else (1 - math.cos(n * x)) / (1 - math.cos(x)) / n
+            return 1 if n == 1 else n if x % (2 * math.pi) == 0 else (1 - math.cos(n * x)) / (1 - math.cos(x)) / n
 
     @classmethod
-    def __topo_sin(cls, x:float) -> float:
+    def __topo_sin(cls, x: float) -> float:
+        """
+        Topologist sine function.
+
+        Topologist sine function with parameter x has following computation rules.
+           1. If x is nan or -inf, the result is nan.
+           2. If x is inf, the result is 0.
+           3. If x is finite nonpositive, the result is nan.
+           4. If x is finite positive, the result is ``math.sin(1 / x)``.
+
+        This method is private and called internally as a helper of ``SpeiclFun.simplify``.
+        For detailed description for simplification, refer to the comments of ``SpeiclFun.simplify``.
+
+        :param x: Point where topologist sine function is to be computed.
+        :type x: float
+
+        :return: Computed value of topologist sine function.
+        :rtype: float
+        """
         return math.nan if x <= 0 else math.sin(1 / x)
 
     @classmethod
@@ -305,7 +512,7 @@ class SpecialFun:
             1. Constant folding.
             2. Dead expression stripping.
             3. Sign propagation.
-        For details and detailed explanation of optimization tricks, consult following references and comments of
+        For details and detailed explanation of these optimization tricks, refer to the comments of
         ``Operator.simplify`` and references therein.
 
         :param rt: Root of AST to be simplified.
@@ -356,6 +563,7 @@ class SpecialFun:
             if rt.chd[0].v == Type.OpT.MINUS:
                 tmp = rt.chd[0]
                 rt.swap_chd(rt.chd[0].chd[0], 0)
+                tmp.swap_chd(rt, 0)
 
                 return tmp, warn
 
@@ -390,7 +598,7 @@ class SpecialFun:
         elif rt.v == Type.FunT.GAMMA:
             # Check for warnings.
             # Gamma function with parameter x generates warning for followings cases.
-            #   1. x exceeds floating point max size. (BIG_INT)
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
             #   2. x is nan. (NAN_DETECT)
             #   3. x is +-inf. (INF_DETECT)
             #   4. x is finite nonpositive integer. (POLE_DETECT)
@@ -400,13 +608,13 @@ class SpecialFun:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Gamma'))
                     rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 23))
-                    rt.chd[0].v = 0
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Gamma'))
+                    rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Gamma'))
                 elif math.isinf(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Gamma'))
-                elif rt.chd[0].v % 1 == 0 and rt.chd[0].v <= 0:
+                elif is_int(rt.chd[0].v) and rt.chd[0].v <= 0:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 23))
 
             # Constant folding.
@@ -420,7 +628,7 @@ class SpecialFun:
         elif rt.v == Type.FunT.LGAMMA:
             # Check for warnings.
             # Loggamma function with parameter x generates warning for followings cases.
-            #   1. x exceeds floating point max size. (BIG_INT)
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
             #   2. x is nan. (NAN_DETECT)
             #   3. x is +-inf. (INF_DETECT)
             #   4. x is finite nonpositive integer. (POLE_DETECT)
@@ -430,13 +638,13 @@ class SpecialFun:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Lgamma'))
                     rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 24))
-                    rt.chd[0].v = 0
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Lgamma'))
+                    rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Lgamma'))
                 elif math.isinf(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Lgamma'))
-                elif rt.chd[0].v % 1 == 0 and rt.chd[0].v <= 0:
+                elif is_int(rt.chd[0].v) and rt.chd[0].v <= 0:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 24))
 
             # Constant folding.
@@ -472,7 +680,7 @@ class SpecialFun:
                 rt.chd[0].v = cls.__recigamma(rt.chd[0].v)
 
                 return rt.chd[0], warn
-            
+
             return rt, warn
         elif rt.v == Type.FunT.BESSELCLIFFORD:
             # Check for warnings.
@@ -504,42 +712,43 @@ class SpecialFun:
         elif rt.v == Type.FunT.BETA:
             # Check for warnings.
             # Beta function with parameter x and y generates warning for followings cases.
-            #   1. x exceeds floating point max size. (BIG_INT)
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
             #   2. x is nan. (NAN_DETECT)
             #   3. x is +-inf. (INF_DETECT)
-            #   4. y exceeds floating point max size. (BIG_INT)
+            #   1. y exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
             #   5. y is nan. (NAN_DETECT)
             #   6. y is +-inf. (INF_DETECT)
             #   7. x is finite nonpositive integer and y is finite. (POLE_DETECT)
             #   8. x is finite and y is finite nonpositive integer. (POLE_DETECT)
             # The following logic is an implementation of these rules.
-            if rt.chd[0].tok_t == Type.TokT.NUM:
+            if rt.chd[0].tok_t == rt.chd[1].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Beta'))
                     rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
-                    rt.chd[0].v = -1
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Beta'))
+                    rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Beta'))
                 elif math.isinf(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Beta'))
 
-            if rt.chd[1].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[1].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=2, handle='Beta'))
                     rt.chd[1].v = math.inf
                 elif is_smallint(rt.chd[1].v):
-                    rt.chd[1].v = -1
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=2, handle='Beta'))
+                    rt.chd[1].v = -math.inf
                 elif math.isnan(rt.chd[1].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=2, handle='Beta'))
                 elif math.isinf(rt.chd[1].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=2, handle='Beta'))
 
-            if rt.chd[0].tok_t == rt.chd[1].tok_t == Type.TokT.NUM and math.isfinite(rt.chd[0].v + rt.chd[1].v):
-                if rt.chd[0].v <= 0 and rt.chd[0].v % 1 == 0:
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 31))
-                elif rt.chd[1].v <= 0 and rt.chd[1].v % 1 == 0:
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 31))
+                if math.isfinite(rt.chd[0].v + rt.chd[1].v):
+                    if rt.chd[0].v <= 0 and is_int(rt.chd[0].v):
+                        warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 31))
+                    elif rt.chd[1].v <= 0 and is_int(rt.chd[1].v):
+                        warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 31))
 
             # Constant folding.
             # For detailed computation rule, refer to the comment in ``SpecialFun.__beta``.
@@ -547,6 +756,29 @@ class SpecialFun:
                 rt.chd[0].v = cls.__beta(rt.chd[0].v, rt.chd[1].v)
 
                 return rt.chd[0], warn
+
+            # Dead expr stripping.
+            # For dead expr stripping, it uses following rules.
+            #   1. Beta[nan, y] = nan
+            #   2. Beta[-inf, y] = nan
+            #   3. Beta[n, y] = nan
+            #   4. Beta[x, nan] = nan
+            #   5. Beta[x, -inf] = nan
+            #   6. Beta[x, n] = nan
+            # where n is finite nonpositive integer.
+            # The following logic is an implementation of these rules.
+            if rt.chd[0].tok_t == Type.TokT.NUM and not is_bigint(rt.chd[0].v):
+                if is_smallint(rt.chd[0].v) or math.isnan(rt.chd[0].v) or rt.chd[0].v == -math.inf or \
+                        (is_int(rt.chd[0].v) and rt.chd[0].v <= 0):
+                    rt.chd[0].v = math.nan
+
+                    return rt.chd[0], warn
+            elif rt.chd[1].tok_t == Type.TokT.NUM and not is_bigint(rt.chd[1].v):
+                if is_smallint(rt.chd[1].v) or math.isnan(rt.chd[1].v) or rt.chd[1].v == -math.inf or \
+                        (is_int(rt.chd[1].v) and rt.chd[1].v <= 0):
+                    rt.chd[1].v = math.nan
+
+                    return rt.chd[1], warn
 
             return rt, warn
         elif rt.v == Type.FunT.CENTRALBETA:
@@ -568,7 +800,7 @@ class SpecialFun:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Centralbeta'))
                 elif math.isinf(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Centralbeta'))
-                elif rt.chd[0].v % 1 == 0 and rt.chd[0].v <= 0:
+                elif is_int(rt.chd[0].v) and rt.chd[0].v <= 0:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.POLE_DETECT, 40))
 
             # Constant folding.
@@ -778,7 +1010,7 @@ class SpecialFun:
             #   6. n is +-inf. (INF_DETECT)
             #   7. n is not nonnegative integer. (DOMAIN_OUT)
             # The following logic is an implementation of these rules.
-            if rt.chd[0].tok_t == Type.TokT.NUM:
+            if rt.chd[0].tok_t == rt.chd[1].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Dirichletkernel'))
                     rt.chd[0].v = math.inf
@@ -790,7 +1022,6 @@ class SpecialFun:
                 elif math.isinf(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Dirichletkernel'))
 
-            if rt.chd[1].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[1].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=2, handle='Dirichletkernel'))
                     rt.chd[1].v = math.inf
@@ -803,7 +1034,7 @@ class SpecialFun:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=2, handle='Dirichletkernel'))
                 elif rt.chd[1].v < 0:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 44))
-                elif rt.chd[1].v % 1 != 0:
+                elif not is_int(rt.chd[1].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 45))
                     rt.chd[1].v = round(rt.chd[1].v)
 
@@ -816,9 +1047,27 @@ class SpecialFun:
 
             # Dead expr stripping.
             # For dead expr stripping, it uses following rules.
-            #   1. Dirichletkernel[-x, n] = Dirichletkernel[x, n]
+            #   1. Dirichletkernel[nan, n] = nan
+            #   2. Dirichletkernel[+-inf, n] = nan
+            #   3. Dirichletkernel[x, nan] = nan
+            #   4. Dirichletkernel[x, +-inf] = nan
+            #   5. Dirichletkernel[x, y] = nan
+            #   6. Dirichletkernel[-x, n] = Dirichletkernel[x, n]
+            # where y is finite negative.
             # The following logic is an implementation of these rules.
-            if rt.chd[0].v == Type.OpT.MINUS:
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v) or is_smallint(rt.chd[0].v) or math.isnan(rt.chd[0].v) or \
+                        math.isinf(rt.chd[0].v):
+                    rt.chd[0].v = math.nan
+
+                    return rt.chd[0], warn
+            elif rt.chd[1].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[1].v) or is_smallint(rt.chd[1].v) or math.isnan(rt.chd[1].v) or \
+                        math.isinf(rt.chd[1].v) or rt.chd[1].v < 0:
+                    rt.chd[1].v = math.nan
+
+                    return rt.chd[1], warn
+            elif rt.chd[0].v == Type.OpT.MINUS:
                 rt.swap_chd(rt.chd[0].chd[0], 0)
 
                 return rt, warn
@@ -835,7 +1084,7 @@ class SpecialFun:
             #   6. n is +-inf. (INF_DETECT)
             #   7. n is not positive integer. (DOMAIN_OUT)
             # The following logic is an implementation of these rules.
-            if rt.chd[0].tok_t == Type.TokT.NUM:
+            if rt.chd[0].tok_t == rt.chd[1].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Fejerkernel'))
                     rt.chd[0].v = math.inf
@@ -847,7 +1096,6 @@ class SpecialFun:
                 elif math.isinf(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=1, handle='Fejerkernel'))
 
-            if rt.chd[1].tok_t == Type.TokT.NUM:
                 if is_bigint(rt.chd[1].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=2, handle='Fejerkernel'))
                     rt.chd[1].v = math.inf
@@ -858,9 +1106,9 @@ class SpecialFun:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=2, handle='Fejerkernel'))
                 elif math.isinf(rt.chd[1].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.INF_DETECT, 2, arg_pos=2, handle='Fejerkernel'))
-                elif rt.chd[1].v <= 0:
+                elif rt.chd[1].v < 0.5:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 46))
-                elif rt.chd[1].v % 1 != 0:
+                elif not is_int(rt.chd[1].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 47))
                     rt.chd[1].v = round(rt.chd[1].v)
 
@@ -873,9 +1121,27 @@ class SpecialFun:
 
             # Dead expr stripping.
             # For dead expr stripping, it uses following rules.
-            #   1. Fejerkernel[-x, n] = Fejerkernel[x, n]
+            #   1. Fejerkernel[nan, n] = nan
+            #   2. Fejerkernel[+-inf, n] = nan
+            #   3. Fejerkernel[x, nan] = nan
+            #   4. Fejerkernel[x, +-inf] = nan
+            #   5. Fejerkernel[x, y] = nan
+            #   6. Fejerkernel[-x, n] = Fejerkernel[x, n]
+            # where y is finite real less than 0.5.
             # The following logic is an implementation of these rules.
-            if rt.chd[0].v == Type.OpT.MINUS:
+            if rt.chd[0].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[0].v) or is_smallint(rt.chd[0].v) or math.isnan(rt.chd[0].v) or \
+                        math.isinf(rt.chd[0].v):
+                    rt.chd[0].v = math.nan
+
+                    return rt.chd[0], warn
+            elif rt.chd[1].tok_t == Type.TokT.NUM:
+                if is_bigint(rt.chd[1].v) or is_smallint(rt.chd[1].v) or math.isnan(rt.chd[1].v) or \
+                        math.isinf(rt.chd[1].v) or rt.chd[1].v < 0.5:
+                    rt.chd[1].v = math.nan
+
+                    return rt.chd[1], warn
+            elif rt.chd[0].v == Type.OpT.MINUS:
                 rt.swap_chd(rt.chd[0].chd[0], 0)
 
                 return rt, warn
@@ -884,7 +1150,7 @@ class SpecialFun:
         else:
             # Check for warnings.
             # Topologist's sine function with parameter x generates warning for followings cases.
-            #   1. x exceeds floating point max size. (BIG_INT)
+            #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
             #   2. x is nan. (NAN_DETECT)
             #   3. x is +-inf. (INF_DETECT)
             #   4. x is finite nonpositive. (DOMAIN_OUT)
@@ -894,8 +1160,8 @@ class SpecialFun:
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.BIG_INT, 15, arg_pos=1, handle='Topologistsin'))
                     rt.chd[0].v = math.inf
                 elif is_smallint(rt.chd[0].v):
-                    warn.append(Warning.InterpWarn(Type.InterpWarnT.DOMAIN_OUT, 43))
-                    rt.chd[0].v = 0
+                    warn.append(Warning.InterpWarn(Type.InterpWarnT.SMALL_INT, 16, arg_pos=1, handle='Topologistsin'))
+                    rt.chd[0].v = -math.inf
                 elif math.isnan(rt.chd[0].v):
                     warn.append(Warning.InterpWarn(Type.InterpWarnT.NAN_DETECT, 1, arg_pos=1, handle='Topologistsin'))
                 elif math.isinf(rt.chd[0].v):

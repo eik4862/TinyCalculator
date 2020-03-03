@@ -174,6 +174,9 @@ class FunT(Enum):
     FEJERKERNEL = auto()
     TOPOLOGISTSIN = auto()
     LOG = auto()
+    LOG2 = auto()
+    LOG10 = auto()
+    POW = auto()
     EXP = auto()
     SQRT = auto()
 
