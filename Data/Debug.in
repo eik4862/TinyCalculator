@@ -4,15 +4,77 @@
 Sin[     2         ]
 
 # Numeric values
+# Integer
 2
-1234567890.1234567890
+1234567890
+9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999    # Warning
+
+# Integer with exponent
+1e2
+1e0
+1e02
+1e-2
+1e+2
+0e01
+1e-99999
+1e99999 # Warning
+9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999e-100   # No warning
+1e      # Parsed as 1 * e
+1e+-2   # Parsed as 1 * e + -2
+1e*2    # Parsed as 1 * e * 2
+1e-0.2  # Parsed as 1e-0 * 0.2
+1e-.2   # Parsed as 1 * e - 0.2
+1e+.2   # Parsed as 1 * e + 0.2
+1e.2    # Parsed as 1 * e * 0.2
+1e23.4  # Parsed as 1e23 * 0.4
+1ee2    # Parsed as 1 * ee2
+1e23e4  # Parsed as 1e23 * e4
+
+# Float
 2.3
+1234567890.1234567890
+9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.   # Warning
 2.
 .2
-2.3.    # Error (decimal point overuse)
-2.3.4   # Error (decimal point overuse)
-.2.3    # Error (decimal point overuse)
-.       # Error (decimal point used solely)
+.       # Error (unknown token)
+2.34.   # Parsed as 2.3 * 4.0
+.23.4   # Parsed as 0.23 * 0.3
+..2     # Error (unknown token)
+2..     # Error (unknown token)
+.2.     # Error (unknown token)
+
+# Float with exponent
+1.e2
+1.e0
+1.e02
+1.e-2
+1.e+2
+0.e01
+.2e2
+.e2     # Error (unknown token)
+1.e-99999
+1.e9999 # Warning
+9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.e-100   # No warning
+0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e+100   # Not 0
+1.e     # Parsed as 1.0 * e
+1.e+-2  # Parsed as 1.0 * e + -2
+1.e*2   # Parsed as 1.0 * e * 2
+1.e-0.2 # Parsed as 1.e-0 * 0.2
+1.e-.2  # Parsed as 1.0 * e - 0.2
+1.e+.2  # Parsed as 1.0 * e + 0.2
+1.e.2   # Parsed as 1.0 * e * 0.2
+1.e23.4 # Parsed as 1.e23 * 0.4
+1.ee2   # Parsed as 1.0 * ee2
+1.e23e4 # Parsed as 1.e23 * e4
+
+# Complex number
+2j
+2.3j
+2.j
+.2j
+2e-34j
+.2e-34j
+2.e-34j
 
 # Variables
 x
@@ -20,185 +82,130 @@ abcdefghijklmnopqrstuvwxyz
 x_2
 x2
 x_2_2
-_23x    # Error (variable starts with underscore)
-2_3     # Error (variable starts with digit)
+_23x    # Error (unknown token)
+2_3     # Error (unknown token)
 x_y
-x_      # Error (variable terminates with underscore)
+x_      # Error (unknown token)
 
-# Functions, commands, constants and delimiters
-Sin[2]
-Log[2., 1024]
-Help[]
+# Boolean
+True
+False
+true    # Parsed as variable
+TRUE    # Parsed as variable
+
+# Constant
+Pi
 E
+Catalan
+
+# Functions
+Sin[2]
+Sin[2,3]
+Sin[]
 
 # Operators
-2 + 3
-2 - 3
-2 * 3
-2 / 3
-2 % 3
-2^3
-2**3
-2!
-(2 + 3)
+x + y
+x - y
+x * y
+x %*% y
+x / y
+x % y
+x // y
+x ** y
++x
+-x
+x'
+x & y
+x | y
+x ^ y
+!x
+x == y
+x != y
+x < y
+x > y
+x <= y
+x >= y
+x = y
+(x + y)
+x[y, z]
+{x, y}
+x:y
+x:y:z
 
 # Strings
-Help["Sin"]
-Help["Sin", "Cos"]
-Help["Sin]  # Error (double quote not closed)
+"abc"
+"\\\t\n\""
+""
+"""         # Error (quote is not closed)
+"ab         # Error (quote is not closed)
+ab"         # Error (quote is not closed)
 
 # Unknown tokens
-& + 2       # Error (unknown token &)
-Sin ~ Cos   # Error (unknown token ~)
+$
+가
+
+## Check starting conditions
+# Start with Num/Str/Var/Bool/Fun
+2 + 3
+Sin[2]
+x + y
+True & False
+"abc" + "def"
+
+# Start with Op
+(x + y)
+{x, y}
+[x, y]
++x
+-x
+!False
+* x     # Error (cannot start with *)
+= x     # Error (cannot start with =)
 
 ## Check terminal conditions
-# Terminate with functions and commands
-2 + Sin # Error (expression terminates with function)
-Quit    # Error (expression terminates with command)
+# Terminate with Fun/Op
+2 + Sin     # Error (cannot terminate with Fun)
+2 +         # Error (cannot terminate with +)
+False!      # Error (cannot terminate with !)
+x'
+x ==        # Error (cannot terminate with ==)
 
-# Terminate with operator
-2 +     # Error (expression terminates with operator which is not ) or !)
-Sin[2 * # Error (expression terminates with operator which is not ) or !)
-
-# Terminate with delimiter
-Sin[    # Error (expression terminates with delimiter which is not [)
-Log[2,  # Error (expression terminates with delimiter which is not [)
-
-# Terminate with string
-Help["Sin"  # Error (expression terminates with string)
-2 + "Sin"   # Error (expression terminates with string)
-
-## Check syntax
-# Start with delimiter
-[2] # Error (expression starts with delimiter)
-+2
--2
-*2  # Error (expression starts with operator which is not +, -, or ()
-++--2
-
-# NUM/VAR + NUM/VAR/FUN/CMD
-2 3
-2x
-2Sin[2]
-2Help[]
-x 3
-x y
-x Sin[2]
-x Help[]
-
-# OP + NUM/VAR/FUN/CMD
-2 + x
-2 + Sin[3]
-2 + Help[]
-(2)3
-2!3
-
-# DELIM + NUM/VAR/FUN/CMD
-Sin[Cos[2]]
-Sin[Help[]]
-Sin[2]3
-Sin[2]Cos[2]
-Sin[2]Help[]
-Log[2, Sin[2]]
-Log[2, x]
-Log[2, Help[]]
-
-# FUN/CMD + NUM/VAR/FUN/CMD
-Sin 2       # Error (function must be followed by [)
-Sin x       # Error (function must be followed by [)
-Sin Cos     # Error (function must be followed by [)
-Sin Help    # Error (function must be followed by [)
-Help 2      # Error (command must be followed by [)
-Help 2      # Error (command must be followed by [)
-Help Sin    # Error (command must be followed by [)
-Help Quit   # Error (command must be followed by [)
-
-# STR + NUM/VAR/FUN/CMD
-Help["Sin"2]
-Help["Sin"x]
-Help["Sin"Cos[2]]
-Help["Sin"Help[]]
-
+## Check adjacency rule
 # OP + OP
-2 * / 3     # Error (these two operators cannot adjacent to each other)
-2 ** 3
-2 * * 3     # Error (these two operators cannot adjacent to each other)
-2 ** ** 3   # Error (these two operators cannot adjacent to each other)
-2 * ** 3    # Error (these two operators cannot adjacent to each other)
-2 ** * 3    # Error (these two operators cannot adjacent to each other)
-2 *** 3 # Error (these two operators cannot adjacent to each other)
-(2) / 3
-2! / 3
-(2)(3)
-2 * +3
-2 * -3
-2!(3)
-2 + (3)
-2 +-+--3
-(((())))    # Error (these two operators cannot adjacent to each other)
-
-# DELIM + OP
-Sin[+2]
-Sin[-2]
-Sin[(2)]
-Sin[*2]         # Error (these two delimiter and operator cannot adjacent to each other)
-Sin[**2]        # Error (these two delimiter and operator cannot adjacent to each other)
-Log[2, -1024]
-Log[2, +1024]
-Log[2, (1024)]
-Log[2, *1024]   # Error (these two delimiter and operator cannot adjacent to each other)
-Sin[2] + 2
-Sin[2]!
-(Sin[2])
-Sin[2](3)
-
-# STR/FUN/CMD + OP
-Help["Sin" + 2] # Error (string must be followed by , or ])
-Sin + 2         # Error (function must be followed by [)
-Quit + 2        # Error (command must be followed by [)
-
-# NUM/VAR/STR + DELIM
-2[3]            # Error (only function or command can be followed by [)
-x[2]            # Error (only function or command can be followed by [)
-Help["Sin"[2]]  # Error (only function or command can be followed by [)
-
-# OP + DELIM
-Sin[2!]
-Log[2!, 1024]
-Log[2^, 1024]   # Error (these two operator and delimiter cannot adjacent to each other)
-Log[2**, 1024]  # Error (these two operator and delimiter cannot adjacent to each other)
-Log[(2), 1024]
-Sin[2+]         # Error (these two operator and delimiter cannot adjacent to each other)
-Sin[2+[2]]      # Error (these two operator and delimiter cannot adjacent to each other)
-Sin[2![2]]      # Error (these two operator and delimiter cannot adjacent to each other)
-
-# DELIM + DELIM
-Log[, 1024]         # Error (these two delimiters cannot adjacent to each other)
-Sin[[2]]            # Error (these two delimiters cannot adjacent to each other)
-Log[2, [1024]]      # Error (these two delimiters cannot adjacent to each other)
-Log[2,]             # Error (these two delimiters cannot adjacent to each other)
-Log[2,,]            # Error (these two delimiters cannot adjacent to each other)
-Log[Sin[2], 1024]
-Sin[Sin[2][2]]      # Error (these two delimiters cannot adjacent to each other)
-
-# FUN/CMD + DELIM
-Sin[Cos]            # Error (function must be followed by [)
-Log[Cos, 1024]      # Error (function must be followed by [)
-Log[2, Sin[3]]
-Help[Quit]          # Error (command must be followed by [)
-Help[Quit, "Sin"]   # Error (command must be followed by [)
-Help["Sin", Quit]   # Error (command must be followed by [)
-
-# * + STR
-Help[2"Sin"]        # Error (string must be preceded by [ or ,)
-Help[x"Sin"]        # Error (string must be preceded by [ or ,)
-Help[2 + "Sin"]     # Error (string must be preceded by [ or ,)
-Help[2!"Sin"]       # Error (string must be preceded by [ or ,)
-Help[("Sin")]       # Error (string must be preceded by [ or ,)
-Help[Sin"Sin"]      # Error (string must be preceded by [ or ,)
-Help[Quit"Sin"]     # Error (string must be preceded by [ or ,)
-Help["Sin""Sin"]    # Error (string must be preceded by [ or ,)
-Help[]"Sin"         # Error (string must be preceded by [ or ,)
+x' + y
+(x + y) + z
+x' - y
+(x + y) - z
+x ++ y
+x -- y
+x +-++-+ y
+(((((x))')'))''
+x * +y
+x / -y
+x *** y     # Error (** and * cannot adjacent)
+x ***** y   # Error (** and ** cannot adjacent)
+x %*%* y    # Error (%*% and * cannot adjacent)
+x //// y    # Error (// and // cannot adjacent)
+x ==== y    # Error (== and == cannot adjacent)
+x +=-+=- y  # Error (- and += cannot adjacent)
+!+x
+!(x)
+!{x}
+![x]        # Error (! and [ cannot adjacent)
+{{x}}
+((x))
+Sin[[x]]    # Error ([ and [ cannot adjacent)
+(x)(y)
+{x}{y}
+()          # Error (( and ) cannot adjacent)
+{}
+Sin[]
+Sin[,,]
+{Sin[,{(x)},]}
+Sin + x
+x!y
+x y
+Sin x
 
 ## Check infix to postfix conversion
 # Precedence and association
@@ -207,12 +214,23 @@ Help[]"Sin"         # Error (string must be preceded by [ or ,)
 (2 + 3) * 4
 2 * (3 + 4)
 (2 + 3) * (4 + 5)
-(2 + 3) + 4 * (5 - 6)^7 / 8 % +9 ** -10
+(2 + 3) + 4 * (5 - 6) ** 7 / 8 % +9 ** -10
 (((2) + 3) * (4 - (5 % 7)))
-(2 - (3 + 4 * 5^6) + 7)
-(2 - (3^4 * 5 + 6) + 7)
+(2 - (3 + 4 * 5 ** 6) + 7)
+(2 - (3 ** 4 * 5 + 6) + 7)
 2 - 3 - 4
-2^3^4
+2 ** 3 ** 4
+(2 ** 3) ** 4
+-x ** z
+-(x ** z)
+2:3 * 4:5
+2:3:4:5
+(2:3):(4:5)
+x'[y']'
+(x'[y']':!x')'
+-(-x'[+y']':-(++-(!x)' ** 2))'
+!{x', y'}'
+!({x',y'}')''
 
 # Parentheses matching
 ((((2))))
@@ -227,15 +245,208 @@ Sin[(2 + 3])        # Error (parenthesis does not match)
 (Sin[2 + 3)]        # Error (parenthesis does not match)
 Sin[(2 + 3)]
 (Sin[2 + 3])
-(Log[2), 1024]      # Error (parenthesis does not match)
-Log[(2, 1024)]      # Error (, is misplaced)
+(Sin[2), 1024]      # Error (parenthesis does not match)
+Sin[(2, 1024)]      # Error (, is misplaced)
 (2, 3)              # Error (, is misplaced)
+Sin[2 + Sin[3 + Sin[4,]]]
+Sin[Sin[Sin[]]      # Error (parenthesis does not match)
+Sin[{2, 3]}         # Error (parenthesis does not match)
+Sin[1, {2,]}        # Error (parenthesis does not match)
+Sin[{1, 2}]
+{Sin[2}, 3]         # Error (parenthesis does not match)
+{(Sin[x)]}          # Error (parenthesis does not match)
+{}
+{,}                 # Error ({ and , cannot adjacent)
+Sin[]
+Sin[,]
+(, 2)               # Error (( and , cannot adjacent)
 
 ## Check type checker
-# OP
-2 + Help[]          # Error (type error)
-Help[] + 2          # Error (type error)
-Help[] + Version[]  # Error (type error)
+# ADD/SUB/MUL/DIV
+2 + 3
+x + 2
+2 + {}
+2 + 3j
+2j + 3
+2j + 3j
+2 + "abc"                   # Error (Real + Str)
+"abc" + "abc"               # Error (Str + Str)
+2 + {{2, 3}, {4, 5}}
+2 + {{2, 3}, {4}}
+2 + {{2j, 3}, {4, 5}}
+2 + {{2j, 3}, {4}}
+{{2, 3}, {4, 5}} + 2
+{{2, 3}, {4}} + 2
+{{2j, 3}, {4, 5}} + 2
+{{2j, 3}, {4}} + 2
+x + {}
+{} + x
+"abc" + x
+{} + {}                     # Error (List of Void (1 fold) + List of Void (1 fold)
+{2, 3} + {4, 5}
+{2, 3} + {{2, 3}, {4, 5}}   # Error (List of Real (1 fold) + List of Real (2 fold))
+{2, 3} + {{2, 3}, {4}}      # Error (List of Real (1 fold) + List of Real (2 fold))
+{} + {2}                    # Error (List of Void (1 fold) + List of Real (1 fold))
+
+# REM/QUOT
+2 // 3
+x // 3
+2 // 3j
+3 // "abc"
+2 // {{2, 3}, {3, 4}}
+2 // {{2, 3}, {4}}
+3 // {{2j, 3}, {3, 4}}      # Error (Real // List of Cmplx (2 fold))
+2 // {{2j, 3}, {4}}         # Error (Real // List of Cmplx (2 fold))
+{{2, 3}, {3, 4}} // 2
+{{2, 3}, {4}} // 2
+{{2j, 3}, {3, 4}} // 2      # Error (List of Cmplx (2 fold) // Real)
+{{2j, 3}, {4}} // 2         # Error (List of Cmplx (2 fold) // Real)
+x // {}
+{} // x
+"abc" // x
+{} // {}                    # Error (List of Void (1 fold) // List of Real (1 fold))
+{2, 3} // {4, 5}
+{2, 3} // {{2, 3}, {4, 5}}  # Error (List of Real (1 fold) // List of Real (2 fold))
+{2, 3} // {{2, 3}, {4}}     # Error (List of Real (1 fold) // List of Real (2 fold))
+{} // {2}                   # Error (List of Void (1 fold) // List of Real (1 fold))
+
+# MATMUL
+{{2, 3}, {4, 5}} %*% {{2, 3}, {4, 5}}
+{{2, 3}, {4, 5}} %*% {{2j, 3}, {4, 5}}
+{{2, 3}, {4, 5}} %*% {{2}, {4, 5}}
+{{2}, {4, 5}} %*% {{2, 3}, {4, 5}}
+{{2}, {4, 5}} %*% {{2}, {4, 5}}
+{{2j, 3}, {4, 5}} %*% {{2j}, {4, 5}}
+{{2, 3}, {4, 5}} %*% {{{2, 3}, {4, 5}}, {{2, 3}, {4, 5}}}
+{{2, 3}, {4, 5}} %*% {{{2, 3}, {4, 5}}, {{2, 3}, {4}}}
+{{2, 3}, {4, 5}} %*% {{{2j, 3}, {4, 5}}, {{2, 3}, {4}}}
+{{{2, 3}, {4, 5}}, {{2, 3}, {4, 5}}} %*% {{2, 3}, {4, 5}}
+{{{2, 3}, {4, 5}}, {{2, 3}, {4}}} %*% {{2, 3}, {4, 5}}
+{{{2, 3}, {4, 5}}, {{2j, 3}, {4, 5}}} %*% {{2, 3}, {4, 5}}
+{{{2, 3}, {4, 5}}, {{2, 3}, {4, 5}}} %*% {{{2, 3}, {4, 5}}, {{2, 3}, {4, 5}}}
+{{{2, 3}, {4, 5}}, {{2, 3}, {4, 5}}} %*% {{{{2, 3}, {4, 5}}, {{2, 3}, {4, 5}}}, {{{2, 3}, {4, 5}}, {{2, 3}, {4, 5}}}}   # Error (List of Real (3 fold) %*% List of Real (4 fold))
+x %*% {{2, 3}, {4, 5}}
+x %*% "abc"
+{{},{}} %*% {{},{}}     # Error (List of Void (2 fold) %*% List of Void (2 fold))
+
+# PLUS/MINUS
++2
++True                   # Error (+Bool)
++x
++{2, 3}
++{{2, 3}, {4, 5}}
++{}                     # Error (+List of Void (1 fold))
+
+# TRANS
+2'                      # Error (Real')
+x'
+{2, 3}'                 # Error (List of Real (1 fold)')
+{{2, 3}, {4, 5}}'
+{{2, 3}", {4}}'
+{{"a", "b"}, {"c"}}'
+{{{2, 3}, {4, 5}}, {{2, 3}, {4, 5}}}'
+{{{2, 3}, {4, 5}}, {{2, 3}, {4}}}'
+
+# EQ/DIFF
+2 == x
+x == y
+2 == True               # Error (Real == Bool)
+True == True
+"a" == "b"
+2j == 3
+2 == {4, 5}
+2 == {{2, 3}, {4, 5}}
+2 == {{2, 3}, {4}}
+2 == {{2, 3j}, {4, 5}}
+True == {True, False}
+"a" == {"b", "c"}
+"a" == {2, 3j}          # Error (String == List of Complex (1 fold))
+{4, 5} == 2
+{{2, 3}, {4, 5}} == 2
+{{2, 3}, {4}} == 2
+{{2, 3j}, {4, 5}} == 2
+{True, False} == True
+{"b", "c"} == "a"
+{2, 3} == {4, 5}
+{True, False} == {True, True}
+{"ab", "cd"} == {"ab", "cd"}
+{2, 3} == {4j, 5}
+{2, 3} == {{2, 3}, {4, 5}}  # Error (List of Real (1 fold) == List of Real (2 fold))
+{} == {}                # Error (List of Void (1 fold) == List of Void (1 fold))
+{{}} == {}              # Error (List of Void (2 fold) == List of Void (1 fold))
+
+# LEQ/GEQ/BLW/ABV
+2 < 3
+2 < 3j                  # Error (Real < Complex)
+x < 2
+2 < x
+"a" < "b"
+"a" < 2                 # Error (String < Real)
+True < False
+2 < {2, 3}
+2 < {{2, 3}, {4, 5}}
+2 < {{2, 3}, {4}}
+"a" < {"b", "c"}
+True < {True, False}
+{2, 3} < 2
+{{2, 3}, {4, 5}} < 2
+{{2, 3}, {4}} < 2
+{"b", "c"} < "a"
+{True, False} < True
+{1, 2} < {3, 4}
+{1, 2} < {{2, 3}, {4, 5}}   # Error (List of Real (1 fold) < List of Real (2 fold))
+{} < {}
+{{}} < {}
+
+# NEG
+!2                      # Error (!Real)
+!True
+!x
+!{True, False}
+!{{True, False}, {True, False}}
+!{{True, False}, {True}}
+!{}
+!{{}}
+
+# AND/OR/XOR
+True & False
+x & 2
+True & {True, False}
+True & {{True, True}, {False, False}}
+True & {{True, True}, {False}}
+{True, False} & True
+{{True, True}, {False, False}} & True
+{{True, True}, {False}} & True
+{True, True} & {True, True}
+{True, True} & {{True, True}, {False, False}}   # Error (List of Bool (1 fold) & List of Bool (2 fold))
+
+# SEQ
+x:y
+x:"a"
+2:3j                # Error (Real:Complex)
+2:3
+{2, 3}:4            # Error (Real:List of Real (1 fold))
+4:{2, 3}            # Error (Real:List of Real (1 fold))
+{2, 3}:{3, 4}       # Error (List of Real (1 fold):List of Real (1 fold))
+
+# IDX
+x[1]
+1[x]
+x["a"]
+{2, 3}[2]
+{{2, 3}, {4, 5}}[2]
+{{2, 3}, {4, 5}}[2, 3]
+{{2, 3}, {4}}[2]
+{{2, 3}, {4}}[2, 3]
+{2, 3}[2, 3]                            # Error (List of Real (1 fold)[Real, Real])
+{2, 3}[{4, 5}]
+{2, 3}[{2, 3}, 4]                       # Error (List of Real (1 fold)[List of Real (1 fold), Real])
+{2, 3}[{2, 3}, {3, 4}]                  # Error (List of Real (1 fold)[List of Real (1 fold), List of Real (1 fold)])
+{{2, 3}, {4, 5}}[{2, 3}, {4, 5}]
+{{2, 3}, {4, 5}}[{{2, 3}, {4, 5}}, 2]   # Error (List of Real (2 fold)[List of Real (2 fold), Real])
+{2, 3}[True]                            # Error (List of Real (1 fold)[Bool])
+{2, 3}[True, True]                      # Error (List of Real (1 fold)[Bool, Bool])
+{}[]???
 
 # FUN/CMD
 Help[Version[]]     # Error (type error)

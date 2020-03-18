@@ -13,11 +13,16 @@ Class `Exp` supports following usual trigonometric functions and inverse of them
 | Function | Definition | Domain | Range |
 | --- | --- | --- | --- |
 | `Exp[x]` | $\exp(x) = \sum_{n=0}^\infty\frac{x^n}{n!}$ | $\mathbb{R}$ | $\mathbb{R}^+$ |
-| `Log[x, y]` | $\log_y(x) = \log(x)/\log(y)$ | $\mathbb{R}^+\times(\mathbb{R}^+\setminus\{1\})$ | $\mathbb{R}$ |
+| `Log[x, y]` | $\log_y(x) = \frac{\log(x)}{\log(y)}$ | $\mathbb{R}^+\times(\mathbb{R}^+\setminus\{1\})$ | $\mathbb{R}$ |
+| `Colog[x, y]` | $\mathrm{colog}_y(x) = -\log_y(x)$ | $\mathbb{R}^+\times(\mathbb{R}^+\setminus\{1\})$ | $\mathbb{R}$ |
+| `Napierainlog[x]` | $\mathrm{NapLog}(x) = \log_{10^7/(10^7-1)}\left(\frac{10^7}{x}\right)$ | $\mathbb{R}^+$ | $\mathbb{R}$ |
 | `Pow[x, y]` | $x^y = \exp(y\log(x))$ | Refer to the note | $\mathbb{R}$ |
 | `Sqrt[x]` | $\sqrt{x}=x^{1/2}$ | $\mathbb{R}^+_0$ | $\mathbb{R}^+_0$ |
+| `Root[x, n]` | $\sqrt[n]{x}=x^{1/n}$ | $\mathbb{R}^+_0\times2\mathbb{N}\cup\mathbb{R}\times(2\mathbb{N}-1)$ | $\mathbb{R}$ |
 | `Log2[x]` | $\log_2(x)$ | $\mathbb{R}^+$ | $\mathbb{R}$ |
 | `Log10[x]` | $\log_{10}(x)$ | $\mathbb{R}^+$ | $\mathbb{R}$ |
+| `Tetra[x, n]` | $^nx = \underbrace{x^{x^{\cdot^{\cdot^x}}}}_n$ | $(\mathbb{Z}^-\cup\mathbb{R}^+_0)\times\mathbb{N}$ | Refer to the note |
+| `Nestlog[x, n]` | $\log_n(x) = \underbrace{\log\cdots\log}_n(x)$ | Refer to the note | $\mathbb{R}$ |
 
 > [!NOTE]
 > 1. One can easily show that power series definition of exponential function have radius of convergence $\infty$ so that they are indeed well-defined.
@@ -264,9 +269,9 @@ Computation table for `Pow[x, y]` is as follows.
 | $\mathbb{Z}^-$ | `nan` | $0$ | $x^y$ | $(-1)^y$ | $x^y$ | `nan` | $x^y$ | $1$ | $x^y$ | $0$ |
 | $\mathbb{R}^-\setminus\mathbb{Z}^-$ | `nan` | `nan` | `nan` | `nan` | `nan` | `nan` | $x^y$ | $1$ | $x^y$ | $0$ |
 | $0$ | `nan` | `nan` | $1$ | $1$ | $1$ | $1$ | $1$ | $1$ | $1$ | `nan` |
-| $\mathbb{R}^+\setminus\mathbb{Z}^+$ | `nan` | `nan` | `nan` | `nan` | `nan` | $0$ | $x^y$ | $1$ | $x^y$ | `inf` |
-| $2\mathbb{Z}^+$ | `nan` | `inf` | $x^y$ | $1$ | $x^y$ | $0$ | $x^y$ | $1$ | $x^y$ | `inf` |
-| $2\mathbb{Z}^++1$ | `nan` | `-inf` | $x^y$ | $-1$ | $x^y$ | $0$ | $x^y$ | $1$ | $x^y$ | `inf` |
+| $\mathbb{R}^+\setminus\mathbb{N}$ | `nan` | `nan` | `nan` | `nan` | `nan` | $0$ | $x^y$ | $1$ | $x^y$ | `inf` |
+| $2\mathbb{N}$ | `nan` | `inf` | $x^y$ | $1$ | $x^y$ | $0$ | $x^y$ | $1$ | $x^y$ | `inf` |
+| $2\mathbb{N}-1$ | `nan` | `-inf` | $x^y$ | $-1$ | $x^y$ | $0$ | $x^y$ | $1$ | $x^y$ | `inf` |
 | __`inf`__ | `nan` | `nan` | `nan` | `nan` | $0$ | $0$ | $0$ | $1$ | `inf` | `inf` |
 
 The value of $x^y$ is computed using `math.pow` in basic Python math package `math`.
@@ -500,7 +505,7 @@ Caller of this method can tell the existence of type error by inspecting its ret
 ```python
     # Not runnable! Just for conceptual understanding.
     from Core.Parser import Parser
-    from Function.Exponential import Exp
+    from Function.Exponential import ExpFun
     
     # Input: Exp[2, "2"]
     line = input()
@@ -509,7 +514,7 @@ Caller of this method can tell the existence of type error by inspecting its ret
     # Inferred signature: T.NUM Exp[T.NUM, T.STR]
     # Candidate signatures: T.NUM Exp[T.NUM]
     # Type error. Return candidate signatures [Sign([T.NUM], T.NUM, FunT.Exp)].
-    cand = Exp.chk_t(AST.rt)
+    cand = ExpFun.chk_t(AST.rt)
     
     # Output: Oops! Check it again.
     if not cand:
@@ -735,10 +740,10 @@ After computing all test outputs, the result will be returned as `Decimal` again
 ```python
     from decimal import Decimal
     from Core.Type import FunT
-    from Function.Exponential import Exp
+    from Function.Exponential import ExpFun
     
     # Uniform 100 test input points from [1, 100].
     test_in = [Decimal(n + 1) for n in range(100)]
     # Computes value of math.log(n) for n in test points.
-    test_out = Exp.test(FunT.Log, test_in)
+    test_out = ExpFun.test(FunT.Log, test_in)
 ```

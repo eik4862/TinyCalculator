@@ -1,26 +1,26 @@
 Double quote for string token is not closed.                                        # OK
 Unknown token $1 is encountered.                                                    # OK
 Expression is empty.                                                                # OK
-An expression cannot terminate with function or command token.                      # OK
-An expression cannot terminate with operator token which is not ) or !.             # OK
-An expression cannot terminate with delimiter token which is not ].                 # OK
-An expression cannot start with operator token which is not +, -, or (.             # OK
-An expression cannot start with delimiter or string token.                          # OK
-Function and command token must be followed by delimiter token [.                   # OK
-String token must be followed by delimiter token , or ].                            # OK
+An expression cannot terminate with function token.                                 # OK
+An expression cannot terminate with operator token which is not ', ), ] or }.       # OK
+An expression cannot terminate with delimiter token which is not ] or }.            # DEPRECATED
+An expression cannot start with operator token which is not +, -, !, ( or {.        # OK
+An expression cannot start with delimiter which is not {.                           # DEPRECATED
+Function token must be followed by operator token [.                                # OK
+String token can be followed by some delimiter and operator tokens only.            # DEPRECATED
 These two operator tokens $1 and $2 cannot adjacent to each other.                  # OK
-These delimiter and operator token $1 and $2 cannot adjacent to each other.         # OK
-Only function or command token can be followed by delimiter token [.                # OK
-These operator and delimiter token $1 and $2 cannot adjacent to each other.         # OK
-These two delimiter tokens $1 and $2 cannot adjacent to each other.                 # OK
-For string token, there must be preceding [ or , delimiter token.                   # OK
-Decimal point cannot appear more than once in one numeric value.                    # OK
-Underscore can only be used in the middle of variable name.                         # OK
-Decimal point cannot be used solely.                                                # OK
+These delimiter and operator token $1 and $2 cannot adjacent to each other.         # DEPRECATED
+Only function token can be followed by delimiter token [.                           # DEPRECATED
+These operator and delimiter token $1 and $2 cannot adjacent to each other.         # DEPRECATED
+These two delimiter tokens $1 and $2 cannot adjacent to each other.                 # DEPRECATED
+For string token, there must be preceding [ or , delimiter token.                   # DEPRECATED
+Decimal point cannot appear more than once in one numeric value.                    # DEPRECATED
+Underscore can only be used in the middle of variable name.                         # DEPRECATED
+Decimal point cannot be used solely.                                                # DEPRECATED
 Parenthesis is not matched.                                                         # OK
-Delimiter token , is misplaced.                                                     # OK
+Operator token , is misplaced.                                                      # OK
 Inferred type is $1 but $2 is expected.                                             # OK
-Inferred signature is $1where candidates are $2Use Help["$3"] for more information. # OK
+Inferred signature is $1where candidates are $2Use Help["$3"] for more information.
 Interpreting chain is timed out its limit $1sec after $2 iteration. Use Set_sys_var["Computation_Timeout", sec] to customize timeout limit. # OK
 Waiting for user input is timed out its limit $1sec. Use Set_sys_var["Input_Timeout", sec] to customize timeout limit.  # OK
 There is no system variable "$1".                                                   # OK
@@ -28,3 +28,5 @@ Timeout limit must be finite nonnegative integer less than or equal to 214748364
 System variable "$1" is read-only and cannot be modified.
 The parameter of Sleep command must be finite nonnegative less than or equal to 100000000.99999. Use Help["Sleep"] for more information.
 Given parameter has type $1, but system variable "$2" has type $3.
+Exponent must be followed by integer numeric token.
+Usage of escaping sequence is invalid.

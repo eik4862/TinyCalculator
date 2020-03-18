@@ -1,7 +1,8 @@
-from typing import final, List, Dict, Any, Tuple
+from __future__ import annotations
+
+from typing import final, Dict, Any, List
 
 from Core import Type, TypeSystem
-from Operator import *
 
 
 class Err(Exception):
@@ -12,11 +13,32 @@ class Err(Exception):
     This is used to catch all user-defined errors at once.
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, errno: int) -> None:
+        self.__errno: int = errno
 
-    def __del__(self) -> None:
-        pass
+    @property
+    def errno(self) -> int:
+        return self.__errno
+
+
+class ParserErr(Err):
+    def __init__(self, errno: int) -> None:
+        super().__init__(errno)
+
+
+class InterpErr(Err):
+    def __init__(self, errno: int, line: str, pos: int) -> None:
+        super().__init__(errno)
+        self.__line: str = line
+        self.__pos: int = pos
+
+    @property
+    def line(self) -> str:
+        return self.__line
+
+    @property
+    def pos(self) -> int:
+        return self.__pos
 
 
 @final
@@ -157,162 +179,90 @@ class DBErr(Err):
         return self.__err_str
 
 
-@final
-class ParserErr(Err):
-    """
-    Parser error class.
-
-    :ivar __err_t: Error type.
-    :ivar __err_no: Error code.
-    :ivar __line: Raw input which caused error. (Default: None)
-    :ivar __pos: Position in raw input where error occurred. (Default: None)
-    """
-
-    def __init__(self, err_t: Type.ParserErrT, err_no: int, line: str = None, pos: int = None, **kwargs: Any) -> None:
-        super().__init__()
-        self.__err_t: Type.ParserErrT = err_t
-        self.__err_no: int = err_no
-        self.__line: str = line
-        self.__pos: int = pos
-        self.__extra_info: Dict[str, Any] = kwargs
-
-    def __del__(self) -> None:
-        pass
-
-    @property
-    def err_t(self) -> Type.ParserErrT:
-        """
-        Getter for parser error type.
-
-        :return: Parser error type.
-        :rtype: Type.ParserErrT
-        """
-        return self.__err_t
-
-    @property
-    def line(self) -> str:
-        """
-        Getter for raw input which caused error.
-
-        :return: Erroneous raw input. None if this information is not given.
-        :rtype: str
-        """
-        return self.__line
-
-    @property
-    def pos(self) -> int:
-        """
-        Getter for position in raw input where error occurred.
-
-        :return: Position where error occurred. None if this information is not given.
-        :rtype: int
-        """
-        return self.__pos
-
-    @property
-    def err_no(self) -> int:
-        """
-        Getter for error code.
-
-        :return: Error code.
-        :rtype: int
-        """
-        return self.__err_no
-
-    @property
-    def err_op(self) -> Tuple[Operator.Op, Operator.Op]:
-        """
-        Getter for pair of erroneous operators.
-
-        :return: Pair of erroneous operators.
-        :rtype: Tuple[Operator.Op, Operator.Op]
-        """
-        return self.__extra_info.get('err_op')
-
-
-@final
-class InterpErr(Err):
-    """
-    Interpreter error class.
-
-    :ivar __err_type: Error type.
-    :ivar __err_code: Error code.
-    :ivar __line: Raw input which caused error.
-    :ivar __pos: Position in raw input where error occurred.
-    :ivar __extra_info: Extra information.
-    """
-
-    def __init__(self, err_t: Type.InterpErrT, err_no: int, line: str, pos: int, **kwargs: Any) -> None:
-        super().__init__()
-        self.__err_t: Type.InterpErrT = err_t
-        self.__err_no: int = err_no
-        self.__line: str = line
-        self.__pos: int = pos
-        self.__extra_info: Dict[str, Any] = kwargs
-
-    def __del__(self) -> None:
-        pass
-
-    @property
-    def err_t(self) -> Type.InterpErrT:
-        """
-        Getter for interpreter error type.
-
-        :return: Interpreter error type.
-        :rtype: Type.InterpErrT
-        """
-        return self.__err_t
-
-    @property
-    def err_no(self) -> int:
-        """
-        Getter for error code.
-
-        :return: Error code.
-        :rtype: int
-        """
-        return self.__err_no
-
-    @property
-    def line(self) -> str:
-        """
-        Getter for raw input which caused error.
-
-        :return: Erroneous raw input.
-        :rtype: str
-        """
-        return self.__line
-
-    @property
-    def pos(self) -> int:
-        """
-        Getter for position in raw input where error occurred.
-
-        :return: Position where error occurred.
-        :rtype: int
-        """
-        return self.__pos
-
-    @property
-    def wrong_t(self) -> TypeSystem.T:
-        """
-        Getter for erroneous inferred type.
-
-        :return: Erroneous inferred type.
-        :rtype: TypeSystem.T
-        """
-        return self.__extra_info.get('wrong_t')
-
-    @property
-    def right_t(self) -> TypeSystem.T:
-        """
-        Getter for correct type.
-
-        :return: Correct type.
-        :rtype: TypeSystem.T
-        """
-        return self.__extra_info.get('right_t')
-
+#
+# @final
+# class InterpErr(Err):
+#     """
+#     Interpreter error class.
+#
+#     :ivar __err_type: Error type.
+#     :ivar __err_code: Error code.
+#     :ivar __line: Raw input which caused error.
+#     :ivar __pos: Position in raw input where error occurred.
+#     :ivar __extra_info: Extra information.
+#     """
+#
+#     def __init__(self, err_t: Type.InterpErrT, err_no: int, line: str, pos: int, **kwargs: Any) -> None:
+#         super().__init__()
+#         self.__err_t: Type.InterpErrT = err_t
+#         self.__err_no: int = err_no
+#         self.__line: str = line
+#         self.__pos: int = pos
+#         self.__extra_info: Dict[str, Any] = kwargs
+#
+#     def __del__(self) -> None:
+#         pass
+#
+#     @property
+#     def err_t(self) -> Type.InterpErrT:
+#         """
+#         Getter for interpreter error type.
+#
+#         :return: Interpreter error type.
+#         :rtype: Type.InterpErrT
+#         """
+#         return self.__err_t
+#
+#     @property
+#     def err_no(self) -> int:
+#         """
+#         Getter for error code.
+#
+#         :return: Error code.
+#         :rtype: int
+#         """
+#         return self.__err_no
+#
+#     @property
+#     def line(self) -> str:
+#         """
+#         Getter for raw input which caused error.
+#
+#         :return: Erroneous raw input.
+#         :rtype: str
+#         """
+#         return self.__line
+#
+#     @property
+#     def pos(self) -> int:
+#         """
+#         Getter for position in raw input where error occurred.
+#
+#         :return: Position where error occurred.
+#         :rtype: int
+#         """
+#         return self.__pos
+#
+#     @property
+#     def wrong_t(self) -> TypeSystem.T:
+#         """
+#         Getter for erroneous inferred type.
+#
+#         :return: Erroneous inferred type.
+#         :rtype: TypeSystem.T
+#         """
+#         return self.__extra_info.get('wrong_t')
+#
+#     @property
+#     def right_t(self) -> TypeSystem.T:
+#         """
+#         Getter for correct type.
+#
+#         :return: Correct type.
+#         :rtype: TypeSystem.T
+#         """
+#         return self.__extra_info.get('right_t')
+#
 
 @final
 class UtilErr(Err):

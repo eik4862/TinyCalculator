@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import List, final, TextIO, Final, Tuple
 
 from Core import Type, DB
-from Function import Trigonometric, HyperbolicTrigonometric, SpecialFunction, Exponential
+from Function import Trigonometric, Hyperbolic, SpecialFunction, Exponential
 from Util import Printer
 
 
@@ -84,16 +84,16 @@ class TestManager:
 
             start: float = time.process_time()  # Start time stamp for elapsed time measure.
 
-            if fun in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.CSC, Type.FunT.SEC, Type.FunT.COT,
-                       Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC, Type.FunT.ASEC, Type.FunT.ACOT]:
-                test_out: List[Decimal] = Trigonometric.Tri.test(fun, test_in)  # Test output.
-            elif fun in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.ASINH, Type.FunT.ACOSH,
-                         Type.FunT.ATANH]:
-                test_out: List[Decimal] = HyperbolicTrigonometric.HyperTri.test(fun, test_in)  # Test output.
-            elif fun in [Type.FunT.GAMMA, Type.FunT.LGAMMA, Type.FunT.ERF, Type.FunT.ERFC, Type.FunT.BETA]:
+            if fun in [Type.FunT.Sin, Type.FunT.Cos, Type.FunT.Tan, Type.FunT.Csc, Type.FunT.Sec, Type.FunT.Cot,
+                       Type.FunT.ArcSin, Type.FunT.ArcCos, Type.FunT.ArcTan, Type.FunT.ArcCsc, Type.FunT.ArcSec, Type.FunT.ArcCot]:
+                test_out: List[Decimal] = Trigonometric.TriFun.test(fun, test_in)  # Test output.
+            elif fun in [Type.FunT.Sinh, Type.FunT.Cosh, Type.FunT.Tanh, Type.FunT.ArcSinh, Type.FunT.ArcCosh,
+                         Type.FunT.ArcTanh]:
+                test_out: List[Decimal] = Hyperbolic.HypbolicFunc.test(fun, test_in)  # Test output.
+            elif fun in [Type.FunT.Gamma, Type.FunT.LogGamma, Type.FunT.Erf, Type.FunT.Erfc, Type.FunT.Beta]:
                 test_out: List[Decimal] = SpecialFunction.SpecialFun.test(fun, test_in)  # Test output.
             else:
-                test_out: List[Decimal] = Exponential.Exp.test(fun, test_in)  # Test output.
+                test_out: List[Decimal] = Exponential.ExpFun.test(fun, test_in)  # Test output.
 
             Printer.Printer.inst().buf(Printer.Printer.inst().f_col('done', Type.Col.BLUE), buf)
 
@@ -204,17 +204,17 @@ class TestManager:
 
                 Printer.Printer.inst().buf(Printer.Printer.inst().f_prog(f'[{i}] Running test #{i}'), buf, False, 2)
 
-                if target[i][0] in [Type.FunT.SIN, Type.FunT.COS, Type.FunT.TAN, Type.FunT.CSC, Type.FunT.SEC,
-                                    Type.FunT.COT, Type.FunT.ASIN, Type.FunT.ACOS, Type.FunT.ATAN, Type.FunT.ACSC,
-                                    Type.FunT.ASEC, Type.FunT.ACOT]:
-                    test_out.append(Trigonometric.Tri.test(target[i][0], test_in))
-                elif target[i][0] in [Type.FunT.SINH, Type.FunT.COSH, Type.FunT.TANH, Type.FunT.CSCH, Type.FunT.SECH,
-                                      Type.FunT.COTH, Type.FunT.ASINH, Type.FunT.ACOSH, Type.FunT.ATANH,
-                                      Type.FunT.ACSCH, Type.FunT.ASECH, Type.FunT.ACOTH]:
-                    test_out.append(HyperbolicTrigonometric.HyperTri.test(target[i][0], test_in))
-                elif target[i][0] in [Type.FunT.EXP, Type.FunT.LOG, Type.FunT.POW, Type.FunT.SQRT, Type.FunT.LOG2,
-                                      Type.FunT.LOG10]:
-                    test_out.append(Exponential.Exp.test(target[i][0], test_in))
+                if target[i][0] in [Type.FunT.Sin, Type.FunT.Cos, Type.FunT.Tan, Type.FunT.Csc, Type.FunT.Sec,
+                                    Type.FunT.Cot, Type.FunT.ArcSin, Type.FunT.ArcCos, Type.FunT.ArcTan, Type.FunT.ArcCsc,
+                                    Type.FunT.ArcSec, Type.FunT.ArcCot]:
+                    test_out.append(Trigonometric.TriFun.test(target[i][0], test_in))
+                elif target[i][0] in [Type.FunT.Sinh, Type.FunT.Cosh, Type.FunT.Tanh, Type.FunT.Csch, Type.FunT.Sech,
+                                      Type.FunT.Coth, Type.FunT.ArcSinh, Type.FunT.ArcCosh, Type.FunT.ArcTanh,
+                                      Type.FunT.ArcCsch, Type.FunT.ArcSech, Type.FunT.ArcCoth]:
+                    test_out.append(Hyperbolic.HypbolicFunc.test(target[i][0], test_in))
+                elif target[i][0] in [Type.FunT.Exp, Type.FunT.Log, Type.FunT.Pow, Type.FunT.Sqrt, Type.FunT.Log2,
+                                      Type.FunT.Log10]:
+                    test_out.append(Exponential.ExpFun.test(target[i][0], test_in))
                 else:
                     test_out.append(SpecialFunction.SpecialFun.test(target[i][0], test_in))
 

@@ -2,6 +2,7 @@ from typing import final, Dict, Any
 
 from Core import Type
 
+
 class Warn:
     def __init__(self, warnno: int) -> None:
         self.__warnno: int = warnno
@@ -12,13 +13,8 @@ class Warn:
 
 
 class ParserWarn(Warn):
-    def __init__(self, warnno: int, pos: int) -> None:
+    def __init__(self, warnno: int) -> None:
         super().__init__(warnno)
-        self.__pos: int = pos
-
-    @property
-    def pos(self) -> int:
-        return self.__pos
 
 
 @final

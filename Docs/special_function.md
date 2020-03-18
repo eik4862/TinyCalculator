@@ -14,12 +14,19 @@ Class `SpecialFun` supports following special functions.
 | --- | --- | --- | --- |
 | `Erf[x]` | $\mathrm{erf}(x) = \frac{2}{\sqrt{\pi}}\int_0^xe^{-t^2}\,d\mu(t)$ | $\mathbb{R}$ | $(-1,\,1)$ |
 | `Erfc[x]` | $\mathrm{erfc}(x) = 1-\mathrm{erf}(x)$ | $\mathbb{R}$ | $(0,\,2)$ |
+| `Phi[x]` | $\Phi(x) = \frac{1}{2}\left[1+\erf\left(\frac{x}{2}\right)\right]$ | $\mathbb{R}$ | $(0,\,1)$ |
 | `Gamma[x]` | $\Gamma(x) = \int_0^\infty t^{x-1}e^{-t}\,d\mu(t)$ | $\mathbb{R}\setminus\mathbb{Z}^-_0$ | $\mathbb{R}\setminus\{0\}$ |
 | `Lgamma[x]` | $\log\vert\Gamma(x)\vert$ | $\mathbb{R}\setminus\mathbb{Z}^-_0$ | $\mathbb{R}$ |
 | `Recigamma[x]` | $\frac{1}{\Gamma(x)}$ | $\mathbb{R}$ | $\mathbb{R}$ |
 | `Besselclifford[x]` | $\frac{1}{\Gamma(x + 1)}$ | $\mathbb{R}$ | $\mathbb{R}$ |
 | `Beta[x, y]` | $\mathrm{B}(x,\,y) = \int_0^1t^{x-1}(1-t)^{y-1}\,d\mu(t)$ | $(\mathbb{R}\setminus\mathbb{Z}^-_0)^2$ | $\mathbb{R}$ |
 | `Centralbeta[x]` | $\beta(x) = \mathrm{B}(x,\,x)$ | $\mathbb{R}\setminus\mathbb{Z}^-_0$ | $\mathbb{R}$ |
+| `Logistic[x, y]` | $(1+e^{-x})^{-y}$ | $\mathbb{R}$ | $(0,\,1)$ |
+| `Logit[x]` | $\log\left(\frac{x}{1-x}\right)$ | $(0,\,1)$ | $\mathbb{R}$ |
+| `Eistein1[x]` | $E_1(x) = \frac{x^2e^x}{(e^x-1)^2}$ | $\mathbb{R}$ | $(0,\,1]$ |
+| `Eistein2[x]` | $E_2(x) = \frac{x}{e^x-1}$ | $\mathbb{R}$ | $\mathbb{R}^+$ |
+| `Eistein3[x]` | $E_3(x) = \log(1-e^{-x})$ | $\mathbb{R}$ | $\mathbb{R}^-$ |
+| `Eistein4[x]` | $E_4(x) = E_2(x)-E_3(x)$ | $\mathbb{R}$ | $\mathbb{R}^+$ |
 | `Sinc[x]` | $\mathrm{sinc}(x) = \frac{\sin(x)}{x}$ | $\mathbb{R}$ | $\approx[-0.217,\,1]$ |
 | `Tanc[x]` | $\mathrm{tanc}(x) = \frac{\tan(x)}{x}$ | $\mathbb{R}\setminus(\pi\mathbb{Z}+\pi/2)$ | $\mathbb{R}$ |
 | `Sinhc[x]` | $\mathrm{sinhc}(x) = \frac{\sinh(x)}{x}$ | $\mathbb{R}$ | $[1,\,\infty)$ |
@@ -28,6 +35,8 @@ Class `SpecialFun` supports following special functions.
 | `Dirichletkernel[x, n]` | $D_n(x) = \sum_{k=-n}^ne^{\mathbf{i}kx}$ | $\mathbb{R}\times\mathbb{N}_0$ | $\mathbb{R}$ | 
 | `Fejerkernel[x, n]` | $F_n(x) = \sum_{k=0}^{n-1}D_k(x)$ | $\mathbb{R}\times\mathbb{N}$ | $\mathbb{R}^+_0$ |
 | `Topologistsin[x]` | $\sin(1/x)$ | $\mathbb{R}^+$ | $[-1,\,1]$ |
+| `Gudermannian[x]` | $\mathrm{gd}(x) = \int_0^x\frac{1}{\cosh(t)}\,d\mu(t)$ | $\mathbb{R}$ | $(-\pi/2,\,\pi/2)$ |
+| `Inversegudermannian[x]` | $\mathrm{gd}^{-1}(x)$ | $(-\pi/2,\,\pi/2)$ | $\mathbb{R}$ |
 
 > [!NOTE]
 > 1. Here, $\mu$ stands for [Lebesgue measure](https://en.wikipedia.org/wiki/Lebesgue_measure) on measure space $(\mathbb{R},\,\mathcal{M},\,\mu)$, $x^{\overline{n}}$ stands for [rising factorial](https://en.wikipedia.org/wiki/Falling_and_rising_factorials) which is defined by $x^{\overline{n}}=x\cdots(x+n-1)$, and $\mathbf{i}$ stands for imaginary unit.
@@ -1523,5 +1532,5 @@ After computing all test outputs, the result will be returned as `Decimal` again
     # Uniform 100 test input points from [0, 100).
     test_in = [[Decimal(n)] for n in range(100)]
     # Computes value of math.erf(n) for n in test points.
-    test_out = SpecialFun.test(FunT.ERF, test_in)
+    test_out = SpecialFun.test(FunT.Erf, test_in)
 ```

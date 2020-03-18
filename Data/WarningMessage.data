@@ -55,3 +55,5 @@ Log with base 2 and exponent 0 may cause unexpected behaviors. Use Help["Log2"] 
 Log with base 2 and negative exponent may cause unexpected behaviors. Use Help["Log2"] for more information.
 Log with base 10 and exponent 0 may cause unexpected behaviors. Use Help["Log10"] for more information.
 Log with base 10 and negative exponent may cause unexpected behaviors. Use Help["Log10"] for more information.
+Parsed integer at position $1 is too big to be casted to float. This may cause some unexpected behaviors.                                           # OK
+Parsed float at position $1 exceeded max size of float and caused overflow. Inf will be used instead, but this may cause some unexpected behaviors.   # OK

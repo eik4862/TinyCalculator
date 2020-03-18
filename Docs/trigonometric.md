@@ -780,7 +780,7 @@ Caller of this method can tell the existence of type error by inspecting its ret
 ```python
     # Not runnable! Just for conceptual understanding.
     from Core.Parser import Parser
-    from Function.Trigonometric import Tri
+    from Function.Trigonometric import TriFun
     
     # Input: Sin[2, "2"]
     line = input()
@@ -789,7 +789,7 @@ Caller of this method can tell the existence of type error by inspecting its ret
     # Inferred signature: T.NUM Sin[T.NUM, T.STR]
     # Candidate signatures: T.NUM Sin[T.NUM]
     # Type error. Return candidate signatures [Sign([T.NUM], T.NUM, FunT.SIN)].
-    cand = Tri.chk_t(AST.rt)
+    cand = TriFun.chk_t(AST.rt)
     
     # Output: Oops! Check it again.
     if not cand:
@@ -1141,10 +1141,10 @@ After computing all test outputs, the result will be returned as `Decimal` again
 ```python
     from decimal import Decimal
     from Core.Type import FunT
-    from Function.Trigonometric import Tri
+    from Function.Trigonometric import TriFun
     
     # Uniform 100 test input points from [0, 100).
     test_in = [Decimal(n) for n in range(100)]
     # Computes value of math.sin(n) for n in test points.
-    test_out = Tri.test(FunT.SIN, test_in)
+    test_out = TriFun.test(FunT.Sin, test_in)
 ```

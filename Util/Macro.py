@@ -70,35 +70,6 @@ def is_underscore(c: str) -> bool:
     """
     return c == '_'
 
-
-def is_op(c: str) -> bool:
-    """
-    Check whether input character is operator or not.
-    Here, whitespace includes +, -, /, %, ^, *, !, (, and ).
-
-    :param c: Character to be checked.
-    :type c: str
-
-    :return: True if the input character is operator. False otherwise.
-    :rtype: bool
-    """
-    return c in ['+', '-', '/', '%', '^', '*', '!', '(', ')']
-
-
-def is_delim(c: str) -> bool:
-    """
-    Check whether input character is delimiter or not.
-    Here, whitespace includes [, ], and ,.
-
-    :param c: Character to be checked.
-    :type c: str
-
-    :return: True if the input character is delimiter. False otherwise.
-    :rtype: bool
-    """
-    return c in ['[', ']', ',']
-
-
 def is_quote(c: str) -> bool:
     """
     Check whether input character is (double) quote or not.
@@ -180,3 +151,15 @@ def is_smallint(n: int) -> bool:
 
 def is_int(x: float) -> bool:
     return x % 1 == 0
+
+
+def is_exp(c: str) -> bool:
+    return c == 'e'
+
+
+def is_sgn(c: str) -> bool:
+    return c in ['-', '+']
+
+
+def is_imag(c: str) -> bool:
+    return c == 'j'
