@@ -1,8 +1,9 @@
 import sys
-from decimal import Decimal, getcontext
-from typing import List, TextIO, Union, Callable
+from decimal import getcontext
+from typing import List, TextIO
 
-from Core import Parser, Type, AST, Interpreter, SystemManager, ErrorManager, DB, Error, WarningManager
+from Core import Parser, Type, AST, Interpreter, SystemManager, ErrorManager, DB, WarningManager, TypeChecker
+from Error import Error
 from Util import Printer
 
 
@@ -259,7 +260,12 @@ def main(debug: bool = False, verb: bool = False, to: TextIO = sys.stdout) -> No
                     # Print out buffered output.
                     Printer.Printer.inst().print(Type.BufT.DEBUG, to=to)
 
-                    expr = Interpreter.Interp.inst().interp(expr, True)
+                    TypeChecker.TChker.inst().chk_t(expr)
+
+                    # Print out buffered output.
+                    Printer.Printer.inst().print(Type.BufT.DEBUG, to=to)
+
+                    # expr = Interpreter.Interp.inst().interp(expr, True)
                 except Error.UtilErr as util_err:
                     if util_err.t == Type.UtilErrT.QUIT:
                         Printer.Printer.inst().buf(DB.DB.inst().get_greet_msg('BYE'))
@@ -279,11 +285,11 @@ def main(debug: bool = False, verb: bool = False, to: TextIO = sys.stdout) -> No
 
                 WarningManager.WarnManager.inst().clr()
 
-                # Print out all buffered outputs in right order.
-                if expr and expr.rt.tok_t != Type.TokT.VOID:
-                    Printer.Printer.inst().buf(expr.infix())
+                if expr:
+                    Printer.Printer.inst().buf(str(expr))
                     Printer.Printer.inst().buf_newline()
 
+                # Print out all buffered outputs in right order.
                 Printer.Printer.inst().print(Type.BufT.DEBUG, to=to)
                 Printer.Printer.inst().print(Type.BufT.STDWARN, to=to)
                 Printer.Printer.inst().print(Type.BufT.INTERNAL, to=to)
@@ -305,7 +311,7 @@ def main(debug: bool = False, verb: bool = False, to: TextIO = sys.stdout) -> No
                 # Parse and interpret.
                 try:
                     expr: AST.AST = Parser.Parser.inst().parse(line)  # Generated AST.
-                    expr = Interpreter.Interp.inst().interp(expr)
+                    # expr = Interpreter.Interp.inst().interp(expr)
                 except Error.UtilErr as util_err:
                     if util_err.t == Type.UtilErrT.QUIT:
                         Printer.Printer.inst().buf(DB.DB.inst().get_greet_msg('BYE'))
@@ -336,33 +342,33 @@ def main(debug: bool = False, verb: bool = False, to: TextIO = sys.stdout) -> No
                 Printer.Printer.inst().print(Type.BufT.STDERR, to=to)
 
 
-def test(target: Type.FunT = None, verb: bool = False, to: TextIO = sys.stdout) -> None:
-    from Test import TestManager
-
-    # Load DB.
-    try:
-        DB.DB.inst().load_test()
-    except Error.DBErr as DB_err:
-        # DB error is critical and cannot be recovered.
-        # Terminate the whole process.
-        ErrorManager.ErrManager.inst().handle_err(DB_err)
-        Printer.Printer.inst().print(Type.BufT.DEBUG, to=to)
-        Printer.Printer.inst().print(Type.BufT.STDERR, to=to)
-        sys.exit(1)
-    else:
-        Printer.Printer.inst().print(Type.BufT.DEBUG, to=to)
-
-    # Set precision.
-    getcontext().prec = 300
-
-    # Run test.
-    TestManager.TestManager.inst().test(target, verb)
-
-    # Print out all buffered outputs in right order.
-    Printer.Printer.inst().print(Type.BufT.DEBUG)
+# def test(target: Type.FunT = None, verb: bool = False, to: TextIO = sys.stdout) -> None:
+#     from Test import TestManager
+#
+#     # Load DB.
+#     try:
+#         DB.DB.inst().load_test()
+#     except Error.DBErr as DB_err:
+#         # DB error is critical and cannot be recovered.
+#         # Terminate the whole process.
+#         ErrorManager.ErrManager.inst().handle_err(DB_err)
+#         Printer.Printer.inst().print(Type.BufT.DEBUG, to=to)
+#         Printer.Printer.inst().print(Type.BufT.STDERR, to=to)
+#         sys.exit(1)
+#     else:
+#         Printer.Printer.inst().print(Type.BufT.DEBUG, to=to)
+#
+#     # Set precision.
+#     getcontext().prec = 300
+#
+#     # Run test.
+#     TestManager.TestManager.inst().test(target, verb)
+#
+#     # Print out all buffered outputs in right order.
+#     Printer.Printer.inst().print(Type.BufT.DEBUG)
 
 
 if __name__ == '__main__':
     # to = open('../Data/Debug.out', 'w')
     # test()
-    main(False, False)
+    main(False, True)

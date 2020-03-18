@@ -1,6 +1,6 @@
-from Core import Type, DB, Error, SystemManager
+from Core import Type, DB, SystemManager
+from Error import *
 from Util import Printer
-from Util.Macro import is_white, is_delim, is_op
 
 
 class ErrManager:
@@ -84,17 +84,6 @@ class ErrManager:
         """
         Handler for error from DB module.
 
-        It handles following errors according to following forms.
-            * OPEN_ERR
-                [DB] ERROR: Cannot open DB source file at {source path}.
-                Error message from OS: {error message from OS}
-                DB error is critical and cannot be recovered. Terminate.
-            * CLOSE_ERR
-                [DB] ERROR: Cannot close DB source file at {source path}.
-                Error message from OS: {error message from OS}
-                DB error is critical and cannot be recovered. Terminate.
-        For detailed information of each error, refer to the comments of ``DBErrT``.
-
         This method is private and called internally as a helper of ``ErrManager.handle_err``.
         For detailed description for error handling, refer to the comments of ``ErrManager.handle_err``.
 
@@ -115,25 +104,9 @@ class ErrManager:
         Printer.Printer.inst().buf('DB error is critical and cannot be recovered. Terminate.', buf)
         Printer.Printer.inst().buf_newline(buf)
 
-    def __handle_parser_err(self, err: Error.ParserErr) -> None:
+    def __handle_parser_err(self, err: ParserError) -> None:
         """
         Handler for error from parser module.
-
-        It handles following errors according to following forms.
-            * EMPTY_EXPR
-                [Parser] ERROR: Empty expression.
-                {error message}
-            * INVALID_TOK
-                {raw input}
-                ~~...~^ (position of invalid token)
-                [Parser] ERROR: Invalid token.
-                {error message} (If contains invalid character)
-            * INVALID_EXPR
-                {raw input}
-                ~~...~^ (position of invalid expression)
-                [Parser] ERROR: Invalid expression.
-                {error message} (It contains detailed explanation of invalid part.)
-        For detailed information of each error, refer to the comments of ``ParserErrT``.
 
         This method is private and called internally as a helper of ``ErrManager.handle_err``.
         For detailed description for error handling, refer to the comments of ``ErrManager.handle_err``.
@@ -143,10 +116,11 @@ class ErrManager:
         """
         buf: Type.BufT = Type.BufT.STDERR  # Target buffer.
         mark: str = Printer.Printer.inst().f_col('ERROR', Type.Col.RED)  # Error mark.
+        err_t: type = type(err)  # Error type.
 
-        if err.err_t == Type.ParserErrT.EMPTY_EXPR:
+        if err_t == ParserError.EmptyExpr:
             Printer.Printer.inst().buf(f'[Parser] {mark}: Empty expression.', buf)
-        elif err.err_t == Type.ParserErrT.INVALID_TOK:
+        elif err_t == ParserError.InvalidTok:
             Printer.Printer.inst().buf(err.line, buf)
             Printer.Printer.inst().buf('~' * err.pos + '^', buf)
             Printer.Printer.inst().buf(f'[Parser] {mark}: Invalid token.', buf)
@@ -155,93 +129,21 @@ class ErrManager:
             Printer.Printer.inst().buf('~' * err.pos + '^', buf)
             Printer.Printer.inst().buf(f'[Parser] {mark}: Invalid expression.', buf)
 
-        if err.err_no == 2:
+        if err.errno == 2:
             msg: str = DB.DB.inst().get_err_msg(1).replace('$1', err.line[err.pos])  # Error message.
-        elif err.err_no == 11:
-            prev_pos: int = err.pos - 1  # Previous position of erroneous token.
+        elif err.errno == 11:
+            msg: str = DB.DB.inst().get_err_msg(10)  # Error message.
 
-            while prev_pos > 0:
-                if not is_white(err.line[prev_pos]):
-                    break
-
-                prev_pos -= 1
-
-            assert is_op(err.line[prev_pos])
-
-            if err.line[prev_pos] == '*' and prev_pos > 0 and err.line[prev_pos - 1] == '*':
-                msg: str = DB.DB.inst().get_err_msg(10).replace('$1', '**')  # Error message.
-            else:
-                msg: str = DB.DB.inst().get_err_msg(10).replace('$1', err.line[prev_pos])  # Error message.
-
-            if err.pos + 1 < len(err.line) and err.line[err.pos] == err.line[err.pos + 1] == '*':
-                msg = msg.replace('$2', '**')
-            else:
-                msg = msg.replace('$2', err.line[err.pos])
-        elif err.err_no == 12:
-            prev_pos: int = err.pos - 1  # Previous position of erroneous token.
-
-            while prev_pos > 0:
-                if not is_white(err.line[prev_pos]):
-                    break
-
-                prev_pos -= 1
-
-            assert is_delim(err.line[prev_pos])
-
-            msg: str = DB.DB.inst().get_err_msg(11).replace('$1', err.line[prev_pos])  # Error message.
-
-            if err.line[err.pos] == '*' and err.pos + 1 < len(err.line) and err.line[err.pos + 1] == '*':
-                msg = msg.replace('$2', '**')
-            else:
-                msg = msg.replace('$2', err.line[err.pos])
-        elif err.err_no == 14:
-            prev_pos: int = err.pos - 1  # Previous position of erroneous token.
-
-            while prev_pos > 0:
-                if not is_white(err.line[prev_pos]):
-                    break
-
-                prev_pos -= 1
-
-            assert is_op(err.line[prev_pos])
-
-            if err.line[prev_pos] == '*' and prev_pos > 0 and err.line[prev_pos - 1] == '*':
-                msg: str = DB.DB.inst().get_err_msg(13).replace('$1', '**')  # Error message.
-            else:
-                msg: str = DB.DB.inst().get_err_msg(13).replace('$1', err.line[prev_pos])  # Error message.
-
-            msg = msg.replace('$2', err.line[err.pos])
-        elif err.err_no == 15:
-            prev_pos: int = err.pos - 1  # Previous position of erroneous token.
-
-            while prev_pos > 0:
-                if not is_white(err.line[prev_pos]):
-                    break
-
-                prev_pos -= 1
-
-            assert is_delim(err.line[prev_pos])
-
-            msg: str = DB.DB.inst().get_err_msg(14).replace('$1', err.line[prev_pos])  # Error message.
-            msg = msg.replace('$2', err.line[err.pos])
+            msg = msg.replace('$1', err.err_op[0].sym()).replace('$2', err.err_op[1].sym())
         else:
-            msg: str = DB.DB.inst().get_err_msg(err.err_no - 1)  # Error message.
+            msg: str = DB.DB.inst().get_err_msg(err.errno - 1)  # Error message.
 
         Printer.Printer.inst().buf(msg, buf)
         Printer.Printer.inst().buf_newline(buf)
 
-    def __handle_interp_err(self, err: Error.InterpErr) -> None:
+    def __handle_interp_err(self, err: InterpreterError) -> None:
         """
         Handler for error from interpreter module.
-
-        It handles following errors according to following forms.
-            * TYPE_MISMATCH
-                [Interpreter] ERROR: Type error.
-                {error message} (It contains inferred wrong type and expected correct type.)
-            * CLOSE_ERR
-                [Interpreter] ERROR: Signature is not found.
-                {error message} (It contains inferred signature and list of candidate signatures.)
-        For detailed information of each error, refer to the comments of ``InterpErrT``.
 
         This method is private and called internally as a helper of ``ErrManager.handle_err``.
         For detailed description for error handling, refer to the comments of ``ErrManager.handle_err``.
@@ -252,7 +154,7 @@ class ErrManager:
         buf: Type.BufT = Type.BufT.STDERR  # Target buffer.
         mark: str = Printer.Printer.inst().f_col('ERROR', Type.Col.RED)  # Error mark.
 
-        if err.err_t == Type.InterpErrT.T_MISMATCH:
+        if type(err) == InterpreterError.TErr:
             Printer.Printer.inst().buf(err.line, buf)
             Printer.Printer.inst().buf('~' * err.pos + '^', buf)
             Printer.Printer.inst().buf(f'[Interpreter] {mark}: Type error.', buf)
@@ -261,17 +163,17 @@ class ErrManager:
             Printer.Printer.inst().buf('~' * err.pos + '^', buf)
             Printer.Printer.inst().buf(f'[Interpreter] {mark}: Signature is not found.', buf)
 
-        if err.err_no == 22:
+        if err.errno == 22:
             msg: str = DB.DB.inst().get_err_msg(21).replace('$1', str(err.wrong_t))  # Error message.
             msg = msg.replace('$2', str(err.right_t))
         else:
-            msg: str = DB.DB.inst().get_err_msg(22).replace('$1', f'\n  {err.wrong_sign}\n')  # Error message.
+            msg: str = DB.DB.inst().get_err_msg(22).replace('$1', f'\n  {err.err_sgn}\n')  # Error message.
             tmp: str = '\n'  # Temporary buffer for candidate signatures.
 
-            for i in range(len(err.cand_sign)):
-                tmp += f'  [{i}] {err.cand_sign[i]}\n'
+            for i in range(len(err.cand_sgn)):
+                tmp += f'  [{i}] {err.cand_sgn[i]}\n'
 
-            msg = msg.replace('$2', tmp).replace('$3', str(err.wrong_sign.handle).capitalize())
+            msg = msg.replace('$2', tmp).replace('$3', err.handle)
 
         Printer.Printer.inst().buf(msg, buf)
         Printer.Printer.inst().buf_newline(buf)
@@ -332,7 +234,9 @@ class ErrManager:
         :param err: Error to be handled.
         :type err: Error.Err
         """
-        if isinstance(err, Error.ParserErr):
+        err_t: type = type(err).__base__
+
+        if err_t == Error.ParserErr:
             self.__handle_parser_err(err)
         elif isinstance(err, Error.DBErr):
             self.__handle_DB_err(err)

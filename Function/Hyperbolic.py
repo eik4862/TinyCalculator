@@ -14,12 +14,12 @@ class HyperTri:
     :cvar __sign: Signatures of hyperbolic trigonometric functions.
     """
     __sign: Dict[Type.FunT, List[Type.Sign]] = {
-        Type.FunT.SINH: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.SINH)],
-        Type.FunT.COSH: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.COSH)],
-        Type.FunT.TANH: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.TANH)],
-        Type.FunT.ASINH: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.ASINH)],
-        Type.FunT.ACOSH: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.ACOSH)],
-        Type.FunT.ATANH: [Type.Sign([Type.T.NUM], Type.T.NUM, Type.FunT.ATANH)]
+        Type.FunT.Sinh: [Type.Sign([Type.T.REAL], Type.T.REAL, Type.FunT.Sinh)],
+        Type.FunT.Cosh: [Type.Sign([Type.T.REAL], Type.T.REAL, Type.FunT.Cosh)],
+        Type.FunT.Tanh: [Type.Sign([Type.T.REAL], Type.T.REAL, Type.FunT.Tanh)],
+        Type.FunT.ArcSinh: [Type.Sign([Type.T.REAL], Type.T.REAL, Type.FunT.ArcSinh)],
+        Type.FunT.ArcCosh: [Type.Sign([Type.T.REAL], Type.T.REAL, Type.FunT.ArcCosh)],
+        Type.FunT.ArcTanh: [Type.Sign([Type.T.REAL], Type.T.REAL, Type.FunT.ArcTanh)]
     }
 
     def __init__(self) -> None:
@@ -313,30 +313,30 @@ class HyperTri:
         return math.nan if -1 < x < 1 else math.inf if x == 1 else -math.inf if x == -1 else math.atanh(1 / x)
 
     @classmethod
-    def chk_t(cls, rt: Token.FunTok) -> Optional[List[Type.Sign]]:
+    def chk_t(cls, rt: Token.Fun) -> Optional[List[Type.Sign]]:
         """
         Type checker for hyperbolic trigonometric functions.
         It checks type of input function token and assigns return type as type information of the token.
 
         :param rt: Token to be type checked.
-        :type rt: Token.FunTok
+        :type rt: Token.Fun
 
         :return: None if type check is successful. Candidate signatures if not.
         :rtype: Optional[List[Type.Signature]]
         """
         cand: List[Type.Sign] = cls.__sign.get(rt.v)  # Candidate signatures
-        infer: Type.Sign = Type.Sign([tok.t for tok in rt.chd], Type.T.NUM, rt.v)  # Inferred signature
+        infer: Type.Sign = Type.Sign([tok.t for tok in rt.chd], Type.T.REAL, rt.v)  # Inferred signature
 
         # Inferred signature must be one of candidates and return type is NUM type.
         if infer in cand:
-            rt.t = Type.T.NUM
+            rt.t = Type.T.REAL
 
             return None
         else:
             return cand
 
     @classmethod
-    def simplify(cls, rt: Token.FunTok) -> Tuple[Token.Tok, List[Warning.InterpWarn]]:
+    def simplify(cls, rt: Token.Fun) -> Tuple[Token.Tok, List[Warning.InterpWarn]]:
         """
         Simplifier for hyperbolic trigonometric functions.
 
@@ -348,7 +348,7 @@ class HyperTri:
         ``Operator.simplify`` and references therein.
 
         :param rt: Root of AST to be simplified.
-        :type rt: Token.FunTok
+        :type rt: Token.Fun
 
         :return: Root of simplified AST and list of generated warnings.
         :rtype: Tuple[Token.Tok, List[Warning.InterpWarn]]
@@ -362,7 +362,7 @@ class HyperTri:
         """
         warn: List[Warning.InterpWarn] = []  # List of generated warnings.
 
-        if rt.v == Type.FunT.SINH:
+        if rt.v == Type.FunT.Sinh:
             # Check for warnings.
             # Sine hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -400,7 +400,7 @@ class HyperTri:
                 return tmp, warn
 
             return rt, warn
-        elif rt.v == Type.FunT.COSH:
+        elif rt.v == Type.FunT.Cosh:
             # Check for warnings.
             # Cosine hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -436,7 +436,7 @@ class HyperTri:
                 return rt, warn
 
             return rt, warn
-        elif rt.v == Type.FunT.TANH:
+        elif rt.v == Type.FunT.Tanh:
             # Check for warnings.
             # Tangent hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -474,7 +474,7 @@ class HyperTri:
                 return tmp, warn
 
             return rt, warn
-        elif rt.v == Type.FunT.CSCH:
+        elif rt.v == Type.FunT.Csch:
             # Check for warnings.
             # Cosecant hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -515,7 +515,7 @@ class HyperTri:
                 return tmp, warn
 
             return rt, warn
-        elif rt.v == Type.FunT.SECH:
+        elif rt.v == Type.FunT.Sech:
             # Check for warnings.
             # Secant hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -551,7 +551,7 @@ class HyperTri:
                 return rt, warn
 
             return rt, warn
-        elif rt.v == Type.FunT.COTH:
+        elif rt.v == Type.FunT.Coth:
             # Check for warnings.
             # Cotangent hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -592,7 +592,7 @@ class HyperTri:
                 return tmp, warn
 
             return rt, warn
-        elif rt.v == Type.FunT.ASINH:
+        elif rt.v == Type.FunT.ArcSinh:
             # Check for warnings.
             # Arcsine hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -630,7 +630,7 @@ class HyperTri:
                 return tmp, warn
 
             return rt, warn
-        elif rt.v == Type.FunT.ACOSH:
+        elif rt.v == Type.FunT.ArcCosh:
             # Check for warnings.
             # Arccosine hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -660,7 +660,7 @@ class HyperTri:
                 return rt.chd[0], warn
 
             return rt, warn
-        elif rt.v == Type.FunT.ATANH:
+        elif rt.v == Type.FunT.ArcTanh:
             # Check for warnings.
             # Arctangent hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -704,7 +704,7 @@ class HyperTri:
                 return tmp, warn
 
             return rt, warn
-        elif rt.v == Type.FunT.ACSCH:
+        elif rt.v == Type.FunT.ArcCsch:
             # Check for warnings.
             # Arccosecant hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -745,7 +745,7 @@ class HyperTri:
                 return tmp, warn
 
             return rt, warn
-        elif rt.v == Type.FunT.ASECH:
+        elif rt.v == Type.FunT.ArcSech:
             # Check for warnings.
             # Arcsecant hyperbolic function with parameter x generates warning for followings cases.
             #   1. x exceeds floating point max/min size. (BIG_INT/SMALL_INT, resp.)
@@ -838,27 +838,27 @@ class HyperTri:
         :return: Test output.
         :rtype: List[Decimal]
         """
-        if fun == Type.FunT.SINH:
+        if fun == Type.FunT.Sinh:
             return list(map(lambda x: Decimal(cls.__sinh(float(*x))), test_in))
-        elif fun == Type.FunT.COSH:
+        elif fun == Type.FunT.Cosh:
             return list(map(lambda x: Decimal(cls.__cosh(float(*x))), test_in))
-        elif fun == Type.FunT.TANH:
+        elif fun == Type.FunT.Tanh:
             return list(map(lambda x: Decimal(cls.__tanh(float(*x))), test_in))
-        elif fun == Type.FunT.CSCH:
+        elif fun == Type.FunT.Csch:
             return list(map(lambda x: Decimal(cls.__csch(float(*x))), test_in))
-        elif fun == Type.FunT.SECH:
+        elif fun == Type.FunT.Sech:
             return list(map(lambda x: Decimal(cls.__sech(float(*x))), test_in))
-        elif fun == Type.FunT.COTH:
+        elif fun == Type.FunT.Coth:
             return list(map(lambda x: Decimal(cls.__coth(float(*x))), test_in))
-        elif fun == Type.FunT.ASINH:
+        elif fun == Type.FunT.ArcSinh:
             return list(map(lambda x: Decimal(cls.__asinh(float(*x))), test_in))
-        elif fun == Type.FunT.ACOSH:
+        elif fun == Type.FunT.ArcCosh:
             return list(map(lambda x: Decimal(cls.__acosh(float(*x))), test_in))
-        elif fun == Type.FunT.ATANH:
+        elif fun == Type.FunT.ArcTanh:
             return list(map(lambda x: Decimal(cls.__atanh(float(*x))), test_in))
-        elif fun == Type.FunT.ACSCH:
+        elif fun == Type.FunT.ArcCsch:
             return list(map(lambda x: Decimal(cls.__acsch(float(*x))), test_in))
-        elif fun == Type.FunT.ASECH:
+        elif fun == Type.FunT.ArcSech:
             return list(map(lambda x: Decimal(cls.__asech(float(*x))), test_in))
         else:
             return list(map(lambda x: Decimal(cls.__acoth(float(*x))), test_in))

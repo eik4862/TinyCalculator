@@ -3,7 +3,8 @@ import sys
 from contextlib import contextmanager
 from typing import Dict, final, List
 
-from Core import Type, Error
+from Core import Type
+from Error import Error
 from Util import Printer
 
 
@@ -64,10 +65,10 @@ class SysManager:
 
     def __init__(self) -> None:
         self.__sys_var: Dict[str, Type.SysVar] = {
-            'Author': Type.SysVar('PSH (lkd1962@naver.com)', Type.T.STR),
-            'Version': Type.SysVar('0.0.1', Type.T.STR),
-            'Computation_Timeout': Type.SysVar(3, Type.T.NUM, False),
-            'Input_Timeout': Type.SysVar(100, Type.T.NUM, False)
+            'Author': Type.SysVar('PSH (lkd1962@naver.com)'),
+            'Version': Type.SysVar('0.0.1'),
+            'Computation_Timeout': Type.SysVar(3, False),
+            'Input_Timeout': Type.SysVar(100, False)
         }
         self.__sig_handler: List[Type.SigHandler] = [
             Type.SigHandler(signal.SIGINT, sigint_handler, 'SIGINT'),
@@ -121,4 +122,4 @@ class SysManager:
         return self.__sys_var.get(k)
 
     def set_sys_var(self, k: str, v: int) -> None:
-        self.__sys_var[k] = Type.SysVar(v, Type.T.NUM, False)
+        self.__sys_var[k] = Type.SysVar(v, Type.T.REAL, False)

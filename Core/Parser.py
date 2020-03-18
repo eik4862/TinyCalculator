@@ -1,8 +1,15 @@
-from typing import List, final, Union
+from __future__ import annotations
 
-from Core import Token, AST, Type, DB, Error
+import math
+from typing import List, final, Union, Dict
+
+from Core import Token, AST, Type, WarningManager
+from Error import *
+from Warning import *
+from Operator import *
+from Function import *
 from Util import Printer
-from Util.Macro import is_white, is_alpha, is_underscore, is_quote, is_delim, is_dot, is_digit, is_op
+from Util.Macro import *
 
 
 @final
@@ -24,7 +31,8 @@ class Parser:
     :ivar __postfix: Storage for tokens in postfix order.
     :ivar __tmp_stk: Temporary stack for infix to postfix conversion and AST generation.
     """
-    __inst = None
+    __inst: Parser = None
+    __kword_tb: Dict[str, Union[float, bool, Function.Fun]] = {}
 
     def __init__(self) -> None:
         self.__line: str = ''
@@ -32,8 +40,15 @@ class Parser:
         self.__postfix: List[Token.Tok] = []
         self.__tmp_stk: List[Token.Tok] = []
 
-    def __del__(self) -> None:
-        pass
+        for fun_category in Function.Fun.__subclasses__():
+            for fun in fun_category.__subclasses__():
+                self.__kword_tb[fun.__name__] = fun
+
+        for const in Type.Const:
+            self.__kword_tb[const.name] = const.value
+
+        self.__kword_tb['True'] = True
+        self.__kword_tb['False'] = False
 
     def __init(self) -> None:
         """
@@ -52,11 +67,13 @@ class Parser:
 
         Read character from target string one by one and tokenize it properly.
         Further, it checks the syntax of input using ``Parser.__add_tok``.
-        When all tokens are generated, it checks the terminal condition of expression.
-        For detailed description for syntax checking, refer to the comments below and those of ``Parser.__add_tok``.
+        For detailed description for syntax checking, refer to the comments of ``Parser.__add_tok``.
 
         This method is private and called internally as the second step of parsing chain.
         For detailed description for parsing chain, refer to the comments of ``Parser.parse``.
+
+        :raise BIG_INT: If parsed integer is bigger than the maximum float size.
+        :raise OVERFLOW: If parsed float caused overflow.
 
         :raise INVALID_EXPR: If the input string is invalid expression.
         :raise INVALID_TOK: If unknown token is encountered.
@@ -67,87 +84,337 @@ class Parser:
         while pos < len(self.__line):
             if is_white(self.__line[pos]):
                 # Skip all white spaces
-                while is_white(self.__line[pos]):
+                while pos < len(self.__line) and is_white(self.__line[pos]):
                     pos += 1
-
-                    if pos == len(self.__line):
-                        break
             elif is_digit(self.__line[pos]):
-                # Parse numeric value with integer part.
-                # Parsing numeric value comprises of three steps.
+                # Parsing numeric value with integer part comprises of four steps.
                 #   1. Parse integer part.
-                #   2. Check for decimal point and parse decimal part.
-                #   3. Check whether decimal point is overused.
-                # The following logic is an implementation of these steps.
-                upper: int = 0  # Integer part of numeric value.
+                #   2. Check for decimal point and parse fractional part.
+                #   3. Check for additional exponentation and parse exponent.
+                #   4. Check for imaginary unit and parse it.
+                # There are following restriction for numeric value literals.
+                #   1. Decimal point cannot appear more than once.
+                #   2. Additional exponentation must be followed by integer.
+                #   3. There can be only one sign after additional exponentation.
+                #   4. Imaginary unit, if exists, must be the terminal of the numeric value.
+                # This logic generates warning in following cases.
+                #   1. If the parsed integer part is too big so that it cannot be casted to float, it generates BIT_INT
+                #      warning.
+                #   2. If overflow occurs, it generates OVERFLOW warning.
+                # The following logic is an implementation of these steps, restriction rules, and warning generation
+                # rules.
                 start: int = pos  # Starting position.
 
                 # Parse integer part.
-                while is_digit(self.__line[pos]):
-                    upper *= 10
-                    upper += ord(self.__line[pos]) - ord('0')
+                while pos < len(self.__line) and is_digit(self.__line[pos]):
                     pos += 1
 
-                    if pos == len(self.__line):
-                        break
+                if pos == len(self.__line) or not (
+                        is_dot(self.__line[pos]) or is_exp(self.__line[pos]) or is_imag(self.__line[pos])):
+                    # If there is nothing more, we are done.
+                    parsed: int = int(self.__line[start:pos])  # Parsed numeric.
 
-                if pos == len(self.__line) or not is_dot(self.__line[pos]):
-                    self.__add_tok(Token.NumTok(upper, start))
+                    if is_bigint(parsed):
+                        WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(58, start))
+
+                    self.__add_tok(Token.Num(parsed, start))
 
                     continue
-
-                pos += 1
-                exp: int = 1  # Exponent.
-                lower: int = 0  # Decimal part of numeric value.
-
-                # Parse decimal part.
-                while pos < len(self.__line) and is_digit(self.__line[pos]):
-                    exp *= 10
-                    lower *= 10
-                    lower += ord(self.__line[pos]) - ord('0')
+                elif is_dot(self.__line[pos]):
+                    # If there is decimal point, parse fractional part.
                     pos += 1
 
-                # Check for decimal point overuse.
-                if pos < len(self.__line) and is_dot(self.__line[pos]):
-                    raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 17, self.__line, pos)
+                    # Parse fractional part.
+                    while pos < len(self.__line) and is_digit(self.__line[pos]):
+                        pos += 1
 
-                self.__add_tok(Token.NumTok(upper + lower / exp, start))
+                    if pos == len(self.__line) or not (
+                            is_dot(self.__line[pos]) or is_exp(self.__line[pos]) or is_imag(self.__line[pos])):
+                        # If there is no additional exponentation, stop.
+                        parsed: float = float(self.__line[start:pos])  # Parsed numeric.
 
-                continue
+                        if math.isinf(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                        self.__add_tok(Token.Num(parsed, start))
+
+                        continue
+                    elif is_dot(self.__line[pos]):
+                        # Decimal point cannot appear more than once.
+                        pos -= 1
+                        parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                        if math.isinf(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                        self.__add_tok(Token.Num(parsed, start))
+                    elif is_exp(self.__line[pos]):
+                        # If there is additional exponentation, parse exponent.
+                        pos += 1
+
+                        # Additional exponent must be followed by integer.
+                        if pos == len(self.__line):
+                            pos -= 1
+                            parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                            if math.isinf(parsed):
+                                WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                            self.__add_tok(Token.Num(parsed, start))
+
+                            continue
+                        elif is_sgn(self.__line[pos]):
+                            if pos + 1 == len(self.__line[pos]) or not is_digit(self.__line[pos + 1]):
+                                pos -= 1
+                                parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                                if math.isinf(parsed):
+                                    WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                                self.__add_tok(Token.Num(parsed, start))
+
+                                continue
+
+                            pos += 1
+                        elif not is_digit(self.__line[pos]):
+                            pos -= 1
+                            parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                            if math.isinf(parsed):
+                                WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                            self.__add_tok(Token.Num(parsed, start))
+
+                            continue
+
+                        # Parse additional exponent.
+                        while pos < len(self.__line) and is_digit(self.__line[pos]):
+                            pos += 1
+
+                        if pos == len(self.__line) or not is_imag(self.__line[pos]):
+                            # If there is nothing more, we are done.
+                            parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                            if math.isinf(parsed):
+                                WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                            self.__add_tok(Token.Num(parsed, start))
+
+                            continue
+                        else:
+                            # If there is imaginary unit, parse it.
+                            parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                            if math.isinf(parsed):
+                                WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                            self.__add_tok(Token.Num(complex(0, parsed), start))
+                            pos += 1
+
+                            continue
+                    else:
+                        # If there is imaginary unit, parse it.
+                        parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                        if math.isinf(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                        self.__add_tok(Token.Num(complex(0, parsed), start))
+                        pos += 1
+
+                        continue
+                elif is_exp(self.__line[pos]):
+                    # If there is additional exponentation, parse exponent.
+                    pos += 1
+
+                    # Additional exponent must be followed by integer.
+                    if pos == len(self.__line):
+                        pos -= 1
+                        parsed: int = int(self.__line[start:pos])  # Parsed numeric.
+
+                        if is_bigint(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(58, start))
+
+                        self.__add_tok(Token.Num(parsed, start))
+
+                        continue
+                    elif is_sgn(self.__line[pos]):
+                        if pos + 1 == len(self.__line[pos]) or not is_digit(self.__line[pos + 1]):
+                            pos -= 1
+                            parsed: int = int(self.__line[start:pos])  # Parsed numeric.
+
+                            if is_bigint(parsed):
+                                WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(58, start))
+
+                            self.__add_tok(Token.Num(parsed, start))
+
+                            continue
+
+                        pos += 1
+                    elif not is_digit(self.__line[pos]):
+                        pos -= 1
+                        parsed: int = int(self.__line[start:pos])  # Parsed numeric.
+
+                        if is_bigint(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(58, start))
+
+                        self.__add_tok(Token.Num(parsed, start))
+
+                        continue
+
+                    # Parse additional exponent.
+                    while pos < len(self.__line) and is_digit(self.__line[pos]):
+                        pos += 1
+
+                    if pos == len(self.__line) or not is_imag(self.__line[pos]):
+                        # If there is nothing more, we are done.
+                        parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                        if math.isinf(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                        self.__add_tok(Token.Num(parsed, start))
+
+                        continue
+                    else:
+                        # If there is imaginary unit, parse it.
+                        parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                        if math.isinf(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                        self.__add_tok(Token.Num(complex(0, parsed), start))
+                        pos += 1
+
+                        continue
+                else:
+                    # If there is imaginary unit, parse it.
+                    parsed: int = int(self.__line[start:pos])  # Parsed numeric.
+
+                    if is_bigint(parsed):
+                        WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+                        parsed = math.inf
+
+                    self.__add_tok(Token.Num(complex(0, parsed), start))
+                    pos += 1
+
+                    continue
             elif is_dot(self.__line[pos]):
-                # Parse numeric value w/o integer part.
-                # The same logic for parsing numeric value with integer part is used.
+                # Parsing numeric value w/o integer part comprises of three steps.
+                #   1. Parse fractional part.
+                #   2. Check for additional exponentation and parse exponent.
+                #   3. Check for imaginary unit and parse it.
+                # There are following restriction for numeric value literals.
+                #   1. Decimal point cannot appear more than once.
+                #   2. Additional exponentation must be followed by integer.
+                #   3. There can be only one sign after additional exponentation.
+                #   4. Imaginary unit, if exists, must be the terminal of the numeric value.
+                # This logic generates warning in following cases.
+                #   1. If overflow occurs, it generates OVERFLOW warning.
+                # The following logic is an implementation of these steps, restriction rules, and warning generation
+                # rules.
                 start: int = pos  # Starting position.
-                exp: int = 1  # Exponent.
-                lower: int = 0  # Decimal part of numeric value.
                 pos += 1
 
-                # Parse decimal part.
+                if pos == len(self.__line) or not is_digit(self.__line[pos]):
+                    raise ParserError.InvalidTok(2, self.__line, start)
+
+                # Parse fractional part.
                 while pos < len(self.__line) and is_digit(self.__line[pos]):
-                    exp *= 10
-                    lower *= 10
-                    lower += ord(self.__line[pos]) - ord('0')
                     pos += 1
 
-                # Check for decimal point misuse.
-                if pos < len(self.__line) and is_dot(self.__line[pos]):
-                    raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 17, self.__line, pos)
-                elif start == pos - 1:
-                    raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 19, self.__line, start)
+                if pos == len(self.__line) or not (
+                        is_dot(self.__line[pos]) or is_exp(self.__line[pos]) or is_imag(self.__line[pos])):
+                    # If there is no additional exponentation, stop.
+                    self.__add_tok(Token.Num(float(self.__line[start:pos]), start))
 
-                self.__add_tok(Token.NumTok(lower / exp, start))
+                    continue
+                elif is_dot(self.__line[pos]):
+                    # Decimal point cannot appear more than once.
+                    parsed: float = float(self.__line[start:pos])  # Parsed numeric.
 
-                continue
+                    if math.isinf(parsed):
+                        WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                    self.__add_tok(Token.Num(parsed, start))
+                elif is_exp(self.__line[pos]):
+                    # If there is additional exponentation, parse exponent.
+                    pos += 1
+
+                    # Additional exponent must be followed by integer.
+                    if pos == len(self.__line):
+                        pos -= 1
+                        parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                        if math.isinf(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                        self.__add_tok(Token.Num(parsed, start))
+
+                        continue
+                    elif is_sgn(self.__line[pos]):
+                        if pos + 1 == len(self.__line[pos]) or not is_digit(self.__line[pos + 1]):
+                            pos -= 1
+                            parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                            if math.isinf(parsed):
+                                WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                            self.__add_tok(Token.Num(parsed, start))
+
+                            continue
+
+                        pos += 1
+                    elif not is_digit(self.__line[pos]):
+                        pos -= 1
+                        parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                        if math.isinf(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                        self.__add_tok(Token.Num(parsed, start))
+
+                        continue
+
+                    # Parse additional exponent.
+                    while pos < len(self.__line) and is_digit(self.__line[pos]):
+                        pos += 1
+
+                    if pos == len(self.__line) or not is_imag(self.__line[pos]):
+                        # If there is nothing more, we are done.
+                        parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                        if math.isinf(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                        self.__add_tok(Token.Num(parsed, start))
+
+                        continue
+                    else:
+                        # If there is imaginary unit, parse it.
+                        parsed: float = float(self.__line[start:pos])  # Parsed numeric.
+
+                        if math.isinf(parsed):
+                            WarningManager.WarnManager.inst().push(ParserWarning.NumWarn(59, start))
+
+                        self.__add_tok(Token.Num(complex(0, parsed), start))
+                        pos += 1
+
+                        continue
+                else:
+                    self.__add_tok(Token.Num(complex(0, float(self.__line[start:pos])), start))
+                    pos += 1
+
+                    continue
             elif is_alpha(self.__line[pos]):
                 # Parse function/command/constant/variable.
                 # Variable name has following rules.
-                #   1. It comprises of alphabets, digits, and underscore.
+                #   1. It consists of alphabets, digits, and underscore.
                 #   2. It must start with alphabet.
-                #   3. It cannot end with digit.
-                # With this in mind, parsing is easy.
-                # Since it cannot determine whether it means function/command/constant/variable, it searches for DB
-                # after parsing.
-                # For efficiency, parsed string will be hashed.
+                #   3. It cannot terminate with underscore.
+                # Since it cannot determine whether it means boolean/function/command/constant/variable, it searches
+                # for DB after parsing.
+                # For efficiency, parsed string for variable will be hashed.
                 start: int = pos  # Starting position.
                 pos += 1
 
@@ -159,110 +426,266 @@ class Parser:
                     pos -= 1
 
                 # Check whether parsed symbol is function.
-                find: Union[float, Type.CmdT, Type.FunT] = DB.DB.inst().get_handle(self.__line[start:pos])
+                find: Union[float, bool, Function.Fun] = self.__kword_tb.get(self.__line[start:pos])
 
-                if isinstance(find, Type.FunT):
-                    self.__add_tok(Token.FunTok(find, start))
-                elif isinstance(find, Type.ConstT):
-                    self.__add_tok(Token.NumTok(find.value, start))
-                elif isinstance(find, Type.CmdT):
-                    self.__add_tok(Token.CmdTok(find, start))
+                if type(find) == bool:
+                    self.__add_tok(Token.Bool(find, start))
+                elif type(find) == float:
+                    self.__add_tok(Token.Num(find, start))
+                elif type(find) == type:
+                    self.__add_tok(Token.Fun(find, start))
                 else:
-                    str_hash: int = hash(self.__line[start:pos])  # Hashed value of parsed string.
+                    str_hash: int = hash(self.__line[start:pos])  # Hash value of parsed string.
 
-                    self.__add_tok(Token.VarTok(str_hash, start))
+                    self.__add_tok(Token.Var(str_hash, start))
 
-                    if not AST.AST.find_var(str_hash):
+                    if not AST.AST.var_name(str_hash):
                         AST.AST.add_var(str_hash, self.__line[start:pos])
-
-                continue
-            elif is_op(self.__line[pos]):
-                # Parse operator.
-                if self.__line[pos] == '+':
-                    # Note that at this point, it cannot determine whether + means ADD or PLUS.
-                    # Just try as ADD token and let Parser.__add_tok to determine this.
-                    self.__add_tok(Token.OpTok(Type.OpT.ADD, pos))
-                elif self.__line[pos] == '-':
-                    # Note that at this point, it cannot determine whether - means SUB or MINUS.
-                    # Just try as SUB token and let Parser.__add_tok to determine this.
-                    self.__add_tok(Token.OpTok(Type.OpT.SUB, pos))
-                elif self.__line[pos] == '*':
-                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '*':
-                        self.__add_tok(Token.OpTok(Type.OpT.POW, pos))
-                        pos += 1
-                    else:
-                        self.__add_tok(Token.OpTok(Type.OpT.MUL, pos))
-                elif self.__line[pos] == '/':
-                    self.__add_tok(Token.OpTok(Type.OpT.DIV, pos))
-                elif self.__line[pos] == '%':
-                    self.__add_tok(Token.OpTok(Type.OpT.REM, pos))
-                elif self.__line[pos] == '^':
-                    self.__add_tok(Token.OpTok(Type.OpT.POW, pos))
-                elif self.__line[pos] == '!':
-                    self.__add_tok(Token.OpTok(Type.OpT.FACT, pos))
-                elif self.__line[pos] == '(':
-                    self.__add_tok(Token.OpTok(Type.OpT.LPAR, pos))
-                else:
-                    self.__add_tok(Token.OpTok(Type.OpT.RPAR, pos))
-
-                pos += 1
-
-                continue
-            elif is_delim(self.__line[pos]):
-                # Parse delimiter.
-                if self.__line[pos] == '[':
-                    self.__add_tok(Token.DelimTok(Type.DelimT.START, pos))
-                elif self.__line[pos] == ']':
-                    self.__add_tok(Token.DelimTok(Type.DelimT.END, pos))
-                else:
-                    self.__add_tok(Token.DelimTok(Type.DelimT.CONT, pos))
-
-                pos += 1
 
                 continue
             elif is_quote(self.__line[pos]):
                 # Parse string.
                 # Note that string must be enclosed by double quote.
+                # Also, following escaping sequences should be handled.
+                #   1. \n for newline.
+                #   2. \t for tab.
+                #   3. \\ for backslash.
+                #   4. \" for double quote.
                 start: int = pos  # Starting position.
+                pos += 1
+                parsed: str = ''
 
-                while True:
+                while pos < len(self.__line) and not is_quote(self.__line[pos]):
+                    if self.__line[pos] == '\\':
+                        # Handle escaping sequence by lookahead one character.
+                        if pos + 1 == len(self.__line):
+                            raise ParserError.InvalidExpr(32, self.__line, pos)
+
+                        if self.__line[pos + 1] == 'n':
+                            parsed += '\n'
+                        elif self.__line[pos + 1] == 't':
+                            parsed += '\t'
+                        elif self.__line[pos + 1] == '\\':
+                            parsed += '\\'
+                        elif self.__line[pos + 1] == '"':
+                            parsed += '"'
+                        else:
+                            raise ParserError.InvalidExpr(32, self.__line, pos)
+
+                        pos += 1
+                    else:
+                        parsed += self.__line[pos]
+
                     pos += 1
 
-                    if pos == len(self.__line) or is_quote(self.__line[pos]):
-                        break
-
+                # Double quote must be closed.
                 if pos == len(self.__line):
-                    raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 1, self.__line, start)
+                    raise ParserError.InvalidExpr(1, self.__line, start)
 
-                self.__add_tok(Token.StrTok(self.__line[start + 1:pos], start))
+                self.__add_tok(Token.Str(parsed, start))
                 pos += 1
 
                 continue
-            elif is_underscore(self.__line[pos]):
-                # Underscore is wrongly used.
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 18, self.__line, pos)
             else:
+                # Parse operator.
+                # Some notes to make.
+                #   1. It cannot determine whether + means Add or Plus.
+                #      Just try as Add token and let ``Parser.__add_tok`` to determine this.
+                #   2. It cannot determine whether - means Sub or Minus.
+                #      Just try as Sub token and let ``Parser.__add_tok`` to determine this.
+                #   3. It cannot determine whether [ and ] are used as function call or indexing operation.
+                #      It will be determined by ``Parser.__infix_to_postfix`` later.
+                #   4. It cannot determine whether : is binary or ternary operator.
+                #      Just try as binary operator and let ``Parser.__infix_to_postfix`` to determine this.
+                if self.__line[pos] == '+':
+                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Assign.AddAsgn, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Binary.Add, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '-':
+                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Assign.SubAsgn, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Binary.Sub, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '*':
+                    if pos + 2 < len(self.__line) and self.__line[pos + 1:pos + 3] == '*=':
+                        self.__add_tok(Token.Op(Assign.PowAsgn, pos))
+                        pos += 3
+                    elif pos + 1 < len(self.__line):
+                        if self.__line[pos + 1] == '*':
+                            self.__add_tok(Token.Op(Binary.Pow, pos))
+                            pos += 2
+                        elif self.__line[pos + 1] == '=':
+                            self.__add_tok(Token.Op(Assign.MulAsgn, pos))
+                            pos += 2
+                        else:
+                            self.__add_tok(Token.Op(Binary.Mul, pos))
+                            pos += 1
+                    else:
+                        self.__add_tok(Token.Op(Binary.Mul, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '/':
+                    if pos + 2 < len(self.__line) and self.__line[pos + 1: pos + 3] == '/=':
+                        self.__add_tok(Token.Op(Assign.QuotAsgn, pos))
+                        pos += 3
+                    if pos + 1 < len(self.__line):
+                        if self.__line[pos + 1] == '=':
+                            self.__add_tok(Token.Op(Assign.DivAsgn, pos))
+                            pos += 2
+                        elif self.__line[pos + 1] == '/':
+                            self.__add_tok(Token.Op(Binary.Quot, pos))
+                            pos += 2
+                        else:
+                            self.__add_tok(Token.Op(Binary.Div, pos))
+                            pos += 1
+                    else:
+                        self.__add_tok(Token.Op(Binary.Div, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '%':
+                    if pos + 3 < len(self.__line) and self.__line[pos + 1:pos + 4] == '*%=':
+                        self.__add_tok(Token.Op(Assign.MatMulAsgn, pos))
+                        pos += 4
+                    elif pos + 2 < len(self.__line) and self.__line[pos + 1:pos + 3] == '*%':
+                        self.__add_tok(Token.Op(Binary.MatMul, pos))
+                        pos += 3
+                    elif pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Assign.RemAsgn, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Binary.Rem, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '\'':
+                    self.__add_tok(Token.Op(Unary.Trans, pos))
+                    pos += 1
+
+                    continue
+                elif self.__line[pos] == '!':
+                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Compare.Diff, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Bool.Neg, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '&':
+                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Assign.AndAsgn, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Bool.And, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '|':
+                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Assign.OrAsgn, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Bool.Or, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '^':
+                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Assign.XorAsgn, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Bool.Xor, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '<':
+                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Compare.Geq, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Compare.Abv, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '>':
+                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Compare.Leq, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Compare.Blw, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '=':
+                    if pos + 1 < len(self.__line) and self.__line[pos + 1] == '=':
+                        self.__add_tok(Token.Op(Compare.Eq, pos))
+                        pos += 2
+                    else:
+                        self.__add_tok(Token.Op(Assign.Asgn, pos))
+                        pos += 1
+
+                    continue
+                elif self.__line[pos] == '(':
+                    self.__add_tok(Token.Op(Delimiter.Lpar, pos))
+                    pos += 1
+
+                    continue
+                elif self.__line[pos] == ')':
+                    self.__add_tok(Token.Op(Delimiter.Rpar, pos))
+                    pos += 1
+
+                    continue
+                elif self.__line[pos] == '[':
+                    self.__add_tok(Token.Op(Delimiter.SqrLpar, pos))
+                    pos += 1
+
+                    continue
+                elif self.__line[pos] == ']':
+                    self.__add_tok(Token.Op(Delimiter.SqrRpar, pos))
+                    pos += 1
+
+                    continue
+                elif self.__line[pos] == '{':
+                    self.__add_tok(Token.Op(Delimiter.CrlLpar, pos))
+                    pos += 1
+
+                    continue
+                elif self.__line[pos] == '}':
+                    self.__add_tok(Token.Op(Delimiter.CrlRpar, pos))
+                    pos += 1
+
+                    continue
+                elif self.__line[pos] == ':':
+                    self.__add_tok(Token.Op(Delimiter.Seq, pos))
+                    pos += 1
+
+                    continue
+                elif self.__line[pos] == ',':
+                    self.__add_tok(Token.Op(Delimiter.Com, pos))
+                    pos += 1
+
+                    continue
+
                 # Unknown token is encountered.
-                raise Error.ParserErr(Type.ParserErrT.INVALID_TOK, 2, self.__line, pos)
+                raise ParserError.InvalidTok(2, self.__line, pos)
 
         # Check whether expression is void.
         if not self.__infix:
-            raise Error.ParserErr(Type.ParserErrT.EMPTY_EXPR, 3)
+            raise ParserError.EmptyExpr(3)
 
-        # Check for terminal condition of expression.
-        # An expression cannot terminate with FUN/CMD/OP(except for RPAR, FACT)/DLEIM(except for END).
-        top_tok: Token = self.__infix[-1]  # Top token of infix list.
-
-        if top_tok.tok_t in [Type.TokT.FUN, Type.TokT.CMD]:
-            raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 4, self.__line, top_tok.pos)
-        elif top_tok.tok_t == Type.TokT.OP:
-            if top_tok.v not in [Type.OpT.RPAR, Type.OpT.FACT]:
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 5, self.__line, top_tok.pos)
-        elif top_tok.tok_t == Type.TokT.DELIM:
-            if top_tok.v != Type.DelimT.END:
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 6, self.__line, top_tok.pos)
-        elif top_tok.tok_t == Type.TokT.STR:
-            raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 10, self.__line, top_tok.pos)
+        # By adding terminal token, check terminal condition of expression.
+        self.__add_tok(Token.Ter())
 
     def __add_tok(self, tok: Token.Tok) -> None:
         """
@@ -270,8 +693,7 @@ class Parser:
 
         Before it adds token, it checks the syntax.
         If it detects syntax error, it raises exception.
-        Further, based on the previously added token, it determines whether + and - are unary sign operation or binary
-        addition/subtraction.
+        Further, based on the previously added token, it determines whether +/- are Plus/Minus or Add/Sub, resp.
         And based on the previously added token again, it detects the need of implicit multiplication and adds * between
         them to make it explicit.
 
@@ -283,205 +705,173 @@ class Parser:
 
         :raise INVALID_EXPR: If the input string is invalid expression.
         """
-        curr_t: Type.TokT = tok.tok_t  # Token type of token to be added.
+        curr_t: type = type(tok)  # Token type of token to be added.
         curr_v = tok.v  # Token value of token to be added.
 
+        # Starting condition for expression is as follows.
+        #   1. It can start with any of Num/Var/Fun/Str/Bool token.
+        #   2. It can start with Add/Sub/Neg/Lpar/CrlLpar token.
+        #      But Add/Sub here means Plus/Minus, resp.
+        # All other cases are illegal.
+        # The following logic is an implementation of these rules.
         if not self.__infix:
-            # An expression can start with any of NUM/VAR/FUN/CMD 
-            # Additionally, it can start with PLUS/MINUS/LPAR token (thus + and - here means PLUS and MINUS, resp.)
-            # All other cases are illegal.
-            if curr_t in [Type.TokT.NUM, Type.TokT.VAR, Type.TokT.FUN, Type.TokT.CMD]:
-                self.__infix.append(tok)
-
-                return
-            if curr_t == Type.TokT.OP:
-                if curr_v == Type.OpT.ADD:
-                    self.__infix.append(Token.OpTok(Type.OpT.PLUS, tok.pos))
+            if curr_t == Token.Op:
+                if curr_v == Binary.Add:
+                    tok.v = Unary.Plus
+                    self.__infix.append(tok)
 
                     return
-                elif curr_v == Type.OpT.SUB:
-                    self.__infix.append(Token.OpTok(Type.OpT.MINUS, tok.pos))
+                elif curr_v == Binary.Sub:
+                    tok.v = Unary.Minus
+                    self.__infix.append(tok)
 
                     return
-                elif curr_v == Type.OpT.LPAR:
+                elif curr_v in [Bool.Neg, Delimiter.Lpar, Delimiter.CrlLpar]:
                     self.__infix.append(tok)
 
                     return
                 else:
-                    raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 7, self.__line, tok.pos)
+                    raise ParserError.InvalidExpr(7, self.__line, tok.pos)
             else:
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 8, self.__line, tok.pos)
+                self.__infix.append(tok)
 
-        prev_t: Type.TokT = self.__infix[-1].tok_t  # Token type of previously added
+                return
+
+        prev_t: type = type(self.__infix[-1])  # Token type of previously added
         prev_v = self.__infix[-1].v  # Value of previously added
 
-        if curr_t in [Type.TokT.NUM, Type.TokT.VAR, Type.TokT.FUN, Type.TokT.CMD]:
-            if prev_t in [Type.TokT.NUM, Type.TokT.VAR]:
-                # NUM/VAR token followed by NUM/VAR/FUN/CMD token is perfectly legal.
-                # But there must be implicit multiplication b/w them.
-                self.__infix.append(Token.OpTok(Type.OpT.MUL))
-                self.__infix.append(tok)
+        # Terminal condition for expression is as follows.
+        #   1. It can terminate with any of Num/Var/Str/Bool token.
+        #   2. If can terminate with Trans/Rpar/SqrRpar/CrlRpar token.
+        # All other cases are illegal.
+        # The following logic is an implementation of these rules.
+        # Note that TER token is not added to the infix array.
+        if curr_t == Token.Ter:
+            if prev_t == Token.Fun:
+                raise ParserError.InvalidExpr(4, self.__line, self.__infix[-1].pos)
+            elif prev_t == Token.Op:
+                if prev_v not in [Unary.Trans, Delimiter.Rpar, Delimiter.SqrRpar, Delimiter.CrlRpar]:
+                    raise ParserError.InvalidExpr(5, self.__line, self.__infix[-1].pos)
 
-                return
-            elif prev_t == Type.TokT.OP:
-                # OP token followed by NUM/VAR/FUN/CMD token is perfectly legal.
-                # But if the OP token is RPAR/FACT, then there must be implicit multiplication b/w them.
-                if prev_v in [Type.OpT.RPAR, Type.OpT.FACT]:
-                    self.__infix.append(Token.OpTok(Type.OpT.MUL))
+            return
 
-                self.__infix.append(tok)
-
-                return
-            elif prev_t == Type.TokT.DELIM:
-                # DELIM token followed by NUM/VAR/FUN/CMD token is perfectly legal.
-                # But if the DELIM token is END, then there must be implicit multiplication b/w them.
-                if prev_v == Type.DelimT.END:
-                    self.__infix.append(Token.OpTok(Type.OpT.MUL))
-
-                self.__infix.append(tok)
-
-                return
-            elif prev_t in [Type.TokT.FUN, Type.TokT.CMD]:
-                # FUN/CMD token must be followed by START 
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 9, self.__line, tok.pos)
-            else:
-                # STR token must be followed by CONT/END 
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 10, self.__line, tok.pos)
-        elif curr_t == Type.TokT.OP:
-            if prev_t in [Type.TokT.NUM, Type.TokT.VAR]:
-                # NUM/VAR token followed by OP token is perfectly legal.
-                # But if the OP token is LPAR, then there must be implicit multiplication b/w them.
-                if curr_v == Type.OpT.LPAR:
-                    self.__infix.append(Token.OpTok(Type.OpT.MUL))
-
-                self.__infix.append(tok)
-
-                return
-            elif prev_t == Type.TokT.OP:
-                # OP token followed by OP token is not legal in general.
-                # Few exceptions are,
-                #   1. RPAR/FACT token followed by any OP token
-                #     (but if the following OP token is LPAR, then there must be implicit multiplication b/w them)
-                #   2. Any OP token which is not RPAR/FACT token followed by PLUS/MINUS/LPAR token
-                #      (thus + and - here means PLUS and MINUS, resp.)
-                # The following logic is an implementation of this rule.
-                if prev_v in [Type.OpT.RPAR, Type.OpT.FACT]:
-                    if curr_v == Type.OpT.LPAR:
-                        self.__infix.append(Token.OpTok(Type.OpT.MUL))
+        if curr_t == Token.Op:
+            # Adjacent rule for OP token is as follows.
+            #   1. It can adjacent with any of Num/Var/Str/Bool.
+            #      But if current OP token is Neg/Lpar/CrlLpar, it needs implicit multiplication b/w them.
+            #   2. If previous one is Fun token and current one is SqrLpar, they can adjacent.
+            #   3. If previous one is OP token,
+            #       3.1. If current one is Add/Sub, it can adjacent with any OP token.
+            #            But if previous one is not Trans/Rpar/SqrRpar/CrlRpar, +/- here means Plus/Minus, resp.
+            #       3.2. If current one is Neg/Lpar/CrlLpar, it can adjacent with any OP token.
+            #            But if previous one is Trans/Rpar/SqrRpar/CrlRpar, it needs implicit multiplication b/w them.
+            #       3.3. If current one is SqrRpar/Com and previous one is Trans/Rpar/SqrLpar/SqrRpar/CrlRpar/Com, they
+            #            can adjacent.
+            #            But if previous one is SqrLpar/Com, it needs Void token b/w them.
+            #       3.4. If current one is CrlRpar and previous one is Trans/Rpar/SqrRpar/CrlLpar/CrlRpar, they can
+            #            adjacnet.
+            #            But if previous one is CrlLpar, it needs Void token b/w them.
+            #       3.5. If current one is not Add/Sub/Neg/Lpar/SqrLpar/SqrRpar/CrlLpar/CrlRpar/Com and previous one is
+            #            Trans/Rpar/SqrRpar/CrlRpar, they can adjacent.
+            # All other cases are illegal.
+            # The following logic is an implementation of these rules.
+            if prev_t == Token.Op:
+                if curr_v == Binary.Add:
+                    if prev_v not in [Unary.Trans, Delimiter.Rpar, Delimiter.SqrRpar, Delimiter.CrlRpar]:
+                        tok.v = Unary.Plus
 
                     self.__infix.append(tok)
 
                     return
-                elif curr_v == Type.OpT.ADD:
-                    self.__infix.append(Token.OpTok(Type.OpT.PLUS, tok.pos))
+                elif curr_v == Binary.Sub:
+                    if prev_v not in [Unary.Trans, Delimiter.Rpar, Delimiter.SqrRpar, Delimiter.CrlRpar]:
+                        tok.v = Unary.Minus
 
-                    return
-                elif curr_v == Type.OpT.SUB:
-                    self.__infix.append(Token.OpTok(Type.OpT.MINUS, tok.pos))
-
-                    return
-                elif curr_v == Type.OpT.LPAR:
                     self.__infix.append(tok)
 
                     return
+                elif curr_v in [Bool.Neg, Delimiter.Lpar, Delimiter.CrlLpar]:
+                    if prev_v in [Unary.Trans, Delimiter.Rpar, Delimiter.SqrRpar, Delimiter.CrlRpar]:
+                        self.__infix.append(Token.Op(Binary.Mul))
+
+                    self.__infix.append(tok)
+
+                    return
+                elif curr_v in [Delimiter.SqrRpar, Delimiter.Com]:
+                    if prev_v in [Delimiter.SqrLpar, Delimiter.Com]:
+                        self.__infix.append(Token.Void())
+                        self.__infix.append(tok)
+
+                        return
+                    elif prev_v in [Unary.Trans, Delimiter.Rpar, Delimiter.SqrRpar, Delimiter.CrlRpar]:
+                        self.__infix.append(tok)
+
+                        return
+                    else:
+                        raise ParserError.InvalidExpr(11, self.__line, tok.pos, (prev_v, curr_v))
+                elif curr_v == Delimiter.CrlRpar:
+                    if prev_v == Delimiter.CrlLpar:
+                        self.__infix.append(Token.Void())
+                        self.__infix.append(tok)
+
+                        return
+                    elif prev_v in [Unary.Trans, Delimiter.Rpar, Delimiter.SqrRpar, Delimiter.CrlRpar]:
+                        self.__infix.append(tok)
+
+                        return
+                    else:
+                        raise ParserError.InvalidExpr(11, self.__line, tok.pos, (prev_v, curr_v))
                 else:
-                    raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 11, self.__line, tok.pos)
-            elif prev_t == Type.TokT.DELIM:
-                # DELIM token followed by OP token is not legal in general.
-                # Few exceptions are,
-                #   1. START/CONT token followed by PLUS/MINUS/LPAR token
-                #      (thus + and - here means PLUS and MINUS, resp.)
-                #   2. END token followed by any OP token
-                #      (but if the following OP token is LPAR, there must be implicit multiplication b/w them)
-                # The following logic is an implementation of this rule.
-                if prev_v == Type.DelimT.END:
-                    if curr_v == Type.OpT.LPAR:
-                        self.__infix.append(Token.OpTok(Type.OpT.MUL))
+                    if prev_v in [Unary.Trans, Delimiter.Rpar, Delimiter.SqrRpar, Delimiter.CrlRpar]:
+                        self.__infix.append(tok)
 
+                        return
+
+                    raise ParserError.InvalidExpr(11, self.__line, tok.pos, (prev_v, curr_v))
+            elif prev_t == Token.Fun:
+                if curr_v == Delimiter.SqrLpar:
                     self.__infix.append(tok)
 
                     return
-                elif curr_v == Type.OpT.ADD:
-                    self.__infix.append(Token.OpTok(Type.OpT.PLUS, tok.pos))
 
-                    return
-                elif curr_v == Type.OpT.SUB:
-                    self.__infix.append(Token.OpTok(Type.OpT.MINUS, tok.pos))
-
-                    return
-                elif curr_v == Type.OpT.LPAR:
-                    self.__infix.append(tok)
-
-                    return
-                else:
-                    raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 12, self.__line, tok.pos)
-            elif prev_t == Type.TokT.STR:
-                # STR token followed by OP token is illegal.
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 10, self.__line, tok.pos)
+                raise ParserError.InvalidExpr(9, self.__line, tok.pos)
             else:
-                # FUN/CMD token followed by OP token illegal.
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 9, self.__line, tok.pos)
-        elif curr_t == Type.TokT.DELIM:
-            if prev_t in [Type.TokT.NUM, Type.TokT.VAR, Type.TokT.STR]:
-                # NUM/VAR/STR token can be followed by DELIM token which is not START.
-                if curr_v == Type.DelimT.START:
-                    raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 13, self.__line, tok.pos)
+                if curr_v in [Bool.Neg, Delimiter.Lpar, Delimiter.CrlLpar]:
+                    self.__infix.append(Token.Op(Binary.Mul))
 
                 self.__infix.append(tok)
 
                 return
-            elif prev_t == Type.TokT.OP:
-                # OP token followed by DELIM token is illegal with only one exception.
-                # The exceptional case is RPAR/FACT token followed by DLEIM token which is not START.
-                if prev_v in [Type.OpT.RPAR, Type.OpT.FACT] and curr_v != Type.DelimT.START:
-                    self.__infix.append(tok)
-
-                    return
-
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 14, self.__line, tok.pos)
-            elif prev_t == Type.TokT.DELIM:
-                # DLEIM token followed by DELIM token is illegal in general.
-                # Few exceptions are
-                #   1. START token followed by END token
-                #      (this case means that no parameter is passed, so we need VOID token for placeholder)
-                #   2. END token followed by CONT/END token
-                # The following logic is an implementation of this rule.
-                if prev_v == Type.DelimT.START and curr_v == Type.DelimT.END:
-                    self.__infix += [Token.VoidTok(), tok]
-
-                    return
-                elif prev_v == Type.DelimT.END and curr_v != Type.DelimT.START:
-                    self.__infix.append(tok)
-
-                    return
-                else:
-                    raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 15, self.__line, tok.pos)
-            else:
-                # FUN/CMD token can be only followed by START 
-                if curr_v == Type.DelimT.START:
-                    self.__infix.append(tok)
-
-                    return
-
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 9, self.__line, tok.pos)
         else:
-            # For STR token, there must be preceding START/CONT 
-            # This with other rules described above forces for STR token to be used as parameter of function or command
-            # only.
-            if prev_v in [Type.DelimT.START, Type.DelimT.CONT]:
+            # Adjacent rule for Num/Var/Fun/Str/Bool token is as follows.
+            #   1. It can adjacent with any of Num/Var/Str/Bool token but it needs implicit multiplication b/w
+            #      them.
+            #   2. It can adjacent with any of OP token, but if previous OP token is Trans/Rpar/SqrRpar/CrlRpar, it
+            #      needs implicit multiplication b/w them.
+            # All other cases are illegal.
+            # The following logic is an implementation of these rules.
+            if prev_t == Token.Op:
+                if prev_v in [Unary.Trans, Delimiter.Rpar, Delimiter.SqrRpar, Delimiter.CrlRpar]:
+                    self.__infix.append(Token.Op(Binary.Mul))
+
                 self.__infix.append(tok)
 
                 return
+            elif prev_t == Token.Fun:
+                raise ParserError.InvalidExpr(9, self.__line, tok.pos)
+            else:
+                self.__infix.append(Token.Op(Binary.Mul))
+                self.__infix.append(tok)
 
-            raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 16, self.__line, tok.pos)
+                return
 
     def __infix_to_postfix(self) -> None:
         """
         Convert infix-ordered tokens to postfix-order.
 
         For conversion, it uses two-stack approach described in the reference below.
-        With deliberately assigned inner and outer precedence of operators, delimiters, functions, and commands,
-        this conversion takes account for precedence and association rule b/w them.
+        With deliberately assigned inner and outer precedence of operators and functions, this conversion takes account
+        for precedence and association rule b/w them.
         Thus after conversion, there is no parentheses and delimiters.
 
         This method is private and called internally as the third step of parsing chain.
@@ -497,152 +887,173 @@ class Parser:
         self.__tmp_stk.clear()
 
         for tok in self.__infix:
-            if tok.tok_t in [Type.TokT.NUM, Type.TokT.VAR, Type.TokT.STR, Type.TokT.VOID]:
-                # NUM/VAR/STR/VOID tokens goes directly to the postfix list.
-                self.__postfix.append(tok)
+            tok_t: type = type(tok)
 
-                continue
-            elif tok.tok_t == Type.TokT.OP:
-                # Basically, OP token goes to temporary stack.
-                # One exception is FACT token, which goes directly to the postfix list.
-                if tok.v == Type.OpT.FACT:
-                    self.__postfix.append(tok)
-
-                    continue
-
-                if tok.v == Type.OpT.RPAR:
-                    # If RPAR token is encountered, this means that parenthesis is closed.
-                    # Thus it pops tokens from temporary stack and add them to postfix list until matching LPAR token
-                    # appears.
-                    # When LPAR token appears, the popping stops.
-                    # However, if matching parenthesis does not appear or delimiter START/CONT comes first, then this
-                    # implies that there is some parenthesis matching problem.
+            if tok_t == Token.Op:
+                # If Rpar token is encountered, this means that parenthesis is closed.
+                # Thus it pops tokens from temporary stack and add them to postfix list until matching Lpar token
+                # appears.
+                # However, if matching parenthesis does not appear or SqrLpar/CrlLpar/Com token comes first, then
+                # this implies that there is some parenthesis matching problem.
+                if tok.v == Delimiter.Rpar:
                     while self.__tmp_stk:
-                        top_tok: Token.Tok = self.__tmp_stk[-1]  # Top token in temporary stack
+                        if self.__tmp_stk[-1].v in [Delimiter.Lpar, Delimiter.SqrLpar, Delimiter.CrlLpar,
+                                                    Delimiter.Com]:
+                            break
 
-                        if top_tok.v != Type.DelimT.START and top_tok.v != Type.OpT.LPAR:
-                            self.__postfix.append(self.__tmp_stk.pop())
+                        self.__postfix.append(self.__tmp_stk.pop())
 
-                            continue
-
-                        break
-
-                    if not self.__tmp_stk or self.__tmp_stk[-1].tok_t != Type.TokT.OP:
-                        raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 20, self.__line, tok.pos)
+                    if not (self.__tmp_stk and self.__tmp_stk[-1].v == Delimiter.Lpar):
+                        raise ParserError.InvalidExpr(20, self.__line, tok.pos)
 
                     self.__tmp_stk.pop()
 
                     continue
+                elif tok.v == Delimiter.SqrRpar:
+                    # If SqrRpar token is encountered, it pops tokens in temporary stack and add them to postfix list as
+                    # it did for Rpar token.
+                    # Again, if matching parenthesis does not appear or Lpar/CrlLpar comes first, then this implies that
+                    # there is some parenthesis matching problem.
+                    # However, there are two slight differences this time.
+                    # First, by counting the # of Com tokens encountered during popping, it determines the # of
+                    # parameters for function or indexing operation.
+                    # But since 0 parameter and 1 parameter cannot be differentiated by the # of Com tokens, it checks
+                    # whether the top of postfix list is Void token or not before popping.
+                    # The existence of Void token with no encounter of Com token implies 0 parameter.
+                    # Second, it determines whether SqrLpar and SqrRpar tokens are used to function call or indexing
+                    # operation by inspecting the top token in temporary stack after popping.
+                    # It is function call iff there exists Fun token.
+                    void_flag: bool = (type(self.__postfix[-1]) == Token.Void)  # Void function flag.
+                    void_pos: int = len(self.__postfix) - 1  # Idx of void token.
+                    argc: int = 1  # # of arguments.
 
-                # OP token goes to temporary stack as mentioned, but before push, it compares the precedence b/w the top
-                # token in the temporary stack and the token to be pushed.
-                # If the top token has higher (inner) precedence than (outer) precedence of token to be pushed,
-                # pop the temporary stack and add them to postfix list until the relation inverts.
-                # Since the precedence is deliberately designed, this simple procedure automatically reorder operations
-                # following the precedence and association rule b/w operations.
-                if not self.__tmp_stk:
+                    while self.__tmp_stk:
+                        if self.__tmp_stk[-1].v in [Delimiter.Lpar, Delimiter.SqrLpar, Delimiter.CrlLpar]:
+                            break
+                        elif self.__tmp_stk[-1].v == Delimiter.Com:
+                            argc += 1
+                            self.__tmp_stk.pop()
+                        else:
+                            self.__postfix.append(self.__tmp_stk.pop())
+
+                    if not (self.__tmp_stk and self.__tmp_stk[-1].v == Delimiter.SqrLpar):
+                        raise ParserError.InvalidExpr(20, self.__line, tok.pos)
+
+                    match: Token.Tok = self.__tmp_stk.pop()  # Matched parenthesis.
+
+                    argc = 0 if void_flag and argc == 1 else argc
+
+                    if self.__tmp_stk and type(self.__tmp_stk[-1]) == Token.Fun:
+                        self.__tmp_stk[-1].argc = argc
+                        self.__postfix.append(self.__tmp_stk.pop())
+                    else:
+                        self.__postfix.append(Token.Op(Delimiter.Idx, match.pos))
+                        self.__postfix[-1].argc = argc + 1
+
+                    if argc == 0:
+                        del self.__postfix[void_pos]
+
+                    continue
+                elif tok.v == Delimiter.CrlRpar:
+                    # If CrlRpar token is encountered, it pops tokens in temporary stack and add them to postfix list as
+                    # it did for SqrRpar token.
+                    # Again, if matching parenthesis does not appear or Lpar/SqrLpar token comes first, then this
+                    # implies that there is some parenthesis matching problem.
+                    # One slight difference this time is that, List token will be added to postfix list after popping.
+                    void_flag: bool = (type(self.__postfix[-1]) == Token.Void)  # Empty list flag.
+                    void_pos: int = len(self.__postfix) - 1  # Idx of void token.
+                    sz: int = 1  # Size of list.
+
+                    while self.__tmp_stk:
+                        if self.__tmp_stk[-1].v in [Delimiter.Lpar, Delimiter.SqrLpar, Delimiter.CrlLpar]:
+                            break
+                        elif self.__tmp_stk[-1].v == Delimiter.Com:
+                            sz += 1
+                            self.__tmp_stk.pop()
+                        else:
+                            self.__postfix.append(self.__tmp_stk.pop())
+
+                    if not (self.__tmp_stk and self.__tmp_stk[-1].v == Delimiter.CrlLpar):
+                        raise ParserError.InvalidExpr(20, self.__line, tok.pos)
+
+                    sz = 0 if void_flag and sz == 1 else sz
+                    self.__postfix.append(Token.List(self.__tmp_stk[-1].pos, sz))
+                    self.__tmp_stk.pop()
+
+                    if sz == 0:
+                        del self.__postfix[void_pos]
+
+                    continue
+                elif tok.v == Delimiter.Com:
+                    # If Com token is encountered, it pops tokens in temporary stack and add them to postfix list until
+                    # SqrLpar/CrlLpar/Com token appears.
+                    # If SqrLpar/CrlLpar/Com token does not appear or Lpar token comes first, then this implies that
+                    # there is problem in the usage of Com token.
+                    # One slight difference this time is that, we leave Com token in the temporary stack.
+                    # They will be popped by SqrRpar/CrlRpar token later.
+                    while self.__tmp_stk:
+                        if self.__tmp_stk[-1].v in [Delimiter.Lpar, Delimiter.SqrLpar, Delimiter.CrlLpar,
+                                                    Delimiter.Com]:
+                            break
+
+                        self.__postfix.append(self.__tmp_stk.pop())
+
+                    if not self.__tmp_stk or self.__tmp_stk[-1].v == Delimiter.Lpar:
+                        raise ParserError.InvalidExpr(21, self.__line, tok.pos)
+
                     self.__tmp_stk.append(tok)
 
                     continue
+                elif tok.v == Unary.Trans:
+                    self.__postfix.append(tok)
 
-                if self.__tmp_stk[-1].precd[0] > tok.precd[1]:
-                    while self.__tmp_stk[-1].precd[0] > tok.precd[1]:
-                        self.__postfix.append(self.__tmp_stk.pop())
+                    continue
+                else:
+                    # OP token which it not Rpar/SqrRpar/CrlRpar/Com goes to temporary stack.
+                    # Before push, it compares the precedence b/w the top token in the temporary stack and the token to
+                    # be pushed. (If temporary stack is empty, it just pushes.)
+                    # If the top token has higher inner precedence than outer precedence of token to be pushed, pop the
+                    # temporary stack and add them to postfix list until the relation inverts.
+                    # Since the precedence is deliberately designed, this simple procedure automatically reorder
+                    # operations according to the precedence and association rule b/w operations.
+                    if not self.__tmp_stk:
+                        self.__tmp_stk.append(tok)
 
-                        if not self.__tmp_stk:
-                            break
+                        continue
 
-                self.__tmp_stk.append(tok)
+                    if self.__tmp_stk[-1].precd_in > tok.precd_out:
+                        while self.__tmp_stk and self.__tmp_stk[-1].precd_in > tok.precd_out:
+                            self.__postfix.append(self.__tmp_stk.pop())
 
-                continue
-            elif tok.tok_t in [Type.TokT.FUN, Type.TokT.CMD]:
-                # FUN/CMD token goes directly to temporary stack.
+                    self.__tmp_stk.append(tok)
+
+                    continue
+            elif tok_t == Token.Fun:
+                # Fun token goes directly to temporary stack.
                 self.__tmp_stk.append(tok)
 
                 continue
             else:
-                # Basically, DELIM token goes to temporary stack.
-                # But if CONT/END token is encountered, we pop tokens in temporary stack and add them to postfix list as
-                # we did for RPAR 
-                # Further, the same logic for parenthesis matching problem detection is used.
-                # One slight difference is that unlike RPAR, CONT token goes in to the temporary stack after popping.
-                # And END token will pop all remaining CONT tokens.
-                # This is to count the # of parameters passed for specific function or command.
-                # However, it cannot determine whether the function or function has 0 or 1 parameter with the # of CONT
-                # tokens (they both have no CONT tokens at all) it inspects the top token in the postfix list.
-                # If the function or command has no parameter passed, then the top token must be VOID 
-                if tok.v == Type.DelimT.START:
-                    self.__tmp_stk.append(tok)
+                # Num/Var/Str/Bool/Void tokens goes directly to the postfix list.
+                self.__postfix.append(tok)
 
-                    continue
-                elif tok.v == Type.DelimT.END:
-                    if self.__postfix[-1].tok_t == Type.TokT.VOID:
-                        self.__postfix.pop()
-                        self.__tmp_stk.pop()
-                        self.__postfix.append(self.__tmp_stk.pop())
-
-                        continue
-
-                    argc: int = 1  # # of arguments
-
-                    while self.__tmp_stk:
-                        top_tok: Token.Tok = self.__tmp_stk[-1]  # Top token in temporary stack
-
-                        if top_tok.tok_t == Type.TokT.OP and top_tok.v != Type.OpT.LPAR:
-                            self.__postfix.append(self.__tmp_stk.pop())
-
-                            continue
-                        elif top_tok.v == Type.DelimT.CONT:
-                            argc += 1
-                            self.__tmp_stk.pop()
-
-                            continue
-
-                        break
-
-                    if not self.__tmp_stk or self.__tmp_stk[-1].tok_t == Type.TokT.OP:
-                        raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 20, self.__line, tok.pos)
-
-                    # After popping, register the # of parameters passed to the FUN/CMD
-                    self.__tmp_stk.pop()
-                    self.__tmp_stk[-1].argc = argc
-                    self.__postfix.append(self.__tmp_stk.pop())
-
-                    continue
-                else:
-                    while self.__tmp_stk:
-                        top_tok: Token.Tok = self.__tmp_stk[-1]  # Top token in temporary stack
-
-                        if top_tok.tok_t == Type.TokT.OP and top_tok.v != Type.OpT.LPAR:
-                            self.__postfix.append(self.__tmp_stk.pop())
-
-                            continue
-
-                        break
-
-                    if not self.__tmp_stk or self.__tmp_stk[-1].tok_t == Type.TokT.OP:
-                        raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 21, self.__line, tok.pos)
-
-                    self.__tmp_stk.append(tok)
-
-                    continue
+                continue
 
         # After all tokens being processed, pop all remaining tokens in temporary stack and add them to postfix list.
-        # Note that there must be no LPAR/START 
+        # Note that there must be no Lpar/SqrLpar/CrlLpar token.
         # The existence of these tokens implies parenthesis matching problem.
         while self.__tmp_stk:
-            top_tok: Token.Tok = self.__tmp_stk[-1]  # Top token in temporary stack
-
-            if top_tok.v == Type.OpT.LPAR or top_tok.v == Type.DelimT.START:
-                raise Error.ParserErr(Type.ParserErrT.INVALID_EXPR, 20, self.__line, top_tok.pos)
+            if self.__tmp_stk[-1].v in [Delimiter.Lpar, Delimiter.SqrLpar, Delimiter.CrlLpar]:
+                raise ParserError.InvalidExpr(20, self.__line, self.__tmp_stk[-1].pos)
 
             self.__postfix.append(self.__tmp_stk.pop())
 
-    def __AST_gen(self) -> AST.AST:
+    def __ast_gen(self) -> AST.AST:
         """
         Generate AST from postfix expression.
 
         For generation, it uses stack approach described in the references below.
+
         This method is private and called internally as the third step of parsing chain.
         For detailed description for parsing chain, refer to the comments of ``Parser.parse``.
 
@@ -658,31 +1069,22 @@ class Parser:
         self.__tmp_stk.clear()
 
         for tok in self.__postfix:
-            if tok.tok_t in [Type.TokT.NUM, Type.TokT.VAR, Type.TokT.STR]:
-                # NUM/VAR/STR token goes directly to temporary as single (intermediate) AST.
-                # They will be merged latter to form one final AST with will be returned.
-                self.__tmp_stk.append(tok)
+            tok_t: type = type(tok)
 
-                continue
-            elif tok.tok_t == Type.TokT.OP:
+            if tok_t == Token.Op:
                 # OP token pops ASTs in temporary stack and merge them into one AST rooted to itself.
                 # The # of ASTs to be popped depends on the type of operator.
                 # Note that the order of ASTs must be reversed.
                 # That is, the top AST in the temporary stack should be registered as the last children and so on.
-                if tok.v in [Type.OpT.PLUS, Type.OpT.MINUS, Type.OpT.FACT]:
-                    tok.add_chd(self.__tmp_stk.pop())
-                    self.__tmp_stk.append(tok)
+                for i in range(tok.argc, 0, -1):
+                    tok.add_chd(self.__tmp_stk[-i])
 
-                    continue
-                else:
-                    top_tok: Token.Tok = self.__tmp_stk.pop()  # Top token in temporary stack
-                    tok.add_chd(self.__tmp_stk.pop())
-                    tok.add_chd(top_tok)
-                    self.__tmp_stk.append(tok)
+                self.__tmp_stk = self.__tmp_stk[:-tok.argc]
+                self.__tmp_stk.append(tok)
 
-                    continue
-            else:
-                # FUN/CMD token is dealt similarly as OP token.
+                continue
+            elif tok_t in [Token.Fun, Token.List]:
+                # Fun/List token is dealt similarly as OP token.
                 if tok.argc == 0:
                     self.__tmp_stk.append(tok)
 
@@ -695,6 +1097,12 @@ class Parser:
                     self.__tmp_stk.append(tok)
 
                     continue
+            else:
+                # Num/Var/Str/Bool/Void token goes directly to temporary as single (intermediate) AST.
+                # They will be merged latter to form one final AST with will be returned.
+                self.__tmp_stk.append(tok)
+
+                continue
 
         # After iteration, there must be one final AST.
         assert len(self.__tmp_stk) == 1
@@ -702,7 +1110,7 @@ class Parser:
         return AST.AST(self.__tmp_stk.pop(), self.__line)
 
     @classmethod
-    def inst(cls):
+    def inst(cls) -> Parser:
         """
         Getter for singleton object.
 
@@ -780,14 +1188,14 @@ class Parser:
 
             # Print out generated infix-ordered tokens.
             for i in range(len(self.__infix)):
-                Printer.Printer.inst().buf(f'[{i}] {self.__infix[i].tok_t}', buf, indent=4)
-                Printer.Printer.inst().buf(f'@val: {self.__infix[i].v}', buf, indent=6)
+                Printer.Printer.inst().buf(f'[{i}] {type(self.__infix[i]).__name__.upper()}', buf, indent=4)
+                Printer.Printer.inst().buf(f'@val: {self.__infix[i].v_str()}', buf, indent=6)
                 Printer.Printer.inst().buf(f'@pos: {self.__infix[i].pos}', buf, indent=6)
                 Printer.Printer.inst().buf_newline(buf)
 
             # Convert infix expression to postfix expression.
-            Printer.Printer.inst().buf(
-                Printer.Printer.inst().f_prog('Running infix to postfix converter'), buf, False, 2)
+            Printer.Printer.inst().buf(Printer.Printer.inst().f_prog('Running infix to postfix converter'), buf, False,
+                                       2)
 
             try:
                 self.__infix_to_postfix()
@@ -801,18 +1209,16 @@ class Parser:
 
             # Print out converted postfix-ordered tokens.
             for i in range(len(self.__postfix)):
-                Printer.Printer.inst().buf(f'[{i}] {self.__postfix[i].tok_t}', buf, indent=4)
-                Printer.Printer.inst().buf(f'@val: {self.__postfix[i].v}', buf, indent=6)
+                Printer.Printer.inst().buf(f'[{i}] {type(self.__postfix[i]).__name__.upper()}', buf, indent=4)
+                Printer.Printer.inst().buf(f'@val: {self.__postfix[i].v_str()}', buf, indent=6)
                 Printer.Printer.inst().buf(f'@pos: {self.__postfix[i].pos}', buf, indent=6)
                 Printer.Printer.inst().buf_newline(buf)
 
             # Generate AST.
             Printer.Printer.inst().buf(Printer.Printer.inst().f_prog('Running AST generator'), buf, False, 2)
-            expr: AST.AST = self.__AST_gen()  # Generated AST
+            expr: AST.AST = self.__ast_gen()  # Generated AST
             Printer.Printer.inst().buf(Printer.Printer.inst().f_col('done', Type.Col.BLUE), buf)
-            Printer.Printer.inst().buf(f'@infix  : {expr.infix()}', buf, indent=4)
-            Printer.Printer.inst().buf(f'@postfix: {expr.postfix()}', buf, indent=4)
-            Printer.Printer.inst().buf(f'@prefix : {expr.prefix()}', buf, indent=4)
+            Printer.Printer.inst().buf(f'@AST: {expr}', buf, indent=4)
             Printer.Printer.inst().buf_newline(buf)
 
             return expr
@@ -822,4 +1228,4 @@ class Parser:
             self.__lexer()
             self.__infix_to_postfix()
 
-            return self.__AST_gen()
+            return self.__ast_gen()

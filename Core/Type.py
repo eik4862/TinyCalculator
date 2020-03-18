@@ -1,247 +1,54 @@
-import math
 import sys
 from enum import Enum, auto
 from typing import final, List, Union, Callable
 
 
 @final
-class TokT(Enum):
-    """
-    Token types.
-
-    :cvar NUM: Numeric token.
-    :cvar OP: Operator token.
-    :cvar VAR: Variable token.
-    :cvar FUN: Function token.
-    :cvar DELIM: Delimiter token
-    :cvar CMD: Command token.
-    :cvar STR: String token.
-    :cvar VOID: Void token.
-    """
-    NUM = auto()
-    OP = auto()
-    VAR = auto()
-    FUN = auto()
-    DELIM = auto()
-    CMD = auto()
-    STR = auto()
-    VOID = auto()
-
-    def __str__(self) -> str:
-        return self.name
-
-
-@final
-class OpT(Enum):
-    """
-    Operator types.
-
-    :cvar ADD: Addition. (Binary)
-    :cvar SUB: Subtraction. (Binary)
-    :cvar MUL: Multiplication. (Binary)
-    :cvar DIV: Division. (Binary)
-    :cvar REM: Remainder. (Binary)
-    :cvar POW: Power. (Binary)
-    :cvar FACT: Factorial. (Unary)
-    :cvar LPAR: Left parenthesis.
-    :cvar RPAR: Right parenthesis.
-    :cvar PLUS: Sign preservation. (Unary)
-    :cvar MINUS: Sign inversion. (Unary)
-    """
-    ADD = auto()
-    SUB = auto()
-    MUL = auto()
-    DIV = auto()
-    REM = auto()
-    POW = auto()
-    FACT = auto()
-    LPAR = auto()
-    RPAR = auto()
-    PLUS = auto()
-    MINUS = auto()
-
-    def __str__(self) -> str:
-        return self.name
-
-
-@final
-class FunT(Enum):
-    """
-    Function types.
-
-    For definition or details on each function consult the references below.
-
-    **Reference**
-        * https://en.wikipedia.org/wiki/Trigonometric_functions
-        * http://mathworld.wolfram.com/Sine.html
-        * http://mathworld.wolfram.com/Cosine.html
-        * http://mathworld.wolfram.com/Tangent.html
-        * https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
-        * http://mathworld.wolfram.com/InverseSine.html
-        * http://mathworld.wolfram.com/InverseCosine.html
-        * http://mathworld.wolfram.com/InverseTangent.html
-        * https://en.wikipedia.org/wiki/Hyperbolic_functions
-        * http://mathworld.wolfram.com/HyperbolicSine.html
-        * http://mathworld.wolfram.com/HyperbolicCosine.html
-        * http://mathworld.wolfram.com/HyperbolicTangent.html
-        * https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions
-        * http://mathworld.wolfram.com/InverseHyperbolicSine.html
-        * http://mathworld.wolfram.com/InverseHyperbolicCosine.html
-        * http://mathworld.wolfram.com/InverseHyperbolicTangent.html
-        * https://en.wikipedia.org/wiki/Error_function
-        * http://mathworld.wolfram.com/Erf.html
-        * http://mathworld.wolfram.com/Erfc.html
-        * https://en.wikipedia.org/wiki/Gamma_function
-        * http://mathworld.wolfram.com/GammaFunction.html
-        * http://mathworld.wolfram.com/LogGammaFunction.html
-
-    :cvar SIN: Sine function.
-    :cvar COS: Cosine function.
-    :cvar TAN: Tangent function.
-    :cvar ASIN: Arcsine function.
-    :cvar ACOS: Arccosine function.
-    :cvar ATAN: Arctangent function.
-    :cvar SINH: Sine hyperbolic function.
-    :cvar COSH: Cosine hyperbolic function.
-    :cvar TANH: Tangent hyperbolic function.
-    :cvar CSCH: Cosecant hyperbolic function.
-    :cvar SECH: Secant hyperbolic function.
-    :cvar COTH: Cotangent hyperbolic function.
-    :cvar ASINH: Arcsine hyperbolic function.
-    :cvar ACOSH: Arccosine hyperbolic function.
-    :cvar ATANH: Arctangent hyperbolic function.
-    :cvar ACSCH: Arccosecant hyperbolic function.
-    :cvar ASECH: Arcsecant hyperbolic function.
-    :cvar ACOTH: Arccotangent hyperbolic function.
-    :cvar ERF: Error function.
-    :cvar ERFC: Complementary error function.
-    :cvar GAMMA: Gamma function.
-    :cvar LGAMMA: Log gamma function.
-    :cvar RECIGAMMA: Reicprocal gamma function.
-    :cvar BESSELCLIFFORD: Bessel-Clifford function.
-    :cvar BETA: Beta function.
-    :cvar CENTRALBETA: Central beta function.
-    :cvar SINC: Sinc function.
-    :cvar TANC: Tanc function.
-    :cvar SINHC: Sinhc function.
-    :cvar COSHC: Coshc function.
-    :cvar TANHC: Tanhc function.
-    :cvar DIRICHLETKERNEL: Dirichlet kernel.
-    :cvar FEJERKERNEL: Fejer kernel.
-    :cvar TOPOLOGISTSIN: Topologist's sine function.
-    :cvar LOG: Log function.
-    :cvar EXP: Exponential function.
-    :cvar SQRT: Square root function.
-    """
-    SIN = auto()
-    COS = auto()
-    TAN = auto()
-    CSC = auto()
-    SEC = auto()
-    COT = auto()
-    ASIN = auto()
-    ACOS = auto()
-    ATAN = auto()
-    ACSC = auto()
-    ASEC = auto()
-    ACOT = auto()
-    SINH = auto()
-    COSH = auto()
-    TANH = auto()
-    CSCH = auto()
-    SECH = auto()
-    COTH = auto()
-    ASINH = auto()
-    ACOSH = auto()
-    ATANH = auto()
-    ACSCH = auto()
-    ASECH = auto()
-    ACOTH = auto()
-    ERF = auto()
-    ERFC = auto()
-    GAMMA = auto()
-    LGAMMA = auto()
-    RECIGAMMA = auto()
-    BESSELCLIFFORD = auto()
-    BETA = auto()
-    CENTRALBETA = auto()
-    SINC = auto()
-    TANC = auto()
-    SINHC = auto()
-    COSHC = auto()
-    TANHC = auto()
-    DIRICHLETKERNEL = auto()
-    FEJERKERNEL = auto()
-    TOPOLOGISTSIN = auto()
-    LOG = auto()
-    LOG2 = auto()
-    LOG10 = auto()
-    POW = auto()
-    EXP = auto()
-    SQRT = auto()
-
-    def __str__(self) -> str:
-        return self.name
-
-
-@final
-class ConstT(Enum):
+class Const(Enum):
     """
     Constant types.
 
-    :cvar PI: Pi.
+    Constant are approximated with 80 significant digits.
+    For definition or details on each function consult the references below.
+
+    **Reference**
+        * https://en.wikipedia.org/wiki/Pi
+        * https://en.wikipedia.org/wiki/E_(mathematical_constant)
+        * https://en.wikipedia.org/wiki/Euler–Mascheroni_constant
+        * https://en.wikipedia.org/wiki/Golden_ratio
+        * https://en.wikipedia.org/wiki/Golden_angle
+        * https://en.wikipedia.org/wiki/Catalan%27s_constant
+        * https://en.wikipedia.org/wiki/Glaisher–Kinkelin_constant
+        * https://en.wikipedia.org/wiki/Khinchin%27s_constant
+        * https://docs.python.org/3/library/sys.html
+
+    :cvar Pi: Pi.
     :cvar E: Base of natural logarithm.
-    :cvar E_GAMMA: Euler's gamma.
-    :cvar PHI: Golden ratio.
-    :cvar EPS: Machine epsilon for floating point number.
-    :cvar MAX: Largest floating point number.
-    :cvar MIN: Minimum floating point number.
+    :cvar Degree: Conversion factor from degree to radian. (pi / 180)
+    :cvar EulerGamma: Euler–Mascheroni constant.
+    :cvar GoldenRatio: Golden ratio.
+    :cvar GoldenAngle: Golden angle.
+    :cvar Catalan: Catalan's constant.
+    :cvar Glaisher: Glaisher's constant.
+    :cvar Khinchin: Khinchin's constant.
+    :cvar Eps: Machine epsilon for floating point number.
+    :cvar FloatMax: Largest expressible floating point number.
+    :cvar FloatMin: Smallest expressible floating point number.
     """
-    PI: float = math.pi
-    E: float = math.e
-    E_GAMMA: float = 0.57721566490153286060651209008240243104215933593992359880576723488486772677766467
-    PHI: float = 1.61803398874989484820458683436563811772030917980576286213544862270526046281890244
-    EPS: float = sys.float_info.epsilon
-    MAX: float = sys.float_info.max
-    MIN: float = sys.float_info.min
 
-    def __str__(self) -> str:
-        return self.name
-
-
-@final
-class DelimT(Enum):
-    """
-    Delimiter types.
-
-    :cvar START: Opening bracket.
-    :cvar END: Closing bracket.
-    :cvar CONT: Comma.
-    """
-    START = auto()
-    END = auto()
-    CONT = auto()
-
-    def __str__(self) -> str:
-        return self.name
-
-
-@final
-class CmdT(Enum):
-    """
-    Command types.
-
-    :cvar QUIT: Quit command.
-    :cvar HELP: Help command.
-    :cvar GET_SYS_VAR: Get system variable command.
-    :cvar SET_SYS_VAR: Set system variable command.
-    :cvar SLEEP: Sleep command. (For debugging)
-    """
-    QUIT = auto()
-    HELP = auto()
-    GET_SYS_VAR = auto()
-    SET_SYS_VAR = auto()
-    SLEEP = auto()
+    Pi: float = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862090
+    E: float = 2.7182818284590452353602874713526624977572470936999595749669676277240766303535476
+    Degree: float = 0.017453292519943295769236907684886127134428718885417254560971914401710091146034494
+    EulerGamma: float = 0.57721566490153286060651209008240243104215933593992359880576723488486772677766467
+    GoldenRatio: float = 1.6180339887498948482045868343656381177203091798057628621354486227052604628189024
+    GoldenAngle: float = 2.3999632297286533222315555066336138531249990110581150429351127507313073382394388
+    Catalan: float = 0.91596559417721901505460351493238411077414937428167213426649811962176301977625477
+    Glaisher: float = 1.2824271291006226368753425688697917277676889273250011920637400217404063088588265
+    Khinchin: float = 2.6854520010653064453097148354817956938203822939944629530511523455572188595371520
+    Eps: float = sys.float_info.epsilon
+    FloatMax: float = sys.float_info.max
+    FloatMin: float = sys.float_info.min
+    End: float = 0
 
     def __str__(self) -> str:
         return self.name
@@ -278,23 +85,6 @@ class Col(Enum):
 
 
 @final
-class T(Enum):
-    """
-    Types for type checking and system variable.
-
-    :cvar NUM: Numeric type.
-    :cvar STR: String type.
-    :cvar TER: Terminal type.
-    """
-    NUM = auto()
-    STR = auto()
-    TER = auto()
-
-    def __str__(self) -> str:
-        return self.name
-
-
-@final
 class SysErrT(Enum):
     """
     System error types.
@@ -318,32 +108,6 @@ class DBErrT(Enum):
     """
     OPEN_ERR = auto()
     CLOSE_ERR = auto()
-
-
-@final
-class ParserErrT(Enum):
-    """
-    Parser error type.
-
-    :cvar EMPTY_EXPR: Expression is empty.
-    :cvar INVALID_TOK: Unknown token is encountered.
-    :cvar INVALID_EXPR: Expression has syntax error.
-    """
-    EMPTY_EXPR = auto()
-    INVALID_TOK = auto()
-    INVALID_EXPR = auto()
-
-
-@final
-class InterpErrT(Enum):
-    """
-    Interpreter error type.
-
-    :cvar T_MISMATCH: Type is not matched.
-    :cvar SIGN_MISMATCH: Inferred signature is not found in candidates.
-    """
-    T_MISMATCH = auto()
-    SIGN_MISMATCH = auto()
 
 
 @final
@@ -407,98 +171,6 @@ class TestSzT(Enum):
     SMALL = auto()
     MEDIUM = auto()
     LARGE = auto()
-
-
-@final
-class Sign:
-    """
-    Signature class for type checking.
-
-    :ivar __param_t: Parameter types.
-    :ivar __ret_t: Return type.
-    :ivar __handle: Handle of function or command.
-    """
-
-    def __init__(self, param_t: List[T], ret_t: T, handle: Union[FunT, CmdT]) -> None:
-        self.__param_t: List[T] = param_t
-        self.__ret_t: T = ret_t
-        self.__handle: Union[FunT, CmdT] = handle
-
-    def __del__(self) -> None:
-        pass
-
-    def __eq__(self, other) -> bool:
-        return self.__param_t == other.param_t and self.__ret_t == other.ret_t and self.__handle == other.handle
-
-    def __str__(self) -> str:
-        return f'{self.__ret_t} {str(self.__handle).capitalize()}[' + ', '.join([str(t) for t in self.__param_t]) + ']'
-
-    @property
-    def param_t(self) -> List[T]:
-        """
-        Getter for parameter types.
-
-        :return: Parameter types.
-        :rtype: List[T]
-        """
-        return self.__param_t
-
-    @property
-    def ret_t(self) -> T:
-        """
-        Getter for return type.
-
-        :return: Return type.
-        :rtype: T
-        """
-        return self.__ret_t
-
-    @property
-    def handle(self) -> Union[FunT, CmdT]:
-        """
-        Getter for function or command handle.
-
-        :return: Function or command handle.
-        :rtype: Union[FunType, CmdType]
-        """
-        return self.__handle
-
-
-@final
-class HandleSrc:
-    """
-    Handle source class for handle registration.
-
-    :ivar __enum: Enumeration class of handle.
-    :ivar __brief: Brief description of handle.
-    """
-
-    def __init__(self, enum: Enum, brief: str) -> None:
-        self.__enum: Enum = enum
-        self.__brief: str = brief
-
-    def __del__(self) -> None:
-        pass
-
-    @property
-    def enum(self) -> Enum:
-        """
-        Getter for enumeration class of handle.
-
-        :return: Enumeration class of handle.
-        :rtype: Enum
-        """
-        return self.__enum
-
-    @property
-    def brief(self) -> str:
-        """
-        Getter for brief description of handle.
-
-        :return: Brief description.
-        :rtype: str
-        """
-        return self.__brief
 
 
 @final
@@ -633,9 +305,8 @@ class SysVar:
     :ivar __rd_only: Read only flag. (Default: True)
     """
 
-    def __init__(self, v: Union[str, int], t: T, rd_only: bool = True) -> None:
+    def __init__(self, v: Union[str, int], rd_only: bool = True) -> None:
         self.__v: Union[str, int] = v
-        self.__t: T = t
         self.__rd_only: bool = rd_only
 
     def __del__(self) -> None:
@@ -650,16 +321,6 @@ class SysVar:
         :rtype: Union[str, int]
         """
         return self.__v
-
-    @property
-    def t(self) -> T:
-        """
-        Getter for system variable type.
-
-        :return: System variable type.
-        :rtype: T
-        """
-        return self.__t
 
     @property
     def rd_only(self) -> bool:

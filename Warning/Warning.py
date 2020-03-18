@@ -2,20 +2,23 @@ from typing import final, Dict, Any
 
 from Core import Type
 
-
 class Warn:
-    """
-    Base error class.
+    def __init__(self, warnno: int) -> None:
+        self.__warnno: int = warnno
 
-    Do not remove this.
-    This is used to express all user-defined warnings at once.
-    """
+    @property
+    def warnno(self) -> int:
+        return self.__warnno
 
-    def __init__(self) -> None:
-        pass
 
-    def __del__(self) -> None:
-        pass
+class ParserWarn(Warn):
+    def __init__(self, warnno: int, pos: int) -> None:
+        super().__init__(warnno)
+        self.__pos: int = pos
+
+    @property
+    def pos(self) -> int:
+        return self.__pos
 
 
 @final
@@ -86,6 +89,7 @@ class UtilWarn(Warn):
     :ivar __warn_t: Warning type.
     :ivar __warn_no: Warning code.
     """
+
     def __init__(self, warn_t: Type.UtilWarnT, warn_no: int) -> None:
         super().__init__()
         self.__warn_t: Type.UtilWarnT = warn_t

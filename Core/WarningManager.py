@@ -1,7 +1,9 @@
 from typing import List, final
 
-from Core import Type, DB, Warning
+from Core import Type, DB
+from Warning import Warning
 from Util import Printer
+from Warning import *
 
 
 @final
@@ -28,6 +30,33 @@ class WarnManager:
 
     def __del__(self) -> None:
         pass
+
+    def __handle_parser_warn(self, warn: Warning.ParserWarn) -> None:
+        """
+        Handler for warning from parser module.
+
+        It handles following warnings according to following forms.
+            * BIG_INT
+                [Parser] WARNING: {warning message} (It contains the position of parsed integer which is too big)
+            * OVERFLOW
+                [Parser] WARNING: {warning message} (It contains the position of parsed float which caused overflow)
+        For detailed information of each warning, refer to the comments of ``ParserWarnT``.
+
+        This method is private and called internally as a helper of ``WarnManager.handle_warn``.
+        For detailed description for warning handling, refer to the comments of ``WarnManager.handle_warn``.
+
+        :param warn: Parser warning to be handled.
+        :type warn: Warning.ParserWarn
+        """
+        buf: Type.BufT = Type.BufT.STDWARN  # Target buffer.
+        mark = Printer.Printer.inst().f_col('WARNING', Type.Col.BLUE)  # Warning mark.
+
+        if warn.warnno in [58, 59]:
+            msg: str = DB.DB.inst().get_warn_msg(warn.warnno - 1).replace('$1', str(warn.pos))  # Warning message.
+
+        Printer.Printer.inst().buf(f'[{self.__cnt}] [Parser] {mark}: {msg}', buf)
+        Printer.Printer.inst().buf_newline(buf)
+        self.__cnt += 1
 
     def __handle_interp_warn(self, warn: Warning.InterpWarn) -> None:
         """
@@ -142,7 +171,11 @@ class WarnManager:
         :param warn: Warning to be handled.
         :type warn: Warning.Warn
         """
-        if isinstance(warn, Warning.InterpWarn):
+        warn_t: type = type(warn).__base__
+
+        if warn_t == Warning.ParserWarn:
+            self.__handle_parser_warn(warn)
+        elif isinstance(warn, Warning.InterpWarn):
             self.__handle_interp_warn(warn)
         else:
             self.__handle_util_warn(warn)

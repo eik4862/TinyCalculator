@@ -1,47 +1,35 @@
-from sys import maxsize
-from typing import List, Tuple, final, Union
+from __future__ import annotations
 
-from Core import Type, AST
+from typing import List, final, Union, Any, Dict
+
+from Core import AST, TypeSystem, TypeChecker
+from Function import *
+from Operator import *
 
 
 class Tok:
     """
     Token class.
 
-    :ivar __tok_t: Token type.
     :ivar __v: Value of token. (Default: None)
     :ivar __pos: Position in the raw input string where token is derived. (Default: None)
-    :ivar __t: Type information for type checking.
     """
 
-    def __init__(self, tok_t: Type.TokT, v: Union[float, int, str, Type.OpT, Type.CmdT, Type.DelimT, Type.FunT] = None,
+    def __init__(self, v: Union[int, float, complex, str, bool, Operator.Op, Function.Fun] = None,
                  pos: int = None) -> None:
-        self.__tok_t: Type.TokT = tok_t
-        self.__v: Union[float, int, str, Type.OpT, Type.CmdT, Type.DelimT, Type.FunT] = v
+        self.__v: Union[int, float, complex, str, bool, Operator.Op, Function.Fun] = v
         self.__pos: int = pos
-        self.__t: Type.T = None
-
-    def __del__(self) -> None:
-        pass
+        self.__t: TypeSystem.T = None
+        self.__t_var: TypeChecker.TVar = None
 
     @property
-    def tok_t(self) -> Type.TokT:
-        """
-        Getter for token type.
-
-        :return: Token type.
-        :rtype: Type.TokT
-        """
-        return self.__tok_t
-
-    @property
-    def v(self) -> Union[float, int, str, Type.OpT, Type.CmdT, Type.DelimT]:
+    def v(self) -> Union[int, float, complex, str, bool, Operator.Op, Function.Fun]:
         """
         Getter for the value of token.
-        Value of void token is `none`.
+        Value of void token is ``none``.
 
         :return: Token value.
-        :rtype: Union[float, int, str, Type.OpType, Type.CmdType, Type.DelimType]
+        :rtype: Union[int, float, complex, str, bool, Operator.Op, Function.Fun]
         """
         return self.__v
 
@@ -56,90 +44,78 @@ class Tok:
         return self.__pos
 
     @property
-    def t(self) -> Type.T:
-        """
-        Getter for type information for type checking.
-
-        :return: Type information.
-        :rtype: Type.T
-        """
+    def t(self) -> TypeSystem.T:
         return self.__t
 
+    @property
+    def t_var(self) -> TypeChecker.TVar:
+        return self.__t_var
+
     @v.setter
-    def v(self, v: Union[float, int, str, Type.OpT, Type.CmdT, Type.DelimT]) -> None:
+    def v(self, v: Union[int, float, complex, str, bool, Operator.Op, Function.Fun]) -> None:
         """
         Setter for token value.
 
         :param v: Token value to be set.
-        :type v: Union[float, int, str, Type.OpType, Type.CmdType, Type.DelimType]
+        :type v: Union[int, float, complex, str, bool, Operator.Op, Function.Fun]
         """
         self.__v = v
 
     @t.setter
-    def t(self, type: Type.T) -> None:
-        """
-        Setter for type information.
+    def t(self, t: TypeSystem.T) -> None:
+        self.__t = t
 
-        :param type: Type information to be set.
-        :type type: Type.T
-        """
-        self.__t = type
+    @t_var.setter
+    def t_var(self, t_var: TypeChecker.TVar) -> None:
+        self.__t_var = t_var
+
+    def v_str(self) -> str:
+        return str(self.__v)
 
 
 @final
-class NumTok(Tok):
+class Num(Tok):
     """
     Numeric token class.
     """
 
-    def __init__(self, v: float, pos: int = None) -> None:
-        super().__init__(Type.TokT.NUM, v, pos)
-
-    def __del__(self) -> None:
-        pass
+    def __init__(self, v: Union[int, float, complex], pos: int = None) -> None:
+        super().__init__(v, pos)
 
 
 @final
-class OpTok(Tok):
+class Op(Tok):
     """
     Operator token class.
 
     :ivar __chd: List of children tokens.
-    :ivar __precd: Tuple of inner and outer precedence.
+    :ivar __argc: # of operands.
     """
 
-    def __init__(self, v: Type.OpT, pos: int = None) -> None:
-        super().__init__(Type.TokT.OP, v, pos)
+    def __init__(self, v: Operator.Op, pos: int = None) -> None:
+        super().__init__(v, pos)
         self.__chd: List[Tok] = []
-
-        # DO NOT MODIFY!
-        # These precedences are delicately chosen so that it accounts for precedence and association rules b/w
-        # operators.
-        if v in [Type.OpT.ADD, Type.OpT.SUB]:
-            self.__precd: Tuple[int, int] = (2, 1)
-        elif v in [Type.OpT.MUL, Type.OpT.DIV, Type.OpT.REM]:
-            self.__precd: Tuple[int, int] = (4, 3)
-        elif v == Type.OpT.POW:
-            self.__precd: Tuple[int, int] = (5, 6)
-        elif v == Type.OpT.FACT:
-            self.__precd: Tuple[int, int] = (7, 8)
-        elif v in [Type.OpT.LPAR, Type.OpT.RPAR]:
-            self.__precd: Tuple[int, int] = (0, maxsize)
-        else:
-            self.__precd: Tuple[int, int] = (9, 10)
-
-    def __del__(self) -> None:
-        pass
+        self.__argc: int = v.argc()
 
     @property
-    def precd(self) -> Tuple[int, int]:
+    def precd_in(self) -> int:
         """
-        Getter for precedence information.
+        Getter for inner precedence.
 
-        :return: Precedence information.
-        :rtype: Tuple[int, int]
+        :return: Inner precedence.
+        :rtype: int
         """
-        return self.__precd
+        return super().v.precd_in()
+
+    @property
+    def precd_out(self) -> int:
+        """
+       Getter for outer precedence.
+
+       :return: Outer precedence.
+       :rtype: int
+       """
+        return super().v.precd_out()
 
     @property
     def chd(self) -> List[Tok]:
@@ -151,41 +127,43 @@ class OpTok(Tok):
         """
         return self.__chd
 
+    @property
+    def argc(self) -> int:
+        """
+        Getter for operand #.
+
+        :return: Operand #.
+        :rtype: int
+        """
+        return self.__argc
+
     @Tok.v.setter
-    def v(self, v: Type.OpT) -> None:
-        """
-        Setter for token value.
-        It automatically update precedence information for new value.
-
-        This method overrides the `Token.val` setter in base class.
-
-        :param v: Value of token to be set.
-        :type v: Type.OpT
-        """
+    def v(self, v: Operator.Op) -> None:
         Tok.v.fset(self, v)
-
-        if v in [Type.OpT.ADD, Type.OpT.SUB]:
-            self.__precd = (2, 1)
-        elif v in [Type.OpT.MUL, Type.OpT.DIV, Type.OpT.REM]:
-            self.__precd = (4, 3)
-        elif v == Type.OpT.POW:
-            self.__precd = (5, 6)
-        elif v == Type.OpT.FACT:
-            self.__precd = (7, 8)
-        elif v in [Type.OpT.LPAR, Type.OpT.RPAR]:
-            self.__precd = (0, maxsize)
-        else:
-            self.__precd = (9, 10)
+        self.__argc: int = v.argc()
 
     @chd.setter
-    def chd(self, child: List[Tok]) -> None:
+    def chd(self, chd: List[Tok]) -> None:
         """
         Setter for child list.
 
-        :param child: Child list to be set.
+        :param chd: Child list to be set.
         :type: List[Token]
         """
-        self.__chd = child
+        self.__chd = chd
+
+    @argc.setter
+    def argc(self, argc: int) -> None:
+        """
+        Setter for operand #.
+
+        :param argc: The # of operand to be set.
+        :type argc: int
+        """
+        self.__argc = argc
+
+    def v_str(self) -> str:
+        return super().v.__name__.upper()
 
     def add_chd(self, tok: Tok) -> None:
         """
@@ -217,60 +195,55 @@ class OpTok(Tok):
         del self.__chd[idx]
 
 
-class VarTok(Tok):
+@final
+class Var(Tok):
     """
     Variable token class.
     """
 
     def __init__(self, v: int, pos: int = None) -> None:
-        super().__init__(Type.TokT.VAR, v, pos)
+        super().__init__(v, pos)
 
     def __del__(self) -> None:
         pass
 
-    @property
-    def v(self) -> str:
-        """
-        Getter for the value of token.
-
-        Note that variable token stores hashed value of variable, not variable itself for optimization.
-        Thus it first look up hash table to restore original value.
-
-        This method overrides the `Token.val` setter in base class.
-
-        :return: Token value.
-        :rtype: str
-        """
-        return AST.AST.find_var(super().v)
+    def v_str(self) -> str:
+        return AST.AST.var_name(super().v)
 
 
-class FunTok(Tok):
+@final
+class Fun(Tok):
     """
     Function token class.
 
     :ivar __chd: Child list.
-    :ivar __precd: Precedence information.
     :ivar __argc: # of arguments.
     """
 
-    def __init__(self, v: Type.FunT, pos: int = None) -> None:
-        super().__init__(Type.TokT.FUN, v, pos)
+    def __init__(self, v: Function.Fun, pos: int = None) -> None:
+        super().__init__(v, pos)
         self.__chd: List[Tok] = []
-        self.__precd: Tuple[int, int] = (0, maxsize)
         self.__argc: int = 0
 
-    def __del__(self) -> None:
-        pass
+    @property
+    def precd_in(self) -> int:
+        """
+        Getter for inner precedence.
+
+        :return: Inner precedence.
+        :rtype: int
+        """
+        return super().v.precd_in()
 
     @property
-    def precd(self) -> Tuple[int, int]:
+    def precd_out(self) -> int:
         """
-        Getter for precedence information.
+       Getter for outer precedence.
 
-        :return: Precedence information.
-        :rtype: Tuple[int, int]
-        """
-        return self.__precd
+       :return: Outer precedence.
+       :rtype: int
+       """
+        return super().v.precd_out()
 
     @property
     def argc(self) -> int:
@@ -292,6 +265,9 @@ class FunTok(Tok):
         """
         return self.__chd
 
+    def v_str(self) -> str:
+        return super().v.__name__
+
     @argc.setter
     def argc(self, argc: int) -> None:
         """
@@ -303,14 +279,14 @@ class FunTok(Tok):
         self.__argc = argc
 
     @chd.setter
-    def chd(self, child: List[Tok]) -> None:
+    def chd(self, chd: List[Tok]) -> None:
         """
         Setter for child list.
 
-        :param child: Child list to be set.
+        :param chd: Child list to be set.
         :type: List[Token]
         """
-        self.__chd = child
+        self.__chd = chd
 
     def add_chd(self, tok: Tok) -> None:
         """
@@ -333,65 +309,67 @@ class FunTok(Tok):
         self.__chd[idx] = tok
 
 
-class DelimTok(Tok):
+@final
+class Str(Tok):
     """
-    Delimiter token class.
-
-    :ivar __precd: Precedence information.
+    String token class.
     """
 
-    def __init__(self, v: Type.DelimT, pos: int = None) -> None:
-        super().__init__(Type.TokT.DELIM, v, pos)
-        self.__precd: Tuple[int, int] = (0, maxsize)
+    def __init__(self, v: str, pos: int = None) -> None:
+        super().__init__(v, pos)
 
-    def __del__(self) -> None:
-        pass
+    def v_str(self) -> str:
+        v: str = super().v
+        buf: str = '"'  # Buffer for unescaped string.
+        i: int = 0
 
-    @property
-    def precd(self) -> Tuple[int, int]:
-        """
-        Getter for precedence information.
+        while i < len(v):
+            if v[i] == '\\':
+                buf += '\\\\'
+            elif v[i] == '\n':
+                buf += '\\n'
+            elif v[i] == '\t':
+                buf += '\\t'
+            elif v[i] == '"':
+                buf += '\\"'
+            else:
+                buf += v[i]
 
-        :return: Precedence information.
-        :rtype: Tuple[int, int]
-        """
-        return self.__precd
+            i += 1
+
+        return buf + '"'
 
 
-class CmdTok(Tok):
+@final
+class Bool(Tok):
     """
-    Command token class.
+    Boolean token class.
+    """
+
+    def __init__(self, v: bool, pos: int = None) -> None:
+        super().__init__(v, pos)
+
+
+@final
+class List(Tok):
+    """
+    List token class.
 
     :ivar __chd: Child list.
-    :ivar __precd: Precedence information.
-    :ivar __argc: # of arguments.
+    :ivar __argc: # of items.
     """
 
-    def __init__(self, v: Type.CmdT, pos: int = None) -> None:
-        super().__init__(Type.TokT.CMD, v, pos)
+    def __init__(self, pos: int = None, argc: int = 0) -> None:
+        super().__init__(pos=pos)
         self.__chd: List[Tok] = []
-        self.__precd: Tuple[int, int] = (0, maxsize)
-        self.__argc: int = 0
-
-    def __del__(self) -> None:
-        pass
-
-    @property
-    def precd(self) -> Tuple[int, int]:
-        """
-        Getter for precedence information.
-
-        :return: Precedence information.
-        :rtype: Tuple[int, int]
-        """
-        return self.__precd
+        self.__argc: int = argc
 
     @property
     def argc(self) -> int:
         """
-        Getter for argument #.
+        Getter for the # of items.
 
-        :return: Argument #.
+        :return: # of items.
         :rtype: int
         """
         return self.__argc
@@ -399,32 +377,12 @@ class CmdTok(Tok):
     @property
     def chd(self) -> List[Tok]:
         """
-         Getter for child list.
+        Getter for child list.
 
-         :return: Child list.
-         :rtype: List[Tok]
-         """
+        :return: Child list.
+        :rtype: List[Tok]
+        """
         return self.__chd
-
-    @argc.setter
-    def argc(self, argc: int) -> None:
-        """
-        Setter for argument #.
-
-        :param argc: The # of arguments to be set.
-        :type argc: int
-        """
-        self.__argc = argc
-
-    @chd.setter
-    def chd(self, child: List[Tok]) -> None:
-        """
-        Setter for child list.
-
-        :param child: Child list to be set.
-        :type: List[Token]
-        """
-        self.__chd = child
 
     def add_chd(self, tok: Tok) -> None:
         """
@@ -435,37 +393,27 @@ class CmdTok(Tok):
         """
         self.__chd.append(tok)
 
-    def swap_chd(self, tok: Tok, idx: int) -> None:
-        """
-        Replace child at specific position in child list.
 
-        :param tok: New token to be replaced with.
-        :type tok: Tok
-        :param idx: Position in child list to be replaced.
-        :type idx: int
-        """
-        self.__chd[idx] = tok
-
-
-class StrTok(Tok):
-    """
-    String token class.
-    """
-
-    def __init__(self, v: str, pos: int = None) -> None:
-        super().__init__(Type.TokT.STR, v, pos)
-
-    def __del__(self) -> None:
-        pass
-
-
-class VoidTok(Tok):
+@final
+class Void(Tok):
     """
     Void token class.
     """
 
-    def __init__(self, pos: int = None) -> None:
-        super().__init__(Type.TokT.VOID, pos=pos)
+    def __init__(self) -> None:
+        super().__init__()
 
-    def __del__(self) -> None:
-        pass
+    def v_str(self) -> str:
+        return ''
+
+
+@final
+class Ter(Tok):
+    """
+    Terminal token class.
+
+    This class is only used as temporarily to check the terminal condition of expression.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
